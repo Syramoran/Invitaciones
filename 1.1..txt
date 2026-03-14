@@ -1,0 +1,193 @@
+1.1.
+a) Mi plataforma es un sitio web landing page para solicitar el desarrollo de una invitación web donde la persona puede seleccionar entre plantillas de invitaciones a eventos, agregar o quitar servicios de la plantilla y ver los precios. Es para personas que necesiten una invitación digital y decidir entre opciones económicas o más caras pero más completas.
+b) Mi objetivo es ganar aprox 500.000 pesos al mes de ingresos semipasivos.
+c) quisiera llegar a vender 3 invitaciones por semana.
+
+1.2
+a y b) Mi usuario principal son: quinceañeras o padres de quinceañeras, personas a punto de casarse, organizadores de eventos o de recursos humanos de la empresa. Básicamente una persona mayor de edad que esté organizando un evento. 
+c y d) Inicialmente debería llegar solamente a argentina, zona litoral y centro.
+
+1.3
+a) Planeo tener el MPV en una semana y media, para el 18 de marzo del 2026.
+b) el modelo de negocio es cobrar por invitación, y si se solicita dos versiones de la misma invitación ofrecer un descuento del 50%
+c) Al principio no planeo competir en software, sino que quiero ofrecer un servicio accesible y servicios que no requieran tanta estructura, base de datos, autenticación etc. 
+
+2.
+2.1
+a) será una aplicación propietaria
+b) la idea es evitar integrar pagos en la web, solo habrá formulario de contacto y acceso a whatsapp a través de wa.me/
+c) deseo que sea principalmente frontend pero deberá haber un backend para la confirmación de invitados por ejemplo.
+
+2.2 
+a) Los templates tendrán las mismas características pero diferente estética.
+b) El usuario no puede modificar el diseño a menos que solicite un diseño personalizado que tendrá mayor costo, el usuario si puede modificar los servicios que tiene la invitación (quitar y agregar de la lista de servicios)
+c) El nivel máximo aceptado es modificar los colores y por supuesto enviarme sus fotos para poner sus fotos en los placeholders.
+
+2.3
+confirmación:
+a) No es obligatoria la confirmación de asistencia
+b) el plazo límite lo define el cliente
+c) el invitado no puede invitar acompañantes a través de la tarjeta virtual.
+d) no se registran dietas especiales.
+
+Diferentes tarjetas:
+a) me gustaría iniciar con un mínimo de 5 diseños por template.
+Con dfierentes tarjetas me refiero a que una misma tarjeta puede tener dos versiones de horario para invitar a la persona a un trasncohe por ejemplo luego de las 12, o a la cena a las 9.
+
+cuenta regresiva:
+a) la cuenta regresiva debe ser desde el momento actual del dispositivo hasta el día del evento al horario del evento.
+c)  muestra días, horas, minutos y segundos.
+d) cuando la cuenta llega a cero debe mostrar un mensaje de ya es hora!
+
+
+Mapa con ubicación:
+a) debería ser google maps o algún servicio de mapas que permita personalizar el mapa, pero al abrirlo que abra google maps.
+b) debe mostrar el mapa completo como google maps pero tener un pin en el lugar del evento.
+c) se debería poder copiar el enlace de la ubicación
+d) no se si necesito autenticación de API, creo que no.
+
+Album de fotos qr:
+a) el qr abre un link, debe ser una sección del mismo sitio web.
+b) cada invitado debería poder subir sus propias fotos.
+c) las fotos se deberían almacenar en algún servidor, el servidor debe ser global para todas las invitaciones que haga y se pueda separar en carpetas o rutas para cada invitación individual. Debe haber un botón que permita descargar todas las fotos porque luego de 3 meses la pagina web se borra,
+d) el límite de fotos puede ser de 1000 fotos y limite de tamaño unos 200 mb por archivo.
+e) no me decido por que es mejor opción, si tener cuenta para subir las fotos o no, o si autenticar con google, o una contraseña que tengan solo los invitados al evento.
+
+Música:
+a) solamente una canción
+b) el usuario elige su propia musica
+c) no se debería necesitar licencia de música.
+d) se reproduce automáticamente pero se puede pausar fácilmente.
+e) soporta solo mp3
+
+historia:
+a) el contenido que va es solo texto y fotos.
+b) es una template, el anfitrión me mandará toda la info en un formulario de google. luego yo personalmente paso esa información a un panel de administración donde tenga los campos para rellenar y mis propias templates para seleccionar, se creará la web automáticamente y me retornará la url para pasarla al cliente.
+c) en lo preferible máximo 3000 caracteres.
+
+nombre personalizado.
+La invitación es sin nombre, pero si se pasa el nombre del invitado fácilmente por la url el anfitrión puede agregar el nombre a la invitación. ejemplo url/.. invitado=john-doe
+entonces el anfitrión envía ese enlace.
+Si hay alguna forma de automatizar esto para que el anfitrión no deba mandar uno por uno con el nombre sugerimelo.
+
+Lista de asistentes
+a) solo el anfitrión debería ver, en una ruta aparte con contraseña, los asistentes que confirmaron de solamente las invitaciones que tienen nombre personalizado en la url.
+c) se incluyen pendientes, se puede contabilizar los pendientes y los confirmados.
+
+Información del evento
+a) necesito tu ayuda para que me anotes los datos más importantes que puede llegar a tener un evento, facilitar la opción de agregar datos nuevos si la persona requiere una invitación personalizada.
+b) el formato de vista depende del diseño
+c) debería poder ser editable después de crear la invitación
+
+Panel de administración
+El panel de administración es de mi acceso, allí tengo todos los campos posibles para crear una invitación sin tener que programar.
+Puedo agregar y quitar secciones, completar con la info del evento, agregar los archivos de fotos, establecer límites, elegir entre las plantillas.
+Agrega lo que consideres necesario, la idea es que del panel yo pueda crear todas las invitaciones que son de templates sin tener que tocar código, solo completando la info.
+los accesos solo deben ser de administrador.
+en los reportes puedo ver la cantidad de invitaciones activas y en cuanto tiempo es el evento y en cuanto tiempo caducan, asimismo puedo editar la info de invitaciones existentes y ver listas de invitados.
+
+3.1
+a) el flujo del cliente sería entrar a la web y poder ver por evento todas las templates, elegir una y agregar o quitar partes, se le va a mostrar un mockup de como se vería una invitación falsa con todas las opciones que elija y un precio dinámico a medida que agrega o quita cosas, una vez conforme apreta para hacer el pedido y me llega por correo para comunicarme con el cliente y mandarle el formulario por whatsapp para pedirle los datos y fotos. Ahí la parte del cliente termina y me toca a mi pasar esos datos manualmente a mi panel de administración para crear la invitación y mandarle luego al cliente el enlace de la invitación con las instrucciones de uso.
+b) no se guardan borradores por lo que no hay sesión.
+
+3.2
+a) los contactos se importan pidiéndole al cliente que me mande de alguna forma que le parezca comoda una lista de texto con todos los invitados y la cantidad total, eso puedo pasarlo por una IA que me haga un csv manualmente.
+b) la invitación debería ser solo mandando el link por cualquier medio y puede ir acompañado de una imagen que siga la estética de la tarjeta.
+c) no se rastrea quién abrió la invitación, pero cuando una invitación que tiene nombre personalizado apreta el botón de confirmar se confirma bajo ese nombre.
+d) puede existir la opción de agregar evento a tu google calendar, ahí queda en la persona si quiere ativar las notificaciones o no.
+
+3.3
+las redes sociales no son para las tarjetas de los eventos, son para publicitar mi negocio de vender las tarjetas, de eso no nos preocupemos ahora.
+
+3.5
+El descuento del 50% lo hablo con el cliente por privado, debería tener un botón cuando está eligiendo los servicios de poner que quiere hacer dos versiones de la tarjeta, luego yo lo hablo personalmente.
+
+3.6
+el idioma principal es español, decidí que en un principio no será multilenguaje. 
+
+3.7
+los modelos ya no van a ser definidos, van a ser dinámicos dependiendo de que servicios elija el cliente y cuanto le de el bolsillo viendo el presupuesto final de lo que eligió.
+
+4.
+4.1
+El tiempo máximo de carga aceptable es de 5 segundos.
+se espera al rededor de 2000 personas siendo invitadas por mes, no se si entrarán todas concurrentemente pero por lo menos debería estar cubierta la posibilidad de que pase. 
+no veo por que necesitaría guardar caché. si una persona confirma dos veces en la lista de usuarios la confirmación no debería alterarse, debe tomarse en cuenta solo la primera vez.
+
+4.2 
+si necesito backup automático semanalmente
+si el servidor cae debería mostrarse un mensaje de aviso de que la plataforma esta presentando problemas por cuestiones externas, se debería poder ver la invitación pero no interactuar.
+
+4.3 
+a) lo ideal sería que no requiera autenticación, y si lo requiere que sea en casos extremadamente necesarios con alguna contraseña que se proporcione en el evento o por medio de google auth.
+b) no se necesita autenticación de dos factores
+c) Los datos no deberían estar encriptados porque no debe haber información privada
+d) necesito que controles cuales son las regulaciones en mi país.
+e) los datos se retienen por 3 meses luego del evento y no van a ser con fines de uso maliciosos ni externos al uso de la invitación
+f) las invitaciones son públicas pero la url debe ser de alguna manera única para que sea un poco mas seguro.
+
+4.4 
+a) no espero mucha más escalabilidad porque 3 por semana es una cantidad máxima de clientes que puedo gestionar.
+b) no debe soportar más de 20 invitaciones al mismo tiempo.
+c) con una sola base de datos es suficiente.
+
+4.5 
+a) debería asegurarse de que funciona en la mayoría de navegadores
+b) debe tener diseño responsive mobile first
+c) es solo web.
+d) no tiene soporte para navegadores antiguos.
+
+4.6
+a) debe ser accesible para personas con lectores de pantalla 
+b) debe ser extremadamente fácil de usar
+c) no necesita tutorial
+
+4.7
+a) el stack debe ser react, typescript, nestjs 
+b) debe tener documentación para el entendimiento del código, lo copartiré públicamente en mi GitHub
+
+5.1
+a) lo ideal es que el gasto de infraestructura no sea mayor a 80 mil pesos mensuales.
+b) infraestructura en cloud
+los limites dependen del plan que me pueda permitir
+
+5.2
+a) necesito términos y políticas
+b) necesito regulaciones de datos personales
+c) no necesito aviso de cookies
+d) no necesito requisitos de facturación
+
+5.3
+a) puedo dedicarme full time
+b) necesito tenerlo listo para abril
+c) el soporte es mi whatsapp de negocio
+d) horario de atención de 8 a 20
+
+5.4
+a) tengo presupuesto de 100 mil para iniciar
+
+5.5
+a) no quiero integrar sistemas de pago
+b) que comisión sugerís? para que me haga el diseño de las templates en figma
+c) no quiero email marketing
+d) todavía no se que apis de terceros voy a necesitar
+
+6.1
+a) precio base por invitación 42 mil pesos argentinos con los servicios minimos e indispensables, de ahí va subiendo el precio por servicio.
+pon el precio que me sugieras.
+
+6.2
+a) podría agregarlo en un futuro
+b) si 
+c) no
+d) si
+
+6.3
+a) 12 por mes
+b) 6 millones de pesos anuales
+
+7. 
+a) te describí el flujo anteriormente, necesito que me des una mano y lo deduzcas.
+c) necesito que todo sea lo más fácil posible para todos
+
+

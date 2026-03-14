@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crear Invitación — festejá.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   VARIABLES & RESET
+   ═══════════════════════════════════════════ */
+:root {
+  --champagne: #f5e6d3;
+  --champagne-light: #faf3eb;
+  --champagne-dark: #e8d5be;
+  --rose: #c9a087;
+  --rose-deep: #a67c5b;
+  --gold: #c5a572;
+  --gold-light: #ddc9a0;
+  --gold-dark: #9e7f4e;
+  --cream: #fefcf9;
+  --ivory: #f9f5ef;
+  --charcoal: #2d2926;
+  --charcoal-soft: #4a4441;
+  --warm-gray: #8a7e76;
+  --warm-gray-light: #b5aba2;
+  --blush: #e8c4b0;
+  --sage: #a8b5a0;
+  --sage-light: #d4ddd0;
+  --white: #ffffff;
+  --error: #c0392b;
+  --error-light: #fdecea;
+  --success: #6a9e6a;
+  --success-light: #edf7ed;
+  --shadow-sm: 0 2px 8px rgba(45,41,38,0.06);
+  --shadow-md: 0 8px 24px rgba(45,41,38,0.08);
+  --shadow-lg: 0 16px 48px rgba(45,41,38,0.12);
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Outfit', sans-serif;
+  --transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-body);
+  color: var(--charcoal);
+  background: var(--cream);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+button { font-family: var(--font-body); cursor: pointer; }
+input { font-family: var(--font-body); }
+
+/* ═══════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════ */
+.header {
+  background: var(--white);
+  border-bottom: 1px solid rgba(45,41,38,0.06);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--charcoal);
+}
+.logo span { color: var(--gold); font-style: italic; }
+.header-back {
+  font-size: 0.88rem;
+  color: var(--warm-gray);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+.header-back:hover { color: var(--charcoal); }
+
+/* ═══════════════════════════════════════════
+   STEPPER
+   ═══════════════════════════════════════════ */
+.stepper-bar {
+  background: var(--white);
+  border-bottom: 1px solid rgba(45,41,38,0.06);
+  padding: 20px 0;
+  position: sticky;
+  top: 57px;
+  z-index: 99;
+}
+.stepper-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+.stepper-line {
+  position: absolute;
+  top: 50%;
+  left: 40px;
+  right: 40px;
+  height: 2px;
+  background: var(--champagne-dark);
+  transform: translateY(-50%);
+  z-index: 0;
+}
+.stepper-line-fill {
+  position: absolute;
+  top: 50%;
+  left: 40px;
+  height: 2px;
+  background: var(--gold);
+  transform: translateY(-50%);
+  z-index: 1;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2px solid var(--champagne-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--warm-gray-light);
+  transition: var(--transition);
+}
+.step-indicator.active .step-circle {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--white);
+}
+.step-indicator.completed .step-circle {
+  border-color: var(--success);
+  background: var(--success);
+  color: var(--white);
+}
+.step-label {
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--warm-gray-light);
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.step-indicator.active .step-label { color: var(--charcoal); font-weight: 500; }
+.step-indicator.completed .step-label { color: var(--success); }
+
+@media (max-width: 600px) {
+  .step-label { display: none; }
+  .step-circle { width: 32px; height: 32px; font-size: 0.75rem; }
+}
+
+/* ═══════════════════════════════════════════
+   MAIN CONTAINER
+   ═══════════════════════════════════════════ */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 120px;
+}
+
+/* Step panels */
+.step-panel {
+  display: none;
+  animation: fadeSlideIn 0.4s ease;
+}
+.step-panel.active { display: block; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Section titles */
+.step-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.step-subtitle {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+  margin-bottom: 48px;
+}
+
+/* Nav buttons */
+.step-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 48px;
+  gap: 16px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 14px 32px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-primary {
+  background: var(--charcoal);
+  color: var(--champagne-light);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--charcoal-soft);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--charcoal);
+  border: 1.5px solid var(--champagne-dark);
+}
+.btn-secondary:hover {
+  border-color: var(--charcoal);
+}
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--white);
+  font-size: 1rem;
+  padding: 16px 40px;
+}
+.btn-gold:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(197,165,114,0.35);
+}
+.btn-gold:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--charcoal);
+  color: var(--charcoal);
+  padding: 14px 32px;
+}
+.btn-outline:hover { background: var(--charcoal); color: var(--champagne-light); }
+.btn-wa {
+  background: #25D366;
+  color: var(--white);
+  padding: 16px 36px;
+}
+.btn-wa:hover { background: #1eb954; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,211,102,0.3); }
+
+.nav-spacer { flex: 1; }
+
+/* ═══════════════════════════════════════════
+   STEP 1 — TIPO DE EVENTO
+   ═══════════════════════════════════════════ */
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.event-card {
+  background: var(--white);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  padding: 40px 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.event-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: transparent;
+  transition: var(--transition);
+}
+.event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.event-card.selected {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(197,165,114,0.15);
+}
+.event-card.selected::before { background: var(--gold); }
+
+.event-card-check {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: var(--transition);
+}
+.event-card.selected .event-card-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.event-card-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+}
+.event-card[data-type="boda"] .event-card-icon { background: linear-gradient(135deg, #f7ede3, #fce4d4); }
+.event-card[data-type="quince"] .event-card-icon { background: linear-gradient(135deg, #f0e0f0, #fce4ec); }
+.event-card[data-type="cumple"] .event-card-icon { background: linear-gradient(135deg, #e3f0e8, #d4f0e0); }
+
+.event-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.event-card p {
+  font-size: 0.88rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+  .event-grid { grid-template-columns: 1fr; max-width: 400px; }
+}
+
+/* ═══════════════════════════════════════════
+   STEP 2 — TEMPLATES
+   ═══════════════════════════════════════════ */
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.template-card {
+  background: var(--white);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+.template-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.template-card.selected {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(197,165,114,0.15);
+}
+
+.template-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--gold);
+  color: var(--white);
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 4px 14px;
+  border-radius: 100px;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: var(--transition);
+  z-index: 3;
+}
+.template-card.selected .template-badge { opacity: 1; transform: scale(1); }
+
+.template-thumb {
+  height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Template visual styles */
+.tpl-clasico-dorado .template-thumb {
+  background: linear-gradient(180deg, #f7ede3 0%, #efe0cc 100%);
+}
+.tpl-clasico-dorado .tpl-inner {
+  text-align: center;
+  border: 2px solid var(--gold-light);
+  padding: 24px 20px;
+  border-radius: 4px;
+  position: relative;
+}
+.tpl-clasico-dorado .tpl-inner::before,
+.tpl-clasico-dorado .tpl-inner::after {
+  content: '✦';
+  position: absolute;
+  color: var(--gold);
+  font-size: 0.7rem;
+}
+.tpl-clasico-dorado .tpl-inner::before { top: -7px; left: 50%; transform: translateX(-50%); background: #f7ede3; padding: 0 8px; }
+.tpl-clasico-dorado .tpl-ornament { font-size: 0.5rem; color: var(--gold); letter-spacing: 4px; margin-bottom: 8px; }
+.tpl-clasico-dorado .tpl-names { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--charcoal); }
+.tpl-clasico-dorado .tpl-amp { font-family: var(--font-display); font-style: italic; color: var(--gold); font-size: 1.4rem; }
+.tpl-clasico-dorado .tpl-date { font-size: 0.55rem; letter-spacing: 3px; color: var(--warm-gray); margin-top: 8px; text-transform: uppercase; }
+
+.tpl-jardin-eterno .template-thumb {
+  background: linear-gradient(180deg, #e8f0e6 0%, #d4ddd0 100%);
+}
+.tpl-jardin-eterno .tpl-inner { text-align: center; }
+.tpl-jardin-eterno .tpl-flower { font-size: 1.5rem; margin-bottom: 4px; }
+.tpl-jardin-eterno .tpl-names { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: #3a5a3a; }
+.tpl-jardin-eterno .tpl-amp { font-family: var(--font-display); font-style: italic; color: var(--sage); font-size: 1.4rem; }
+.tpl-jardin-eterno .tpl-date { font-size: 0.55rem; letter-spacing: 3px; color: #6a8a6a; margin-top: 8px; }
+.tpl-jardin-eterno .tpl-leaves { font-size: 0.8rem; color: var(--sage); margin-top: 6px; letter-spacing: 6px; }
+
+.tpl-minimal-love .template-thumb {
+  background: var(--white);
+  border-bottom: 1px solid #eee;
+}
+.tpl-minimal-love .tpl-inner { text-align: center; }
+.tpl-minimal-love .tpl-line { width: 40px; height: 2px; background: var(--charcoal); margin: 0 auto 12px; }
+.tpl-minimal-love .tpl-names { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--charcoal); letter-spacing: 2px; text-transform: uppercase; }
+.tpl-minimal-love .tpl-amp { font-family: var(--font-display); font-style: italic; color: var(--charcoal); font-size: 1.8rem; margin: 2px 0; }
+.tpl-minimal-love .tpl-date { font-size: 0.6rem; letter-spacing: 4px; color: var(--warm-gray); margin-top: 12px; }
+.tpl-minimal-love .tpl-line-b { width: 40px; height: 2px; background: var(--charcoal); margin: 12px auto 0; }
+
+/* Quinceañera templates */
+.tpl-rosa-imperial .template-thumb {
+  background: linear-gradient(180deg, #fce4ec, #f8d0dc);
+}
+.tpl-rosa-imperial .tpl-inner { text-align: center; }
+.tpl-rosa-imperial .tpl-crown { font-size: 2rem; margin-bottom: 4px; }
+.tpl-rosa-imperial .tpl-label { font-size: 0.5rem; letter-spacing: 4px; color: #b07090; text-transform: uppercase; }
+.tpl-rosa-imperial .tpl-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: #5a3a4a; margin: 4px 0; }
+.tpl-rosa-imperial .tpl-sub { font-size: 0.6rem; color: #b07090; }
+.tpl-rosa-imperial .tpl-line { width: 30px; height: 1.5px; background: #d4a0b8; margin: 8px auto; }
+
+.tpl-noche-encantada .template-thumb {
+  background: linear-gradient(180deg, #1a1a3a, #2a2a5a);
+}
+.tpl-noche-encantada .tpl-inner { text-align: center; color: #e0e0ff; }
+.tpl-noche-encantada .tpl-stars { font-size: 0.7rem; letter-spacing: 6px; margin-bottom: 8px; }
+.tpl-noche-encantada .tpl-label { font-size: 0.5rem; letter-spacing: 4px; color: #a0a0d0; text-transform: uppercase; }
+.tpl-noche-encantada .tpl-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: #e0d0ff; margin: 6px 0; }
+.tpl-noche-encantada .tpl-line { width: 30px; height: 1px; background: #6060a0; margin: 8px auto; }
+.tpl-noche-encantada .tpl-sub { font-size: 0.6rem; color: #a0a0d0; }
+
+.tpl-primavera .template-thumb {
+  background: linear-gradient(180deg, #fef9f0, #fdf0f5);
+}
+.tpl-primavera .tpl-inner { text-align: center; }
+.tpl-primavera .tpl-flowers { font-size: 1.3rem; letter-spacing: 4px; margin-bottom: 6px; }
+.tpl-primavera .tpl-label { font-size: 0.5rem; letter-spacing: 4px; color: #c08090; text-transform: uppercase; }
+.tpl-primavera .tpl-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: #6a4a5a; margin: 6px 0; }
+.tpl-primavera .tpl-line { width: 30px; height: 1.5px; background: #e0b0c0; margin: 8px auto; }
+.tpl-primavera .tpl-sub { font-size: 0.6rem; color: #c08090; }
+
+/* Cumpleaños templates */
+.tpl-fiesta-neon .template-thumb {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+}
+.tpl-fiesta-neon .tpl-inner { text-align: center; }
+.tpl-fiesta-neon .tpl-emoji { font-size: 2rem; margin-bottom: 4px; }
+.tpl-fiesta-neon .tpl-name { font-family: var(--font-body); font-size: 1.3rem; font-weight: 700; color: #ff6fd8; text-shadow: 0 0 20px rgba(255,111,216,0.5); }
+.tpl-fiesta-neon .tpl-age { font-family: var(--font-body); font-size: 2.5rem; font-weight: 700; background: linear-gradient(90deg, #fc5c7d, #6a82fb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.tpl-fiesta-neon .tpl-sub { font-size: 0.6rem; color: #a0a0c0; letter-spacing: 3px; }
+
+.tpl-elegante-30 .template-thumb {
+  background: linear-gradient(180deg, #f5f0ea, #ebe5dd);
+}
+.tpl-elegante-30 .tpl-inner { text-align: center; }
+.tpl-elegante-30 .tpl-name { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--charcoal); }
+.tpl-elegante-30 .tpl-age { font-family: var(--font-display); font-size: 3rem; font-weight: 700; color: var(--charcoal); line-height: 1; margin: 4px 0; }
+.tpl-elegante-30 .tpl-sub { font-size: 0.5rem; letter-spacing: 4px; color: var(--warm-gray); text-transform: uppercase; }
+.tpl-elegante-30 .tpl-line { width: 40px; height: 2px; background: var(--gold); margin: 10px auto; }
+
+.tpl-party-time .template-thumb {
+  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+}
+.tpl-party-time .tpl-inner { text-align: center; }
+.tpl-party-time .tpl-confetti { font-size: 1.5rem; letter-spacing: 6px; margin-bottom: 4px; }
+.tpl-party-time .tpl-name { font-family: var(--font-body); font-size: 1.3rem; font-weight: 700; color: #e65100; }
+.tpl-party-time .tpl-label { font-size: 0.7rem; color: #f57c00; font-weight: 500; }
+.tpl-party-time .tpl-age { font-family: var(--font-body); font-size: 2.5rem; font-weight: 700; color: #e65100; line-height: 1.1; }
+.tpl-party-time .tpl-sub { font-size: 0.55rem; color: #bf360c; letter-spacing: 2px; }
+
+.template-info {
+  padding: 20px;
+}
+.template-info h4 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .template-grid { grid-template-columns: 1fr; max-width: 360px; }
+}
+
+/* ═══════════════════════════════════════════
+   STEP 3 — SERVICIOS
+   ═══════════════════════════════════════════ */
+.services-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 32px;
+  align-items: start;
+}
+
+.services-content { min-width: 0; }
+
+.included-box {
+  background: var(--success-light);
+  border-radius: var(--radius-md);
+  padding: 24px 28px;
+  margin-bottom: 32px;
+}
+.included-box h4 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--success);
+}
+.included-list { display: flex; flex-direction: column; gap: 8px; }
+.included-list li {
+  font-size: 0.88rem;
+  color: var(--charcoal-soft);
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.included-list li::before {
+  content: '✓';
+  color: var(--success);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.addons-section h4 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.addon-card {
+  background: var(--white);
+  border: 1.5px solid rgba(45,41,38,0.06);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: var(--transition);
+}
+.addon-card.active {
+  border-color: var(--gold);
+  background: rgba(197,165,114,0.04);
+}
+
+.addon-toggle {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  min-width: 48px;
+}
+.addon-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.addon-toggle .slider {
+  position: absolute;
+  inset: 0;
+  background: var(--champagne-dark);
+  border-radius: 14px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+.addon-toggle .slider::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--white);
+  top: 3px;
+  left: 3px;
+  transition: var(--transition);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.addon-toggle input:checked + .slider {
+  background: var(--gold);
+}
+.addon-toggle input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+.addon-info { flex: 1; min-width: 0; }
+.addon-info .addon-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+.addon-info .addon-desc {
+  font-size: 0.8rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+}
+.addon-price-tag {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  color: var(--charcoal);
+}
+
+.special-addon {
+  margin-top: 24px;
+  background: var(--champagne-light);
+  border: 1.5px dashed var(--gold-light);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+}
+.special-addon .addon-info .addon-desc { color: var(--rose-deep); font-weight: 400; }
+
+/* Price sidebar */
+.price-panel {
+  background: var(--white);
+  border: 1.5px solid rgba(45,41,38,0.06);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  position: sticky;
+  top: 140px;
+}
+.price-panel h4 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ivory);
+}
+.price-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 0.88rem;
+}
+.price-line .label { color: var(--warm-gray); font-weight: 300; }
+.price-line .amount { font-weight: 500; }
+.price-line.addon-line {
+  color: var(--charcoal-soft);
+}
+.price-divider {
+  height: 1px;
+  background: var(--ivory);
+  margin: 12px 0;
+}
+.price-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0 0;
+}
+.price-total .label {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.price-total .amount {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--charcoal);
+}
+
+/* Mobile price bar */
+.price-bar-mobile {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-top: 1px solid rgba(45,41,38,0.1);
+  z-index: 90;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+}
+.price-bar-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  cursor: pointer;
+}
+.price-bar-compact .total-label { font-size: 0.85rem; color: var(--warm-gray); }
+.price-bar-compact .total-amount {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.price-bar-compact .expand-icon {
+  font-size: 0.8rem;
+  color: var(--warm-gray);
+  transition: var(--transition);
+}
+.price-bar-compact .expand-icon.rotated { transform: rotate(180deg); }
+
+.price-bar-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  padding: 0 24px;
+}
+.price-bar-detail.open {
+  max-height: 400px;
+  padding: 0 24px 16px;
+}
+
+@media (max-width: 900px) {
+  .services-layout { grid-template-columns: 1fr; }
+  .price-panel { display: none; }
+  .price-bar-mobile { display: block; }
+  .main { padding-bottom: 180px; }
+}
+
+/* ═══════════════════════════════════════════
+   STEP 4 — PREVIEW
+   ═══════════════════════════════════════════ */
+.preview-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 40px;
+  align-items: start;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.preview-phone {
+  display: flex;
+  justify-content: center;
+}
+
+.preview-mockup {
+  width: 300px;
+  height: 600px;
+  background: var(--charcoal);
+  border-radius: 44px;
+  padding: 14px;
+  box-shadow: 0 24px 64px rgba(45,41,38,0.2);
+  position: relative;
+}
+.preview-mockup::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 24px;
+  background: var(--charcoal);
+  border-radius: 20px;
+  z-index: 5;
+}
+.preview-screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 32px;
+  overflow-y: auto;
+  position: relative;
+}
+.preview-screen::-webkit-scrollbar { width: 0; }
+
+/* Preview inner content — dynamically styled */
+.preview-inner {
+  padding: 52px 20px 24px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.preview-inner .pi-badge {
+  font-size: 0.5rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.preview-inner .pi-names {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+}
+.preview-inner .pi-amp {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.8rem;
+  line-height: 0.8;
+}
+.preview-inner .pi-date {
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.preview-inner .pi-divider {
+  width: 36px;
+  height: 1px;
+  opacity: 0.3;
+}
+.preview-inner .pi-section {
+  width: 100%;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.65rem;
+  text-align: center;
+  line-height: 1.7;
+}
+.preview-inner .pi-section strong {
+  display: block;
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  opacity: 0.7;
+}
+.preview-inner .pi-btn {
+  padding: 10px 24px;
+  border-radius: 100px;
+  font-size: 0.6rem;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.preview-note {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.82rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+  font-style: italic;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Preview summary sidebar */
+.preview-summary {
+  background: var(--white);
+  border: 1.5px solid rgba(45,41,38,0.06);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+}
+.preview-summary h4 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.summary-item {
+  margin-bottom: 16px;
+}
+.summary-item .summary-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--warm-gray);
+  margin-bottom: 4px;
+}
+.summary-item .summary-value {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+.summary-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.summary-services span {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  background: var(--ivory);
+  border-radius: 100px;
+  font-weight: 300;
+}
+.summary-total {
+  border-top: 1px solid var(--ivory);
+  padding-top: 16px;
+  margin-top: 16px;
+}
+.summary-total .summary-label { font-size: 0.72rem; }
+.summary-total .summary-value {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .preview-layout { grid-template-columns: 1fr; }
+  .preview-summary { margin-top: 0; }
+  .preview-mockup { width: 260px; height: 520px; }
+}
+
+/* ═══════════════════════════════════════════
+   STEP 5 — FORMULARIO
+   ═══════════════════════════════════════════ */
+.form-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 40px;
+  align-items: start;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.form-section h4 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--charcoal);
+}
+.form-label .req { color: var(--error); }
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1.5px solid var(--champagne-dark);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  background: var(--white);
+  transition: var(--transition);
+  outline: none;
+}
+.form-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(197,165,114,0.15); }
+.form-input.valid { border-color: var(--success); }
+.form-input.invalid { border-color: var(--error); }
+.form-error {
+  font-size: 0.78rem;
+  color: var(--error);
+  margin-top: 4px;
+  display: none;
+}
+.form-input.invalid + .form-error { display: block; }
+
+.form-order-summary {
+  background: var(--white);
+  border: 1.5px solid rgba(45,41,38,0.06);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+}
+
+@media (max-width: 900px) {
+  .form-layout { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════
+   STEP 6 — CONFIRMACIÓN
+   ═══════════════════════════════════════════ */
+.confirmation {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.confirm-check {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.confirm-check svg {
+  width: 36px;
+  height: 36px;
+  stroke: var(--white);
+  stroke-width: 3;
+  fill: none;
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+  animation: drawCheck 0.5s 0.3s ease forwards;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes drawCheck {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Confetti */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1000;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  opacity: 0;
+  animation: confettiFall 3s ease-out forwards;
+}
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+}
+
+.confirm-title {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.confirm-subtitle {
+  font-size: 1rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+  margin-bottom: 40px;
+  line-height: 1.7;
+}
+
+.confirm-order-box {
+  background: var(--white);
+  border: 1.5px solid rgba(45,41,38,0.06);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  text-align: left;
+  margin-bottom: 32px;
+}
+.confirm-order-box h4 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.confirm-order-id {
+  display: inline-block;
+  background: var(--champagne);
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.next-steps {
+  background: var(--ivory);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  text-align: left;
+  margin-bottom: 32px;
+}
+.next-steps h4 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.next-steps ol {
+  list-style: none;
+  counter-reset: steps;
+}
+.next-steps li {
+  counter-increment: steps;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.5;
+}
+.next-steps li::before {
+  content: counter(steps);
+  min-width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <a href="/home" class="logo">festejá<span>.</span></a>
+    <a href="/home" class="header-back">← Volver al inicio</a>
+  </div>
+</header>
+
+<!-- STEPPER BAR -->
+<div class="stepper-bar">
+  <div class="stepper-inner">
+    <div class="stepper-line"></div>
+    <div class="stepper-line-fill" id="stepperFill"></div>
+    <div class="step-indicator active" data-step="1" onclick="goToStep(1)">
+      <div class="step-circle">1</div>
+      <div class="step-label">Evento</div>
+    </div>
+    <div class="step-indicator" data-step="2" onclick="goToStep(2)">
+      <div class="step-circle">2</div>
+      <div class="step-label">Template</div>
+    </div>
+    <div class="step-indicator" data-step="3" onclick="goToStep(3)">
+      <div class="step-circle">3</div>
+      <div class="step-label">Servicios</div>
+    </div>
+    <div class="step-indicator" data-step="4" onclick="goToStep(4)">
+      <div class="step-circle">4</div>
+      <div class="step-label">Preview</div>
+    </div>
+    <div class="step-indicator" data-step="5" onclick="goToStep(5)">
+      <div class="step-circle">5</div>
+      <div class="step-label">Pedido</div>
+    </div>
+    <div class="step-indicator" data-step="6" onclick="goToStep(6)">
+      <div class="step-circle">6</div>
+      <div class="step-label">Listo</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══ STEP 1 ═══ -->
+<div class="step-panel active" id="step1">
+  <h2 class="step-title">¿Qué estás celebrando?</h2>
+  <p class="step-subtitle">Elegí el tipo de evento para ver diseños personalizados</p>
+  <div class="event-grid">
+    <div class="event-card" data-type="boda" onclick="selectEvent(this)">
+      <div class="event-card-check">✓</div>
+      <div class="event-card-icon">💍</div>
+      <h3>Boda</h3>
+      <p>Celebrá el amor con una invitación a la altura</p>
+    </div>
+    <div class="event-card" data-type="quince" onclick="selectEvent(this)">
+      <div class="event-card-check">✓</div>
+      <div class="event-card-icon">👑</div>
+      <h3>Quinceañera</h3>
+      <p>Los 15 más soñados empiezan con la invitación perfecta</p>
+    </div>
+    <div class="event-card" data-type="cumple" onclick="selectEvent(this)">
+      <div class="event-card-check">✓</div>
+      <div class="event-card-icon">🎂</div>
+      <h3>Cumpleaños</h3>
+      <p>De 1 a 100, cada cumpleaños merece algo especial</p>
+    </div>
+  </div>
+  <div class="step-nav">
+    <div class="nav-spacer"></div>
+    <button class="btn btn-primary" id="btnNext1" disabled onclick="nextStep()">Siguiente →</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 2 ═══ -->
+<div class="step-panel" id="step2">
+  <h2 class="step-title">Elegí el diseño que más te guste</h2>
+  <p class="step-subtitle" id="step2Subtitle">Diseños para tu evento</p>
+  <div class="template-grid" id="templateGrid"></div>
+  <div class="step-nav">
+    <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+    <button class="btn btn-primary" id="btnNext2" disabled onclick="nextStep()">Siguiente →</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 3 ═══ -->
+<div class="step-panel" id="step3">
+  <h2 class="step-title">Personalizá tu invitación</h2>
+  <p class="step-subtitle">Agregá o quitá servicios según lo que necesites</p>
+  <div class="services-layout">
+    <div class="services-content">
+      <div class="included-box">
+        <h4>Incluido en la base</h4>
+        <ul class="included-list">
+          <li>Información del evento (fecha, hora, ubicación, dress code)</li>
+          <li>Mapa con Google Maps</li>
+          <li>Hasta 5 fotos del anfitrión</li>
+          <li>URL única para compartir</li>
+          <li>3 meses de almacenamiento post-evento</li>
+        </ul>
+      </div>
+      <div class="addons-section">
+        <h4>Servicios adicionales</h4>
+        <div class="addon-card" data-addon="rsvp">
+          <label class="addon-toggle">
+            <input type="checkbox" data-price="10000" onchange="toggleAddon(this)">
+            <span class="slider"></span>
+          </label>
+          <div class="addon-info">
+            <div class="addon-name">Confirmación de Asistencia</div>
+            <div class="addon-desc">Tus invitados confirman con un clic. Vos ves quién viene.</div>
+          </div>
+          <div class="addon-price-tag">$10.000</div>
+        </div>
+        <div class="addon-card" data-addon="countdown">
+          <label class="addon-toggle">
+            <input type="checkbox" data-price="10000" onchange="toggleAddon(this)">
+            <span class="slider"></span>
+          </label>
+          <div class="addon-info">
+            <div class="addon-name">Cuenta Regresiva</div>
+            <div class="addon-desc">Contador dinámico hasta el día del evento.</div>
+          </div>
+          <div class="addon-price-tag">$10.000</div>
+        </div>
+        <div class="addon-card" data-addon="music">
+          <label class="addon-toggle">
+            <input type="checkbox" data-price="10000" onchange="toggleAddon(this)">
+            <span class="slider"></span>
+          </label>
+          <div class="addon-info">
+            <div class="addon-name">Música</div>
+            <div class="addon-desc">Reproducí una canción al abrir la invitación.</div>
+          </div>
+          <div class="addon-price-tag">$10.000</div>
+        </div>
+        <div class="addon-card" data-addon="history">
+          <label class="addon-toggle">
+            <input type="checkbox" data-price="10000" onchange="toggleAddon(this)">
+            <span class="slider"></span>
+          </label>
+          <div class="addon-info">
+            <div class="addon-name">Historia</div>
+            <div class="addon-desc">Sección con tu historia y fotos (hasta 3 bloques).</div>
+          </div>
+          <div class="addon-price-tag">$10.000</div>
+        </div>
+        <div class="addon-card" data-addon="gallery">
+          <label class="addon-toggle">
+            <input type="checkbox" data-price="50000" onchange="toggleAddon(this)">
+            <span class="slider"></span>
+          </label>
+          <div class="addon-info">
+            <div class="addon-name">Galería de Fotos con QR</div>
+            <div class="addon-desc">QR para que los invitados suban fotos. Hasta 1000 fotos.</div>
+          </div>
+          <div class="addon-price-tag">$50.000</div>
+        </div>
+        <div class="addon-card special-addon" data-addon="second">
+          <label class="addon-toggle">
+            <input type="checkbox" data-price="0" onchange="toggleSecond(this)">
+            <span class="slider"></span>
+          </label>
+          <div class="addon-info">
+            <div class="addon-name">2da versión de tarjeta</div>
+            <div class="addon-desc">50% de descuento en la segunda versión</div>
+          </div>
+          <div class="addon-price-tag" id="secondPrice">+$0</div>
+        </div>
+      </div>
+    </div>
+    <!-- Price Panel Desktop -->
+    <div class="price-panel" id="pricePanel">
+      <h4>Tu presupuesto</h4>
+      <div class="price-line">
+        <span class="label">Invitación base</span>
+        <span class="amount">$30.000</span>
+      </div>
+      <div id="priceAddonLines"></div>
+      <div class="price-divider"></div>
+      <div class="price-line" id="priceSubtotal" style="display:none;">
+        <span class="label">Subtotal</span>
+        <span class="amount"></span>
+      </div>
+      <div class="price-line" id="priceSecondLine" style="display:none;">
+        <span class="label">2da versión (50% desc.)</span>
+        <span class="amount"></span>
+      </div>
+      <div class="price-total">
+        <span class="label">Total</span>
+        <span class="amount" id="priceTotalDesktop">$30.000</span>
+      </div>
+    </div>
+  </div>
+  <div class="step-nav">
+    <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+    <button class="btn btn-primary" onclick="nextStep()">Siguiente →</button>
+  </div>
+</div>
+
+<!-- Mobile Price Bar -->
+<div class="price-bar-mobile" id="priceBarMobile">
+  <div class="price-bar-compact" onclick="toggleMobilePrice()">
+    <div>
+      <div class="total-label">Total</div>
+      <div class="total-amount" id="priceTotalMobile">$30.000</div>
+    </div>
+    <div class="expand-icon" id="expandIcon">▲</div>
+  </div>
+  <div class="price-bar-detail" id="priceBarDetail">
+    <div class="price-line"><span class="label">Invitación base</span><span class="amount">$30.000</span></div>
+    <div id="priceAddonLinesMobile"></div>
+    <div class="price-divider"></div>
+    <div id="priceSecondLineMobile" style="display:none;" class="price-line">
+      <span class="label">2da versión (50% desc.)</span><span class="amount"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ STEP 4 ═══ -->
+<div class="step-panel" id="step4">
+  <h2 class="step-title">Así se vería tu invitación</h2>
+  <p class="step-subtitle">Vista previa aproximada de tu diseño</p>
+  <div class="preview-layout">
+    <div class="preview-phone">
+      <div>
+        <div class="preview-mockup">
+          <div class="preview-screen" id="previewScreen"></div>
+        </div>
+        <p class="preview-note">Este es un preview aproximado. La invitación final será creada por nuestro equipo con los datos reales de tu evento.</p>
+      </div>
+    </div>
+    <div class="preview-summary" id="previewSummary"></div>
+  </div>
+  <div class="step-nav">
+    <button class="btn btn-secondary" onclick="prevStep()">← Modificar</button>
+    <button class="btn btn-primary" onclick="nextStep()">Continuar al pedido →</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 5 ═══ -->
+<div class="step-panel" id="step5">
+  <h2 class="step-title">Últimos datos para confirmar tu pedido</h2>
+  <p class="step-subtitle">Completá el formulario y enviá tu solicitud</p>
+  <div class="form-layout">
+    <div class="form-section">
+      <h4>Tus datos de contacto</h4>
+      <div class="form-group">
+        <label class="form-label">Nombre completo <span class="req">*</span></label>
+        <input type="text" class="form-input" id="fieldName" maxlength="200" placeholder="Ej: María García" oninput="validateForm()">
+        <div class="form-error">Ingresá tu nombre completo</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono <span class="req">*</span></label>
+        <input type="tel" class="form-input" id="fieldPhone" maxlength="30" placeholder="Ej: +54 11 1234-5678" oninput="validateForm()">
+        <div class="form-error">Ingresá un teléfono válido (solo números y +)</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email <span class="req">*</span></label>
+        <input type="email" class="form-input" id="fieldEmail" maxlength="255" placeholder="Ej: maria@email.com" oninput="validateForm()">
+        <div class="form-error">Ingresá un email válido</div>
+      </div>
+    </div>
+    <div class="form-order-summary" id="formOrderSummary"></div>
+  </div>
+  <div class="step-nav">
+    <button class="btn btn-secondary" onclick="prevStep()">← Anterior</button>
+    <button class="btn btn-gold" id="btnSubmit" disabled onclick="submitOrder()">Solicitar Invitación</button>
+  </div>
+</div>
+
+<!-- ═══ STEP 6 ═══ -->
+<div class="step-panel" id="step6">
+  <div class="confetti-container" id="confettiContainer"></div>
+  <div class="confirmation">
+    <div class="confirm-check">
+      <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>
+    </div>
+    <h2 class="confirm-title">¡Pedido recibido!</h2>
+    <p class="confirm-subtitle">Nos vamos a contactar con vos por WhatsApp para coordinar los detalles de tu evento y el pago.</p>
+    <div class="confirm-order-box" id="confirmOrderBox"></div>
+    <div class="next-steps">
+      <h4>Próximos pasos</h4>
+      <ol>
+        <li>Te contactamos por WhatsApp en las próximas 24 hs</li>
+        <li>Coordinamos los detalles y fotos de tu evento</li>
+        <li>Acordamos el pago (transferencia o MercadoPago)</li>
+        <li>¡Creamos tu invitación y te enviamos los links!</li>
+      </ol>
+    </div>
+    <div class="confirm-actions">
+      <a href="#" class="btn btn-wa" id="btnWhatsApp">Contactar por WhatsApp →</a>
+      <a href="/home" class="btn btn-outline">Volver al inicio</a>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════ */
+const state = {
+  currentStep: 1,
+  maxReached: 1,
+  eventType: null,
+  templateId: null,
+  addons: { rsvp: false, countdown: false, music: false, history: false, gallery: false },
+  secondVersion: false,
+  form: { name: '', phone: '', email: '' }
+};
+
+const BASE_PRICE = 30000;
+const ADDON_PRICES = { rsvp: 10000, countdown: 10000, music: 10000, history: 10000, gallery: 50000 };
+const ADDON_LABELS = {
+  rsvp: 'Confirmación de Asistencia',
+  countdown: 'Cuenta Regresiva',
+  music: 'Música',
+  history: 'Historia',
+  gallery: 'Galería de Fotos con QR'
+};
+
+const EVENT_LABELS = { boda: 'Boda', quince: 'Quinceañera', cumple: 'Cumpleaños' };
+
+const TEMPLATES = {
+  boda: [
+    { id: 'clasico-dorado', name: 'Clásico Dorado', cls: 'tpl-clasico-dorado',
+      thumb: `<div class="tpl-inner"><div class="tpl-ornament">✦ BODA ✦</div><div class="tpl-names">Camila</div><div class="tpl-amp">&</div><div class="tpl-names">Joaquín</div><div class="tpl-date">15 DE MARZO, 2026</div></div>`,
+      colors: { bg: '#f7ede3', bg2: '#fefcf9', text: '#2d2926', accent: '#c5a572', muted: '#8a7e76', btnBg: '#2d2926', btnText: '#faf3eb' }
+    },
+    { id: 'jardin-eterno', name: 'Jardín Eterno', cls: 'tpl-jardin-eterno',
+      thumb: `<div class="tpl-inner"><div class="tpl-flower">🌿</div><div class="tpl-names">Camila</div><div class="tpl-amp">&</div><div class="tpl-names">Joaquín</div><div class="tpl-date">15 DE MARZO, 2026</div><div class="tpl-leaves">🍃 🍃 🍃</div></div>`,
+      colors: { bg: '#e8f0e6', bg2: '#f5faf3', text: '#3a5a3a', accent: '#a8b5a0', muted: '#6a8a6a', btnBg: '#3a5a3a', btnText: '#e8f0e6' }
+    },
+    { id: 'minimal-love', name: 'Minimal Love', cls: 'tpl-minimal-love',
+      thumb: `<div class="tpl-inner"><div class="tpl-line"></div><div class="tpl-names">CAMILA</div><div class="tpl-amp">&</div><div class="tpl-names">JOAQUÍN</div><div class="tpl-date">15 · 03 · 2026</div><div class="tpl-line-b"></div></div>`,
+      colors: { bg: '#ffffff', bg2: '#f9f9f9', text: '#2d2926', accent: '#2d2926', muted: '#8a7e76', btnBg: '#2d2926', btnText: '#ffffff' }
+    }
+  ],
+  quince: [
+    { id: 'rosa-imperial', name: 'Rosa Imperial', cls: 'tpl-rosa-imperial',
+      thumb: `<div class="tpl-inner"><div class="tpl-crown">👑</div><div class="tpl-label">MIS QUINCE</div><div class="tpl-name">Martina</div><div class="tpl-line"></div><div class="tpl-sub">20 de Septiembre, 2026</div></div>`,
+      colors: { bg: '#fce4ec', bg2: '#fef5f7', text: '#5a3a4a', accent: '#d4a0b8', muted: '#b07090', btnBg: '#5a3a4a', btnText: '#fce4ec' }
+    },
+    { id: 'noche-encantada', name: 'Noche Encantada', cls: 'tpl-noche-encantada',
+      thumb: `<div class="tpl-inner"><div class="tpl-stars">✦ ✦ ✦</div><div class="tpl-label">MIS QUINCE</div><div class="tpl-name">Martina</div><div class="tpl-line"></div><div class="tpl-sub">20 de Septiembre, 2026</div></div>`,
+      colors: { bg: '#1a1a3a', bg2: '#22224a', text: '#e0d0ff', accent: '#6060a0', muted: '#a0a0d0', btnBg: '#e0d0ff', btnText: '#1a1a3a' }
+    },
+    { id: 'primavera', name: 'Primavera', cls: 'tpl-primavera',
+      thumb: `<div class="tpl-inner"><div class="tpl-flowers">🌸 🌷 🌺</div><div class="tpl-label">MIS QUINCE</div><div class="tpl-name">Martina</div><div class="tpl-line"></div><div class="tpl-sub">20 de Septiembre, 2026</div></div>`,
+      colors: { bg: '#fef9f0', bg2: '#fffaf5', text: '#6a4a5a', accent: '#e0b0c0', muted: '#c08090', btnBg: '#6a4a5a', btnText: '#fef9f0' }
+    }
+  ],
+  cumple: [
+    { id: 'fiesta-neon', name: 'Fiesta Neon', cls: 'tpl-fiesta-neon',
+      thumb: `<div class="tpl-inner"><div class="tpl-emoji">🎉</div><div class="tpl-name">Franco</div><div class="tpl-age">30</div><div class="tpl-sub">YEARS PARTY</div></div>`,
+      colors: { bg: '#1a1a2e', bg2: '#16213e', text: '#e0e0ff', accent: '#ff6fd8', muted: '#a0a0c0', btnBg: '#ff6fd8', btnText: '#1a1a2e' }
+    },
+    { id: 'elegante-30', name: 'Elegante & 30', cls: 'tpl-elegante-30',
+      thumb: `<div class="tpl-inner"><div class="tpl-name">Franco</div><div class="tpl-line"></div><div class="tpl-age">30</div><div class="tpl-sub">CELEBREMOS JUNTOS</div></div>`,
+      colors: { bg: '#f5f0ea', bg2: '#fefcf9', text: '#2d2926', accent: '#c5a572', muted: '#8a7e76', btnBg: '#2d2926', btnText: '#f5f0ea' }
+    },
+    { id: 'party-time', name: 'Party Time', cls: 'tpl-party-time',
+      thumb: `<div class="tpl-inner"><div class="tpl-confetti">🎈🎊🎈</div><div class="tpl-label">¡Cumple!</div><div class="tpl-name">Franco</div><div class="tpl-age">30</div><div class="tpl-sub">TE ESPERAMOS</div></div>`,
+      colors: { bg: '#fff3e0', bg2: '#fffaf0', text: '#e65100', accent: '#f57c00', muted: '#bf360c', btnBg: '#e65100', btnText: '#fff3e0' }
+    }
+  ]
+};
+
+/* ═══════════════════════════════════════════
+   FORMAT PRICE
+   ═══════════════════════════════════════════ */
+function fmtPrice(n) {
+  return '$' + n.toLocaleString('es-AR');
+}
+
+/* ═══════════════════════════════════════════
+   STEP NAVIGATION
+   ═══════════════════════════════════════════ */
+function showStep(n) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+
+  // Update stepper
+  document.querySelectorAll('.step-indicator').forEach(ind => {
+    const s = +ind.dataset.step;
+    ind.classList.remove('active', 'completed');
+    if (s === n) ind.classList.add('active');
+    else if (s < n) ind.classList.add('completed');
+    ind.querySelector('.step-circle').textContent = s < n ? '✓' : s;
+  });
+
+  // Fill line
+  const fill = document.getElementById('stepperFill');
+  const pct = ((n - 1) / 5) * 100;
+  fill.style.width = pct + '%';
+
+  // Mobile price bar visibility
+  const mb = document.getElementById('priceBarMobile');
+  mb.style.display = (n === 3) ? 'block' : 'none';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Hooks
+  if (n === 2) renderTemplates();
+  if (n === 4) renderPreview();
+  if (n === 5) renderFormSummary();
+  if (n === 6) renderConfirmation();
+}
+
+function nextStep() {
+  if (state.currentStep === 1 && !state.eventType) return;
+  if (state.currentStep === 2 && !state.templateId) return;
+  state.currentStep++;
+  if (state.currentStep > state.maxReached) state.maxReached = state.currentStep;
+  showStep(state.currentStep);
+}
+
+function prevStep() {
+  if (state.currentStep > 1) {
+    state.currentStep--;
+    showStep(state.currentStep);
+  }
+}
+
+function goToStep(n) {
+  if (n <= state.maxReached && n < state.currentStep) {
+    state.currentStep = n;
+    showStep(n);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   STEP 1 — EVENT SELECTION
+   ═══════════════════════════════════════════ */
+function selectEvent(card) {
+  document.querySelectorAll('.event-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  state.eventType = card.dataset.type;
+  state.templateId = null; // Reset template
+  document.getElementById('btnNext1').disabled = false;
+}
+
+// Pre-select from URL params
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const tipo = params.get('tipo');
+  if (tipo) {
+    const card = document.querySelector(`.event-card[data-type="${tipo}"]`);
+    if (card) selectEvent(card);
+  }
+})();
+
+/* ═══════════════════════════════════════════
+   STEP 2 — TEMPLATES
+   ═══════════════════════════════════════════ */
+function renderTemplates() {
+  const grid = document.getElementById('templateGrid');
+  const templates = TEMPLATES[state.eventType] || [];
+  document.getElementById('step2Subtitle').textContent = `Diseños para ${EVENT_LABELS[state.eventType] || 'tu evento'}`;
+
+  grid.innerHTML = templates.map(t => `
+    <div class="template-card ${t.cls} ${state.templateId === t.id ? 'selected' : ''}" data-id="${t.id}" onclick="selectTemplate('${t.id}')">
+      <div class="template-badge">Seleccionado ✓</div>
+      <div class="template-thumb">${t.thumb}</div>
+      <div class="template-info"><h4>${t.name}</h4></div>
+    </div>
+  `).join('');
+
+  document.getElementById('btnNext2').disabled = !state.templateId;
+}
+
+function selectTemplate(id) {
+  state.templateId = id;
+  document.querySelectorAll('.template-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.id === id);
+  });
+  document.getElementById('btnNext2').disabled = false;
+}
+
+/* ═══════════════════════════════════════════
+   STEP 3 — SERVICES & PRICE
+   ═══════════════════════════════════════════ */
+function toggleAddon(input) {
+  const card = input.closest('.addon-card');
+  const addon = card.dataset.addon;
+  state.addons[addon] = input.checked;
+  card.classList.toggle('active', input.checked);
+  updatePrice();
+}
+
+function toggleSecond(input) {
+  state.secondVersion = input.checked;
+  input.closest('.addon-card').classList.toggle('active', input.checked);
+  updatePrice();
+}
+
+function calcTotal() {
+  let addonsTotal = 0;
+  for (const [k, v] of Object.entries(state.addons)) {
+    if (v) addonsTotal += ADDON_PRICES[k];
+  }
+  const subtotal = BASE_PRICE + addonsTotal;
+  const secondCost = state.secondVersion ? Math.round(subtotal * 0.5) : 0;
+  return { addonsTotal, subtotal, secondCost, total: subtotal + secondCost };
+}
+
+function updatePrice() {
+  const { addonsTotal, subtotal, secondCost, total } = calcTotal();
+
+  // Desktop panel
+  let addonHTML = '';
+  for (const [k, v] of Object.entries(state.addons)) {
+    if (v) addonHTML += `<div class="price-line addon-line"><span class="label">${ADDON_LABELS[k]}</span><span class="amount">${fmtPrice(ADDON_PRICES[k])}</span></div>`;
+  }
+  document.getElementById('priceAddonLines').innerHTML = addonHTML;
+
+  const subLine = document.getElementById('priceSubtotal');
+  if (addonsTotal > 0 || state.secondVersion) {
+    subLine.style.display = 'flex';
+    subLine.querySelector('.amount').textContent = fmtPrice(subtotal);
+  } else {
+    subLine.style.display = 'none';
+  }
+
+  const secLine = document.getElementById('priceSecondLine');
+  if (state.secondVersion) {
+    secLine.style.display = 'flex';
+    secLine.querySelector('.amount').textContent = '+' + fmtPrice(secondCost);
+  } else {
+    secLine.style.display = 'none';
+  }
+
+  document.getElementById('secondPrice').textContent = state.secondVersion ? '+' + fmtPrice(secondCost) : '+$0';
+  document.getElementById('priceTotalDesktop').textContent = fmtPrice(total);
+
+  // Mobile
+  document.getElementById('priceTotalMobile').textContent = fmtPrice(total);
+  let mAddonHTML = '';
+  for (const [k, v] of Object.entries(state.addons)) {
+    if (v) mAddonHTML += `<div class="price-line"><span class="label">${ADDON_LABELS[k]}</span><span class="amount">${fmtPrice(ADDON_PRICES[k])}</span></div>`;
+  }
+  document.getElementById('priceAddonLinesMobile').innerHTML = mAddonHTML;
+  const mSecLine = document.getElementById('priceSecondLineMobile');
+  if (state.secondVersion) {
+    mSecLine.style.display = 'flex';
+    mSecLine.querySelector('.amount').textContent = '+' + fmtPrice(secondCost);
+  } else {
+    mSecLine.style.display = 'none';
+  }
+}
+
+function toggleMobilePrice() {
+  const detail = document.getElementById('priceBarDetail');
+  const icon = document.getElementById('expandIcon');
+  detail.classList.toggle('open');
+  icon.classList.toggle('rotated');
+}
+
+/* ═══════════════════════════════════════════
+   STEP 4 — PREVIEW
+   ═══════════════════════════════════════════ */
+function getTemplate() {
+  const templates = TEMPLATES[state.eventType] || [];
+  return templates.find(t => t.id === state.templateId);
+}
+
+function renderPreview() {
+  const tpl = getTemplate();
+  if (!tpl) return;
+  const c = tpl.colors;
+  const screen = document.getElementById('previewScreen');
+
+  const isBoda = state.eventType === 'boda';
+  const isQuince = state.eventType === 'quince';
+
+  let nameBlock = '';
+  if (isBoda) {
+    nameBlock = `<div class="pi-names" style="color:${c.text}">Camila</div>
+      <div class="pi-amp" style="color:${c.accent}">&</div>
+      <div class="pi-names" style="color:${c.text}">Joaquín</div>`;
+  } else if (isQuince) {
+    nameBlock = `<div class="pi-badge" style="color:${c.muted}">✦ MIS QUINCE ✦</div>
+      <div class="pi-names" style="color:${c.text};font-size:1.7rem">Martina</div>`;
+  } else {
+    nameBlock = `<div class="pi-names" style="color:${c.text}">Franco</div>
+      <div style="font-family:var(--font-display);font-size:2.8rem;font-weight:700;color:${c.text};line-height:1">30</div>
+      <div class="pi-badge" style="color:${c.muted}">AÑOS</div>`;
+  }
+
+  let sections = '';
+
+  // Always: event info + map
+  sections += `<div class="pi-section" style="background:${c.bg2};color:${c.text}">
+    <strong style="color:${c.muted}">Evento</strong>
+    Sábado 15 de Marzo, 2026<br>20:00 hs · Elegante
+  </div>`;
+  sections += `<div class="pi-section" style="background:${c.bg2};color:${c.muted};font-size:0.6rem">📍 Ver ubicación en mapa</div>`;
+
+  if (state.addons.countdown) {
+    sections += `<div class="pi-section" style="background:${c.bg2};color:${c.text}">
+      <strong style="color:${c.muted}">Cuenta regresiva</strong>
+      <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:600">03 : 14 : 22 : 05</span>
+    </div>`;
+  }
+  if (state.addons.history) {
+    sections += `<div class="pi-section" style="background:${c.bg2};color:${c.text}">
+      <strong style="color:${c.muted}">Nuestra historia</strong>
+      <div style="width:100%;height:40px;background:${c.accent}20;border-radius:4px;margin-top:4px"></div>
+      <div style="margin-top:6px;font-size:0.58rem;opacity:0.6">Texto de historia...</div>
+    </div>`;
+  }
+  if (state.addons.music) {
+    sections += `<div class="pi-section" style="background:${c.bg2};color:${c.muted}">🎵 Reproducir música</div>`;
+  }
+  if (state.addons.gallery) {
+    sections += `<div class="pi-section" style="background:${c.bg2};color:${c.muted}">
+      <strong style="color:${c.muted}">Galería de fotos</strong>
+      📱 Escaneá el QR para subir fotos
+    </div>`;
+  }
+  if (state.addons.rsvp) {
+    sections += `<div class="pi-btn" style="background:${c.btnBg};color:${c.btnText}">Confirmar asistencia</div>`;
+  }
+
+  screen.innerHTML = `<div class="preview-inner" style="background:linear-gradient(180deg,${c.bg},${c.bg2})">
+    ${isBoda ? `<div class="pi-badge" style="color:${c.muted}">✦ NOS CASAMOS ✦</div>` : ''}
+    ${nameBlock}
+    <div class="pi-divider" style="background:${c.accent}"></div>
+    <div class="pi-date" style="color:${c.muted}">15 de Marzo, 2026</div>
+    ${sections}
+  </div>`;
+
+  // Summary
+  const { total } = calcTotal();
+  const activeAddons = Object.entries(state.addons).filter(([,v]) => v).map(([k]) => ADDON_LABELS[k]);
+  const allServices = ['Info del evento', 'Mapa', 'Fotos', 'URL única', ...activeAddons];
+  if (state.secondVersion) allServices.push('2da versión');
+
+  document.getElementById('previewSummary').innerHTML = `
+    <h4>Resumen de tu pedido</h4>
+    <div class="summary-item">
+      <div class="summary-label">Tipo de evento</div>
+      <div class="summary-value">${EVENT_LABELS[state.eventType]}</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Template</div>
+      <div class="summary-value">${tpl.name}</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Servicios</div>
+      <div class="summary-services">${allServices.map(s => `<span>${s}</span>`).join('')}</div>
+    </div>
+    <div class="summary-total">
+      <div class="summary-label">Total</div>
+      <div class="summary-value">${fmtPrice(total)}</div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   STEP 5 — FORM
+   ═══════════════════════════════════════════ */
+function renderFormSummary() {
+  const tpl = getTemplate();
+  const { total } = calcTotal();
+  const activeAddons = Object.entries(state.addons).filter(([,v]) => v).map(([k]) => ADDON_LABELS[k]);
+
+  let addonList = activeAddons.length
+    ? activeAddons.map(a => `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.85rem"><span style="color:var(--warm-gray);font-weight:300">${a}</span></div>`).join('')
+    : '<div style="font-size:0.85rem;color:var(--warm-gray);font-weight:300">Ninguno</div>';
+
+  document.getElementById('formOrderSummary').innerHTML = `
+    <h4 style="font-family:var(--font-display);font-size:1.2rem;font-weight:600;margin-bottom:20px">Resumen del pedido</h4>
+    <div class="summary-item"><div class="summary-label">Tipo de evento</div><div class="summary-value">${EVENT_LABELS[state.eventType]}</div></div>
+    <div class="summary-item"><div class="summary-label">Template</div><div class="summary-value">${tpl ? tpl.name : '-'}</div></div>
+    <div class="summary-item"><div class="summary-label">Incluido</div><div style="font-size:0.85rem;color:var(--warm-gray);font-weight:300">Info, mapa, fotos, URL</div></div>
+    <div class="summary-item"><div class="summary-label">Servicios adicionales</div>${addonList}</div>
+    ${state.secondVersion ? '<div class="summary-item"><div class="summary-label">2da versión</div><div class="summary-value">Sí (50% desc.)</div></div>' : ''}
+    <div class="summary-total"><div class="summary-label">Total</div><div class="summary-value" style="font-family:var(--font-display);font-size:1.8rem;font-weight:700">${fmtPrice(total)}</div></div>`;
+}
+
+function validateForm() {
+  const name = document.getElementById('fieldName');
+  const phone = document.getElementById('fieldPhone');
+  const email = document.getElementById('fieldEmail');
+
+  const nameOk = name.value.trim().length >= 2;
+  const phoneOk = /^[\d\s\+\-()]{6,30}$/.test(phone.value.trim());
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+
+  toggleFieldState(name, nameOk);
+  toggleFieldState(phone, phoneOk);
+  toggleFieldState(email, emailOk);
+
+  state.form = { name: name.value.trim(), phone: phone.value.trim(), email: email.value.trim() };
+  document.getElementById('btnSubmit').disabled = !(nameOk && phoneOk && emailOk);
+}
+
+function toggleFieldState(input, valid) {
+  if (input.value.length === 0) {
+    input.classList.remove('valid', 'invalid');
+    return;
+  }
+  input.classList.toggle('valid', valid);
+  input.classList.toggle('invalid', !valid);
+}
+
+/* ═══════════════════════════════════════════
+   STEP 6 — CONFIRMATION
+   ═══════════════════════════════════════════ */
+function submitOrder() {
+  if (document.getElementById('btnSubmit').disabled) return;
+  nextStep();
+}
+
+function renderConfirmation() {
+  const tpl = getTemplate();
+  const { total } = calcTotal();
+  const activeAddons = Object.entries(state.addons).filter(([,v]) => v).map(([k]) => ADDON_LABELS[k]);
+  const orderId = '#PED-2026-' + String(Math.floor(Math.random() * 900) + 100).padStart(3, '0');
+
+  document.getElementById('confirmOrderBox').innerHTML = `
+    <h4>Detalle del pedido</h4>
+    <div class="confirm-order-id">${orderId}</div>
+    <div class="summary-item"><div class="summary-label">Cliente</div><div class="summary-value">${state.form.name}</div></div>
+    <div class="summary-item"><div class="summary-label">Contacto</div><div class="summary-value">${state.form.phone} · ${state.form.email}</div></div>
+    <div class="summary-item"><div class="summary-label">Evento</div><div class="summary-value">${EVENT_LABELS[state.eventType]}</div></div>
+    <div class="summary-item"><div class="summary-label">Template</div><div class="summary-value">${tpl ? tpl.name : '-'}</div></div>
+    <div class="summary-item"><div class="summary-label">Servicios adicionales</div><div class="summary-value">${activeAddons.length ? activeAddons.join(', ') : 'Ninguno'}</div></div>
+    ${state.secondVersion ? '<div class="summary-item"><div class="summary-label">2da versión</div><div class="summary-value">Sí (50% desc.)</div></div>' : ''}
+    <div class="summary-total"><div class="summary-label">Total</div><div class="summary-value" style="font-family:var(--font-display);font-size:1.8rem;font-weight:700">${fmtPrice(total)}</div></div>`;
+
+  // WhatsApp link
+  const msg = encodeURIComponent(`Hola! Acabo de hacer un pedido de invitación digital.\n\nPedido: ${orderId}\nEvento: ${EVENT_LABELS[state.eventType]}\nTemplate: ${tpl ? tpl.name : '-'}\nTotal: ${fmtPrice(total)}\n\nNombre: ${state.form.name}\nTeléfono: ${state.form.phone}\nEmail: ${state.form.email}`);
+  document.getElementById('btnWhatsApp').href = `https://wa.me/?text=${msg}`;
+
+  // Confetti!
+  launchConfetti();
+}
+
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  container.innerHTML = '';
+  const colors = ['#c5a572', '#e8c4b0', '#a8b5a0', '#f5e6d3', '#c9a087', '#ddc9a0'];
+  for (let i = 0; i < 50; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 1.5 + 's';
+    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    container.appendChild(piece);
+  }
+  setTimeout(() => container.innerHTML = '', 4000);
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════ */
+showStep(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — festejá.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#f4f5f7;--card:#fff;--sidebar:#1a1f2e;--sidebar-hover:#252b3d;--sidebar-active:#2e3650;
+--gold:#c5a572;--gold-light:#ddc9a0;--gold-dark:#9e7f4e;
+--charcoal:#2d2926;--charcoal-soft:#4a4441;--gray:#6b7280;--gray-light:#9ca3af;--gray-lighter:#d1d5db;--gray-bg:#e5e7eb;
+--cream:#fefcf9;--white:#fff;
+--green:#16a34a;--green-bg:#dcfce7;--yellow:#ca8a04;--yellow-bg:#fef9c3;--orange:#ea580c;--orange-bg:#ffedd5;--red:#dc2626;--red-bg:#fee2e2;--blue:#2563eb;--blue-bg:#dbeafe;
+--radius:10px;--radius-lg:16px;--shadow:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 12px rgba(0,0,0,.08);
+--font:'Outfit',sans-serif;--font-display:'Cormorant Garamond',serif;
+--transition:.25s ease;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);color:var(--charcoal);background:var(--bg);line-height:1.5}
+a{text-decoration:none;color:inherit}
+button{font-family:var(--font);cursor:pointer;border:none}
+input,select,textarea{font-family:var(--font);outline:none}
+table{width:100%;border-collapse:collapse}
+ul{list-style:none}
+.hidden{display:none!important}
+
+/* ══════ LOGIN ══════ */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#1a1f2e,#2e3650);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-card{background:var(--white);border-radius:var(--radius-lg);padding:48px 40px;width:380px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
+.login-logo{font-family:var(--font-display);font-size:2rem;font-weight:600;margin-bottom:4px}
+.login-logo span{color:var(--gold);font-style:italic}
+.login-sub{font-size:.82rem;color:var(--gray);margin-bottom:32px}
+.login-group{text-align:left;margin-bottom:16px}
+.login-group label{display:block;font-size:.8rem;font-weight:500;margin-bottom:4px;color:var(--charcoal)}
+.login-group input{width:100%;padding:11px 14px;border:1.5px solid var(--gray-lighter);border-radius:8px;font-size:.9rem;transition:var(--transition)}
+.login-group input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(197,165,114,.15)}
+.login-remember{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--gray);margin-bottom:24px;text-align:left}
+.login-remember input{width:16px;height:16px;accent-color:var(--gold)}
+.login-btn{width:100%;padding:13px;background:var(--charcoal);color:var(--cream);border-radius:100px;font-weight:500;font-size:.95rem;transition:var(--transition)}
+.login-btn:hover{background:var(--charcoal-soft)}
+.login-error{color:var(--red);font-size:.82rem;margin-top:12px;display:none}
+.login-note{font-size:.72rem;color:var(--gray-light);margin-top:20px}
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+/* ══════ APP SHELL ══════ */
+.app{display:none;height:100vh;overflow:hidden}
+.app.visible{display:flex}
+
+/* Sidebar */
+.sidebar{width:240px;min-width:240px;background:var(--sidebar);color:#c8cdd8;display:flex;flex-direction:column;height:100vh;overflow-y:auto;transition:var(--transition);z-index:50}
+.sidebar-logo{padding:20px 22px;font-family:var(--font-display);font-size:1.4rem;font-weight:600;color:#fff;border-bottom:1px solid rgba(255,255,255,.06)}
+.sidebar-logo span{color:var(--gold);font-style:italic}
+.sidebar-nav{flex:1;padding:12px 10px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:8px;font-size:.88rem;font-weight:400;color:#a0a8ba;cursor:pointer;transition:var(--transition);position:relative;margin-bottom:2px}
+.nav-item:hover{background:var(--sidebar-hover);color:#d0d5e0}
+.nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:500}
+.nav-item.active::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--gold)}
+.nav-item .icon{width:20px;text-align:center;font-size:.95rem}
+.nav-item .badge{margin-left:auto;background:var(--gold);color:#fff;font-size:.65rem;font-weight:600;padding:2px 8px;border-radius:100px}
+.nav-item.highlight{background:linear-gradient(135deg,rgba(197,165,114,.15),rgba(197,165,114,.05));color:var(--gold);border:1px solid rgba(197,165,114,.2)}
+.nav-item.highlight:hover{background:linear-gradient(135deg,rgba(197,165,114,.25),rgba(197,165,114,.1))}
+.nav-sep{height:1px;background:rgba(255,255,255,.06);margin:12px 14px}
+.nav-item.logout{color:#f87171}
+.nav-item.logout:hover{background:rgba(248,113,113,.1)}
+
+/* Main area */
+.main-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* Top bar */
+.topbar{background:var(--white);border-bottom:1px solid rgba(0,0,0,.06);padding:14px 28px;display:flex;align-items:center;gap:16px;min-height:60px}
+.topbar-title{font-size:1.1rem;font-weight:600;flex:1}
+.topbar-search{position:relative}
+.topbar-search input{padding:8px 14px 8px 36px;border:1.5px solid var(--gray-lighter);border-radius:100px;font-size:.82rem;width:220px;transition:var(--transition)}
+.topbar-search input:focus{border-color:var(--gold);width:280px}
+.topbar-search::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:.75rem}
+.topbar-bell{position:relative;font-size:1.1rem;cursor:pointer;padding:6px}
+.topbar-bell .dot{position:absolute;top:4px;right:4px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--white)}
+.topbar-user{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:var(--transition)}
+.topbar-user:hover{background:var(--bg)}
+.topbar-avatar{width:32px;height:32px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600}
+.topbar-user-name{font-size:.85rem;font-weight:500}
+
+/* Content */
+.content{flex:1;overflow-y:auto;padding:28px}
+
+/* Views */
+.view{display:none}
+.view.active{display:block}
+
+/* ══════ CARDS & WIDGETS ══════ */
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:28px}
+.metric-card{background:var(--white);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px}
+.metric-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.metric-icon.yellow{background:var(--yellow-bg);color:var(--yellow)}
+.metric-icon.green{background:var(--green-bg);color:var(--green)}
+.metric-icon.orange{background:var(--orange-bg);color:var(--orange)}
+.metric-icon.blue{background:var(--blue-bg);color:var(--blue)}
+.metric-info .num{font-size:1.8rem;font-weight:700;line-height:1.1}
+.metric-info .label{font-size:.78rem;color:var(--gray);font-weight:400}
+
+.panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{background:var(--white);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.panel-header h3{font-size:1rem;font-weight:600}
+.panel-header a{font-size:.8rem;color:var(--gold-dark);font-weight:500}
+
+/* ══════ TABLES ══════ */
+.table-wrap{overflow-x:auto}
+table th{text-align:left;padding:10px 12px;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);background:var(--bg);border-bottom:1px solid var(--gray-lighter)}
+table td{padding:10px 12px;font-size:.85rem;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+table tbody tr:hover{background:#fafbfc}
+table tbody tr:nth-child(even){background:#fafbfd}
+table tbody tr:nth-child(even):hover{background:#f5f6f8}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.badge-yellow{background:var(--yellow-bg);color:var(--yellow)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-orange{background:var(--orange-bg);color:var(--orange)}
+.badge-gray{background:var(--gray-bg);color:var(--gray)}
+
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.68rem;background:var(--bg);color:var(--gray);margin:1px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:.82rem;font-weight:500;transition:var(--transition)}
+.btn-sm{padding:5px 10px;font-size:.75rem;border-radius:6px}
+.btn-primary{background:var(--charcoal);color:var(--cream)}
+.btn-primary:hover{background:var(--charcoal-soft)}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-gold:hover{background:var(--gold-dark)}
+.btn-outline{border:1.5px solid var(--gray-lighter);background:transparent;color:var(--charcoal)}
+.btn-outline:hover{border-color:var(--charcoal)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#15803d}
+.btn-wa{background:#25D366;color:#fff}
+.btn-wa:hover{background:#1eb954}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#b91c1c}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.action-btns{display:flex;gap:4px;flex-wrap:wrap}
+
+/* ══════ FILTERS ══════ */
+.filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
+.filter-group{display:flex;flex-direction:column;gap:3px}
+.filter-group label{font-size:.7rem;font-weight:500;color:var(--gray)}
+.filter-group select,.filter-group input{padding:8px 12px;border:1.5px solid var(--gray-lighter);border-radius:8px;font-size:.82rem;background:var(--white);min-width:160px}
+.filter-group select:focus,.filter-group input:focus{border-color:var(--gold)}
+
+.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid var(--gray-bg);padding-bottom:0}
+.tab-btn{padding:10px 20px;font-size:.85rem;font-weight:500;color:var(--gray);background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:var(--transition)}
+.tab-btn.active{color:var(--charcoal);border-color:var(--gold)}
+.tab-btn:hover{color:var(--charcoal)}
+
+/* ══════ MODAL ══════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--radius-lg);width:600px;max-width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #f0f0f0}
+.modal-header h3{font-size:1.05rem;font-weight:600}
+.modal-close{font-size:1.3rem;cursor:pointer;color:var(--gray);padding:4px 8px;border-radius:6px;background:none}
+.modal-close:hover{background:var(--bg)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:8px}
+
+/* ══════ FORM (admin) ══════ */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-full{grid-column:1/-1}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:.8rem;font-weight:500;margin-bottom:4px;color:var(--charcoal)}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 14px;border:1.5px solid var(--gray-lighter);border-radius:8px;font-size:.88rem;transition:var(--transition);background:var(--white)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(197,165,114,.12)}
+.fg textarea{resize:vertical;min-height:80px}
+.fg .helper{font-size:.72rem;color:var(--gray);margin-top:3px}
+.fg input[type="color"]{height:40px;padding:4px;cursor:pointer}
+.char-count{font-size:.7rem;color:var(--gray-light);text-align:right}
+
+/* Upload zones */
+.upload-zone{border:2px dashed var(--gray-lighter);border-radius:var(--radius);padding:32px;text-align:center;color:var(--gray);cursor:pointer;transition:var(--transition)}
+.upload-zone:hover{border-color:var(--gold);background:rgba(197,165,114,.03)}
+.upload-zone .uz-icon{font-size:2rem;margin-bottom:8px}
+.upload-zone .uz-text{font-size:.85rem}
+.upload-zone .uz-hint{font-size:.72rem;color:var(--gray-light);margin-top:4px}
+
+.photo-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.photo-thumb{width:80px;height:80px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;position:relative;font-size:.6rem;color:var(--gray)}
+.photo-thumb .remove{position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;font-size:.6rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* Admin Stepper */
+.admin-stepper{display:flex;align-items:center;gap:0;margin-bottom:32px;overflow-x:auto;padding-bottom:4px}
+.as-step{display:flex;align-items:center;gap:8px;padding:10px 16px;font-size:.82rem;font-weight:400;color:var(--gray);white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent;transition:var(--transition)}
+.as-step.active{color:var(--charcoal);font-weight:600;border-color:var(--gold)}
+.as-step.done{color:var(--green)}
+.as-step .as-num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--gray-lighter);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:600;transition:var(--transition)}
+.as-step.active .as-num{background:var(--gold);color:#fff;border-color:var(--gold)}
+.as-step.done .as-num{background:var(--green);color:#fff;border-color:var(--green)}
+
+.step-content{display:none}
+.step-content.active{display:block;animation:fadeSlideIn .3s ease}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.step-nav-admin{display:flex;justify-content:space-between;margin-top:28px;padding-top:20px;border-top:1px solid #f0f0f0}
+
+/* Toggle */
+.toggle-row{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--white);border:1.5px solid #f0f0f0;border-radius:var(--radius);margin-bottom:8px;transition:var(--transition)}
+.toggle-row.on{border-color:var(--gold);background:rgba(197,165,114,.03)}
+.toggle-switch{position:relative;width:44px;height:24px;min-width:44px}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute}
+.toggle-switch .slider{position:absolute;inset:0;background:var(--gray-lighter);border-radius:12px;transition:var(--transition);cursor:pointer}
+.toggle-switch .slider::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:var(--transition);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.toggle-switch input:checked+.slider{background:var(--gold)}
+.toggle-switch input:checked+.slider::before{transform:translateX(20px)}
+.toggle-info{flex:1}
+.toggle-info .t-name{font-weight:500;font-size:.9rem}
+.toggle-info .t-desc{font-size:.75rem;color:var(--gray);margin-top:1px}
+
+/* Section blocks */
+.section-block{background:var(--white);border:1px solid #f0f0f0;border-radius:var(--radius);padding:16px 20px;margin-bottom:12px}
+.section-block h4{font-size:.9rem;font-weight:600;margin-bottom:4px}
+
+/* History blocks */
+.history-block{background:var(--bg);border-radius:var(--radius);padding:16px;margin-bottom:12px;position:relative}
+.history-block h5{font-size:.82rem;font-weight:600;margin-bottom:10px}
+.hb-remove{position:absolute;top:12px;right:12px;font-size:.75rem;color:var(--red);cursor:pointer;background:none;padding:4px 8px;border-radius:4px}
+.hb-remove:hover{background:var(--red-bg)}
+
+/* Templates grid */
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tpl-card{background:var(--white);border:2px solid transparent;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:var(--transition)}
+.tpl-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.tpl-card.selected{border-color:var(--gold)}
+.tpl-card .tpl-preview{height:140px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.1rem;font-weight:600}
+.tpl-card .tpl-name{padding:10px 12px;font-size:.82rem;font-weight:500}
+
+/* Checklist */
+.checklist-item{display:flex;align-items:center;gap:10px;padding:10px 0;font-size:.88rem}
+.checklist-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff}
+.checklist-icon.ok{background:var(--green)}
+.checklist-icon.fail{background:var(--red)}
+
+/* Result screen */
+.gen-result{text-align:center;padding:40px 20px}
+.gen-result .big-check{width:72px;height:72px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2rem;color:#fff;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes popIn{0%{transform:scale(0)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.gen-result h3{font-size:1.3rem;font-weight:700;margin-bottom:8px}
+.gen-result .url-box{display:flex;align-items:center;gap:8px;justify-content:center;background:var(--bg);padding:12px 20px;border-radius:8px;margin:20px auto;max-width:420px;font-size:.85rem;font-family:monospace}
+.gen-result .url-box .copy-btn{cursor:pointer;color:var(--gold-dark);font-weight:500}
+.gen-result .result-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+
+/* Services editable table */
+.editable-cell{cursor:pointer;position:relative}
+.editable-cell:hover{background:rgba(197,165,114,.06)}
+.editable-cell input{position:absolute;inset:0;padding:10px 12px;border:2px solid var(--gold);border-radius:0;font-size:.85rem;font-family:var(--font);background:var(--white)}
+
+/* Expire list */
+.expire-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:.85rem}
+.expire-item:last-child{border-bottom:none}
+.expire-days{font-weight:600}
+.expire-days.danger{color:var(--red)}
+.expire-days.warn{color:var(--orange)}
+
+/* Mobile hamburger */
+.mobile-toggle{display:none;background:none;font-size:1.4rem;padding:4px 8px;color:var(--charcoal)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:49}
+
+/* Loading overlay */
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.8);z-index:300;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.loading-overlay.show{display:flex}
+.spinner{width:40px;height:40px;border:3px solid var(--gray-lighter);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:900px){
+.metric-grid{grid-template-columns:1fr 1fr}
+.panel-grid{grid-template-columns:1fr}
+.form-grid{grid-template-columns:1fr}
+.form-grid.cols-3{grid-template-columns:1fr}
+.tpl-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+.sidebar{position:fixed;left:-240px;z-index:50;transition:left .3s ease}
+.sidebar.open{left:0}
+.sidebar-overlay.show{display:block}
+.mobile-toggle{display:block}
+.metric-grid{grid-template-columns:1fr 1fr}
+.tpl-grid{grid-template-columns:1fr}
+.content{padding:16px}
+.topbar{padding:14px 16px}
+.topbar-search{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div class="login-screen" id="loginScreen">
+<div class="login-card" id="loginCard">
+  <div class="login-logo">festejá<span>.</span></div>
+  <div class="login-sub">Panel de Administración</div>
+  <div class="login-group"><label>Usuario</label><input type="text" id="loginUser" placeholder="admin" autocomplete="off"></div>
+  <div class="login-group"><label>Contraseña</label><input type="password" id="loginPass" placeholder="••••" autocomplete="off"></div>
+  <div class="login-remember"><input type="checkbox"> Recordarme</div>
+  <button class="login-btn" onclick="doLogin()">Iniciar Sesión</button>
+  <div class="login-error" id="loginError">Usuario o contraseña incorrectos</div>
+  <div class="login-note">Tras 5 intentos fallidos se bloqueará temporalmente la IP</div>
+</div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div class="app" id="app">
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-logo">festejá<span>.</span></div>
+<nav class="sidebar-nav">
+  <div class="nav-item active" data-view="dashboard" onclick="navigate('dashboard',this)"><span class="icon">📊</span>Dashboard</div>
+  <div class="nav-item" data-view="orders" onclick="navigate('orders',this)"><span class="icon">📥</span>Pedidos<span class="badge">2</span></div>
+  <div class="nav-item" data-view="invitations" onclick="navigate('invitations',this)"><span class="icon">💌</span>Invitaciones</div>
+  <div class="nav-item highlight" data-view="create" onclick="navigate('create',this)"><span class="icon">➕</span>Crear Invitación</div>
+  <div class="nav-item" data-view="services" onclick="navigate('services',this)"><span class="icon">⚙️</span>Servicios</div>
+  <div class="nav-item" data-view="templates" onclick="navigate('templates',this)"><span class="icon">🎨</span>Templates</div>
+  <div class="nav-item" data-view="reports" onclick="navigate('reports',this)"><span class="icon">📈</span>Reportes</div>
+  <div class="nav-sep"></div>
+  <div class="nav-item logout" onclick="doLogout()"><span class="icon">🚪</span>Cerrar Sesión</div>
+</nav>
+</aside>
+
+<!-- Main -->
+<div class="main-area">
+<header class="topbar">
+  <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+  <div class="topbar-title" id="topbarTitle">Dashboard</div>
+  <div class="topbar-search"><input type="text" placeholder="Buscar..."></div>
+  <div class="topbar-bell" title="Notificaciones">🔔<div class="dot"></div></div>
+  <div class="topbar-user"><div class="topbar-avatar">A</div><span class="topbar-user-name">Admin</span></div>
+</header>
+
+<div class="content" id="contentArea">
+
+<!-- ══════ DASHBOARD ══════ -->
+<div class="view active" id="view-dashboard">
+  <div class="metric-grid">
+    <div class="metric-card"><div class="metric-icon yellow">📥</div><div class="metric-info"><div class="num">2</div><div class="label">Pedidos Pendientes</div></div></div>
+    <div class="metric-card"><div class="metric-icon green">💌</div><div class="metric-info"><div class="num">3</div><div class="label">Invitaciones Activas</div></div></div>
+    <div class="metric-card"><div class="metric-icon orange">⏳</div><div class="metric-info"><div class="num">1</div><div class="label">Próximas a Expirar</div></div></div>
+    <div class="metric-card"><div class="metric-icon blue">💰</div><div class="metric-info"><div class="num">$330.000</div><div class="label">Ingresos del Mes</div></div></div>
+  </div>
+  <div class="panel-grid">
+    <div class="panel">
+      <div class="panel-header"><h3>Últimos Pedidos</h3><a href="#" onclick="navigate('orders',document.querySelector('[data-view=orders]'));return false">Ver todos →</a></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Cliente</th><th>Evento</th><th>Precio</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>Valentina Ruiz</td><td>Quinceañera</td><td>$110.000</td><td><span class="badge badge-yellow">Pendiente</span></td></tr>
+          <tr><td>Lucas Fernández</td><td>Cumpleaños</td><td>$90.000</td><td><span class="badge badge-yellow">Pendiente</span></td></tr>
+          <tr><td>Andrea Molina</td><td>Quinceañera</td><td>$60.000</td><td><span class="badge badge-blue">Contactado</span></td></tr>
+          <tr><td>María García</td><td>Boda</td><td>$110.000</td><td><span class="badge badge-green">Completado</span></td></tr>
+          <tr><td>Martín & Carolina</td><td>Boda</td><td>$50.000</td><td><span class="badge badge-red">Cancelado</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>Próximas a Expirar</h3><a href="#" onclick="navigate('reports',document.querySelector('[data-view=reports]'));return false">Ver todas →</a></div>
+      <div class="expire-item"><div><strong>Cumple de 30 de Lucas</strong><br><span style="font-size:.78rem;color:var(--gray)">18/03/2026</span></div><div class="expire-days danger">6 días</div></div>
+      <div class="expire-item"><div><strong>Los 15 de Valentina</strong><br><span style="font-size:.78rem;color:var(--gray)">20/04/2026</span></div><div class="expire-days warn">39 días</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ ORDERS ══════ -->
+<div class="view" id="view-orders">
+  <div class="filters">
+    <div class="filter-group"><label>Estado</label><select id="filterStatus" onchange="filterOrders()"><option value="">Todos</option><option value="PENDIENTE">Pendiente</option><option value="CONTACTADO">Contactado</option><option value="COMPLETADO">Completado</option><option value="CANCELADO">Cancelado</option></select></div>
+    <div class="filter-group"><label>Tipo</label><select id="filterType" onchange="filterOrders()"><option value="">Todos</option><option value="Boda">Boda</option><option value="Quinceañera">Quinceañera</option><option value="Cumpleaños">Cumpleaños</option></select></div>
+    <div class="filter-group"><label>Buscar cliente</label><input type="text" id="filterClient" placeholder="Nombre..." oninput="filterOrders()"></div>
+  </div>
+  <div class="table-wrap"><table id="ordersTable">
+    <thead><tr><th>ID</th><th>Cliente</th><th>Teléfono</th><th>Tipo</th><th>Template</th><th>Servicios</th><th>Precio</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+    <tbody id="ordersBody"></tbody>
+  </table></div>
+</div>
+
+<!-- ══════ INVITATIONS ══════ -->
+<div class="view" id="view-invitations">
+  <div class="tabs" id="invTabs">
+    <button class="tab-btn active" onclick="filterInvitations('all',this)">Todas</button>
+    <button class="tab-btn" onclick="filterInvitations('active',this)">Activas</button>
+    <button class="tab-btn" onclick="filterInvitations('expiring',this)">Próximas a Expirar</button>
+    <button class="tab-btn" onclick="filterInvitations('expired',this)">Expiradas</button>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Título</th><th>Tipo</th><th>Template</th><th>Fecha Evento</th><th>Días Rest.</th><th>Confirmados</th><th>Estado</th><th>Acciones</th></tr></thead>
+    <tbody id="invBody"></tbody>
+  </table></div>
+</div>
+
+<!-- ══════ CREATE INVITATION ══════ -->
+<div class="view" id="view-create">
+  <div class="admin-stepper" id="adminStepper">
+    <div class="as-step active" data-as="1" onclick="goAdminStep(1)"><span class="as-num">1</span>Datos Básicos</div>
+    <div class="as-step" data-as="2" onclick="goAdminStep(2)"><span class="as-num">2</span>Evento</div>
+    <div class="as-step" data-as="3" onclick="goAdminStep(3)"><span class="as-num">3</span>Servicios</div>
+    <div class="as-step" data-as="4" onclick="goAdminStep(4)"><span class="as-num">4</span>Contenido</div>
+    <div class="as-step" data-as="5" onclick="goAdminStep(5)"><span class="as-num">5</span>Invitados</div>
+    <div class="as-step" data-as="6" onclick="goAdminStep(6)"><span class="as-num">6</span>Revisar</div>
+  </div>
+
+  <!-- AS1: Datos Básicos -->
+  <div class="step-content active" id="as1">
+    <h3 style="margin-bottom:20px">Datos Básicos</h3>
+    <div class="form-grid">
+      <div class="fg"><label>Pedido asociado</label><select id="asPedido" onchange="prefillFromOrder()"><option value="">— Seleccionar (opcional) —</option><option value="1">PED-001 · María García · Boda</option></select><div class="helper">Si seleccionás un pedido, se precargarán los datos</div></div>
+      <div class="fg"><label>Tipo de evento</label><select id="asEventType" onchange="showAdminTemplates();showDynamicFields()"><option value="">Seleccionar</option><option value="boda">Boda</option><option value="quince">Quinceañera</option><option value="cumple">Cumpleaños</option></select></div>
+    </div>
+    <div style="margin-bottom:16px"><label style="display:block;font-size:.8rem;font-weight:500;margin-bottom:8px">Template</label>
+      <div class="tpl-grid" id="asTemplateGrid"></div>
+    </div>
+    <div class="fg"><label>Título del evento</label><input type="text" id="asTitle" maxlength="200" placeholder="Ej: Boda de María & Joaquín" oninput="updateCharCount(this,200)"><div class="char-count"><span>0</span>/200</div></div>
+    <div class="step-nav-admin"><div></div><button class="btn btn-primary" onclick="nextAdminStep()">Siguiente →</button></div>
+  </div>
+
+  <!-- AS2: Evento -->
+  <div class="step-content" id="as2">
+    <h3 style="margin-bottom:20px">Información del Evento</h3>
+    <div class="form-grid">
+      <div class="fg"><label>Fecha del evento</label><input type="date" id="asDate"></div>
+      <div class="fg"><label>Hora del evento</label><input type="time" id="asTime"></div>
+      <div class="fg"><label>Nombre del lugar</label><input type="text" maxlength="300" placeholder="Ej: Estancia La Primavera"></div>
+      <div class="fg"><label>Dirección completa</label><input type="text" maxlength="500" placeholder="Ej: Ruta 6 Km 20, Pilar, Buenos Aires"></div>
+      <div class="fg"><label>Latitud</label><input type="number" step="any" placeholder="-34.5888"></div>
+      <div class="fg"><label>Longitud</label><input type="number" step="any" placeholder="-58.6796"></div>
+      <div class="fg"><label>Color primario</label><div style="display:flex;gap:10px;align-items:center"><input type="color" value="#c5a572" style="width:60px"><span style="font-size:.8rem;color:var(--gray)">#c5a572</span></div></div>
+      <div class="fg"><label>Contraseña lista asistentes</label><input type="text" maxlength="255" placeholder="Opcional"></div>
+      <div class="fg"><label>Max fotos galería</label><input type="number" value="1000"></div>
+      <div class="fg"><label>Fecha expiración</label><input type="text" disabled placeholder="Auto: fecha_evento + 3 meses" style="background:var(--bg)"></div>
+    </div>
+
+    <!-- Dynamic fields: Boda -->
+    <div id="fieldsBoda" class="hidden" style="margin-top:20px">
+      <h4 style="margin-bottom:12px;font-size:.95rem">Campos específicos — Boda</h4>
+      <div class="form-grid">
+        <div class="fg"><label>Nombre Novio/a 1</label><input type="text" placeholder="Camila"></div>
+        <div class="fg"><label>Nombre Novio/a 2</label><input type="text" placeholder="Joaquín"></div>
+        <div class="fg"><label>Tipo ceremonia</label><select><option>Civil</option><option>Religiosa</option><option selected>Ambas</option></select></div>
+        <div class="fg"><label>Hora ceremonia</label><input type="time" value="16:00"></div>
+        <div class="fg"><label>Lugar ceremonia</label><input type="text" placeholder="Iglesia..."></div>
+        <div class="fg"><label>Hora recepción</label><input type="time" value="20:00"></div>
+        <div class="fg form-full"><label>Lugar recepción</label><input type="text" placeholder="Salón/Estancia..."></div>
+        <div class="fg"><label>Dress code</label><input type="text" placeholder="Elegante"></div>
+        <div class="fg"><label>Restricciones alimentarias</label><textarea placeholder="Indicar si aplica"></textarea></div>
+      </div>
+    </div>
+
+    <!-- Dynamic fields: Quinceañera -->
+    <div id="fieldsQuince" class="hidden" style="margin-top:20px">
+      <h4 style="margin-bottom:12px;font-size:.95rem">Campos específicos — Quinceañera</h4>
+      <div class="form-grid">
+        <div class="fg"><label>Nombre de la quinceañera</label><input type="text" placeholder="Martina"></div>
+        <div class="fg"><label>Color temático</label><input type="color" value="#d4a0b8" style="width:60px;height:40px"></div>
+        <div class="fg"><label>Hora presentación</label><input type="time" value="21:00"></div>
+        <div class="fg"><label>Vals — Pareja</label><input type="text" placeholder="Nombre"></div>
+        <div class="fg"><label>Vals — Canción</label><input type="text" placeholder="Nombre de la canción"></div>
+        <div class="fg form-full"><label>Padrinos/Madrinas</label><textarea placeholder="Lista de padrinos y madrinas"></textarea></div>
+        <div class="fg"><label>Dress code</label><input type="text" placeholder="Elegante"></div>
+        <div class="fg"><label>Temática</label><input type="text" placeholder="Ej: Jardín encantado"></div>
+      </div>
+    </div>
+
+    <!-- Dynamic fields: Cumpleaños -->
+    <div id="fieldsCumple" class="hidden" style="margin-top:20px">
+      <h4 style="margin-bottom:12px;font-size:.95rem">Campos específicos — Cumpleaños</h4>
+      <div class="form-grid">
+        <div class="fg"><label>Nombre del festejado</label><input type="text" placeholder="Franco"></div>
+        <div class="fg"><label>Edad que cumple</label><input type="number" placeholder="30"></div>
+        <div class="fg"><label>Tipo</label><select><option>Adulto</option><option>Infantil</option><option>Temático</option><option>Formal</option><option>Casual</option></select></div>
+        <div class="fg form-full"><label>Actividades</label><textarea placeholder="Indicar actividades"></textarea></div>
+        <div class="fg"><label>Dress code</label><input type="text" placeholder="Casual elegante"></div>
+        <div class="fg form-full"><label>Restricciones alimentarias</label><textarea placeholder="Indicar si aplica"></textarea></div>
+      </div>
+    </div>
+
+    <div class="step-nav-admin"><button class="btn btn-outline" onclick="prevAdminStep()">← Anterior</button><button class="btn btn-primary" onclick="nextAdminStep()">Siguiente →</button></div>
+  </div>
+
+  <!-- AS3: Servicios -->
+  <div class="step-content" id="as3">
+    <h3 style="margin-bottom:20px">Servicios</h3>
+    <div class="toggle-row on"><label class="toggle-switch"><input type="checkbox" checked disabled><span class="slider"></span></label><div class="toggle-info"><div class="t-name">Mapa con Google Maps</div><div class="t-desc">Se mostrará Google Maps con la ubicación (incluido)</div></div></div>
+    <div class="toggle-row" id="svcRsvp"><label class="toggle-switch"><input type="checkbox" onchange="toggleSvc(this,'rsvp')"><span class="slider"></span></label><div class="toggle-info"><div class="t-name">Confirmación de Asistencia</div><div class="t-desc">Se habilitará el botón RSVP en la invitación</div></div></div>
+    <div class="toggle-row" id="svcCountdown"><label class="toggle-switch"><input type="checkbox" onchange="toggleSvc(this,'countdown')"><span class="slider"></span></label><div class="toggle-info"><div class="t-name">Cuenta Regresiva</div><div class="t-desc">Se mostrará countdown hasta el evento</div></div></div>
+    <div class="toggle-row" id="svcMusic"><label class="toggle-switch"><input type="checkbox" onchange="toggleSvc(this,'music')"><span class="slider"></span></label><div class="toggle-info"><div class="t-name">Música</div><div class="t-desc">En el paso 4 podrás cargar el MP3</div></div></div>
+    <div class="toggle-row" id="svcHistory"><label class="toggle-switch"><input type="checkbox" onchange="toggleSvc(this,'history')"><span class="slider"></span></label><div class="toggle-info"><div class="t-name">Historia</div><div class="t-desc">En el paso 4 podrás escribir la historia y subir fotos</div></div></div>
+    <div class="toggle-row" id="svcGallery"><label class="toggle-switch"><input type="checkbox" onchange="toggleSvc(this,'gallery')"><span class="slider"></span></label><div class="toggle-info"><div class="t-name">Galería de Fotos con QR</div><div class="t-desc">Los invitados podrán subir fotos el día del evento</div></div></div>
+    <div class="step-nav-admin"><button class="btn btn-outline" onclick="prevAdminStep()">← Anterior</button><button class="btn btn-primary" onclick="nextAdminStep()">Siguiente →</button></div>
+  </div>
+
+  <!-- AS4: Contenido -->
+  <div class="step-content" id="as4">
+    <h3 style="margin-bottom:20px">Contenido Multimedia</h3>
+
+    <div class="section-block">
+      <h4>📷 Fotos del Anfitrión <span style="font-size:.75rem;color:var(--gray);font-weight:400">(máx. 5)</span></h4>
+      <p style="font-size:.78rem;color:var(--gray);margin-bottom:12px">La primera foto se usará como header de la invitación.</p>
+      <div class="upload-zone" onclick="addPhotoPlaceholder()"><div class="uz-icon">📁</div><div class="uz-text">Arrastrá fotos acá o hacé click para subir</div><div class="uz-hint">JPG, PNG · Máx 5MB por foto</div></div>
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+
+    <div class="section-block hidden" id="musicSection">
+      <h4>🎵 Música</h4>
+      <p style="font-size:.78rem;color:var(--gray);margin-bottom:12px">Se reproducirá al abrir la invitación. Máximo 20 MB.</p>
+      <div class="upload-zone"><div class="uz-icon">🎵</div><div class="uz-text">Arrastrá un archivo MP3 acá</div><div class="uz-hint">MP3 · Máx 20MB</div></div>
+    </div>
+
+    <div class="section-block hidden" id="historySection">
+      <h4>📖 Historia</h4>
+      <p style="font-size:.78rem;color:var(--gray);margin-bottom:12px">Hasta 3 secciones con texto e imagen.</p>
+      <div id="historyBlocks">
+        <div class="history-block"><h5>Sección 1 de 3</h5><div class="fg"><label>Texto</label><textarea maxlength="1000" placeholder="Contá tu historia..."></textarea></div><div class="upload-zone" style="padding:16px"><div class="uz-text" style="font-size:.78rem">📷 Subir imagen para esta sección</div></div></div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:8px" onclick="addHistoryBlock()">+ Agregar sección</button>
+    </div>
+
+    <div class="step-nav-admin"><button class="btn btn-outline" onclick="prevAdminStep()">← Anterior</button><button class="btn btn-primary" onclick="nextAdminStep()">Siguiente →</button></div>
+  </div>
+
+  <!-- AS5: Invitados -->
+  <div class="step-content" id="as5">
+    <h3 style="margin-bottom:20px">Invitados</h3>
+    <div class="toggle-row" style="margin-bottom:20px"><label class="toggle-switch"><input type="checkbox" id="toggleGuestUrls" onchange="toggleGuestMode()"><span class="slider"></span></label><div class="toggle-info"><div class="t-name">Generar URLs personalizadas por invitado</div><div class="t-desc">Si no, se generará una URL genérica para compartir</div></div></div>
+    <div id="guestSection" class="hidden">
+      <div class="form-grid">
+        <div class="fg form-full"><label>Pegar lista JSON</label><textarea id="guestJson" rows="5" placeholder='[{"nombre":"Juan","apellido":"Pérez"},{"nombre":"María","apellido":"García"}]'></textarea><div class="helper">Formato: [{"nombre":"...","apellido":"..."}]</div></div>
+      </div>
+      <button class="btn btn-primary" style="margin-bottom:16px" onclick="loadGuests()">Validar y cargar</button>
+      <div id="guestPreview" class="hidden">
+        <div style="margin-bottom:8px;font-size:.85rem;font-weight:500" id="guestCount"></div>
+        <div class="table-wrap"><table><thead><tr><th>#</th><th>Nombre</th><th>Apellido</th><th>URL Preview</th></tr></thead><tbody id="guestBody"></tbody></table></div>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="clearGuests()">Limpiar lista</button>
+      </div>
+    </div>
+    <div class="step-nav-admin"><button class="btn btn-outline" onclick="prevAdminStep()">← Anterior</button><button class="btn btn-primary" onclick="nextAdminStep()">Siguiente →</button></div>
+  </div>
+
+  <!-- AS6: Revisar -->
+  <div class="step-content" id="as6">
+    <div id="reviewContent">
+      <h3 style="margin-bottom:20px">Revisión y Generación</h3>
+      <div class="form-grid" style="gap:16px;margin-bottom:24px">
+        <div class="section-block"><h4>Datos del pedido</h4><p style="font-size:.85rem;color:var(--gray)">Tipo: <strong id="rvType">—</strong><br>Template: <strong id="rvTemplate">—</strong><br>Título: <strong id="rvTitle">—</strong></p></div>
+        <div class="section-block"><h4>Evento</h4><p style="font-size:.85rem;color:var(--gray)">Fecha: <strong id="rvDate">—</strong><br>Hora: <strong id="rvTime">—</strong></p></div>
+        <div class="section-block"><h4>Servicios</h4><div id="rvServices" style="font-size:.85rem;color:var(--gray)">—</div></div>
+        <div class="section-block"><h4>Contenido</h4><p style="font-size:.85rem;color:var(--gray)" id="rvContent">—</p></div>
+      </div>
+      <h4 style="margin-bottom:12px">Checklist</h4>
+      <div class="checklist-item"><div class="checklist-icon ok">✓</div>Datos básicos completos</div>
+      <div class="checklist-item"><div class="checklist-icon ok">✓</div>Información del evento completa</div>
+      <div class="checklist-item"><div class="checklist-icon ok">✓</div>Servicios configurados</div>
+      <div class="checklist-item"><div class="checklist-icon ok">✓</div>Contenido multimedia cargado</div>
+      <div class="step-nav-admin"><button class="btn btn-outline" onclick="prevAdminStep()">← Anterior</button><button class="btn btn-gold" style="padding:14px 36px;font-size:.95rem" onclick="generateInvitation()">Generar Invitación</button></div>
+    </div>
+    <div id="genResult" class="hidden">
+      <div class="gen-result">
+        <div class="big-check">✓</div>
+        <h3>¡Invitación generada exitosamente!</h3>
+        <p style="color:var(--gray);margin-bottom:8px">La invitación está lista para compartir</p>
+        <div class="url-box"><span>invitaciones.com/abc123-4f7e-uuid</span><span class="copy-btn" onclick="copyUrl()">Copiar</span></div>
+        <div class="result-actions">
+          <button class="btn btn-wa">Enviar por WhatsApp</button>
+          <button class="btn btn-outline">Descargar CSV de URLs</button>
+          <button class="btn btn-outline">Ver invitación</button>
+          <button class="btn btn-primary" onclick="navigate('dashboard',document.querySelector('[data-view=dashboard]'))">Volver al Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SERVICES ══════ -->
+<div class="view" id="view-services">
+  <h3 style="margin-bottom:20px">Gestión de Servicios</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Nombre</th><th>Descripción</th><th>Precio</th><th>Incluido Base</th><th>Activo</th></tr></thead>
+    <tbody>
+      <tr><td>Info del Evento</td><td>Fecha, hora, ubicación, dress code</td><td>—</td><td><span class="badge badge-green">Sí</span></td><td><label class="toggle-switch" style="display:inline-block"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+      <tr><td>Mapa Google Maps</td><td>Ubicación con enlace a Maps</td><td>—</td><td><span class="badge badge-green">Sí</span></td><td><label class="toggle-switch" style="display:inline-block"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+      <tr><td>Fotos Anfitrión</td><td>Hasta 5 fotos, 1 para header</td><td>—</td><td><span class="badge badge-green">Sí</span></td><td><label class="toggle-switch" style="display:inline-block"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+      <tr><td>Confirmación RSVP</td><td>Botón de confirmar asistencia</td><td class="editable-cell" ondblclick="editCell(this)">$10.000</td><td><span class="badge badge-gray">No</span></td><td><label class="toggle-switch" style="display:inline-block"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+      <tr><td>Cuenta Regresiva</td><td>Countdown al evento</td><td class="editable-cell" ondblclick="editCell(this)">$10.000</td><td><span class="badge badge-gray">No</span></td><td><label class="toggle-switch" style="display:inline-block"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+      <tr><td>Música</td><td>MP3 al abrir la invitación</td><td class="editable-cell" ondblclick="editCell(this)">$10.000</td><td><span class="badge badge-gray">No</span></td><td><label class="toggle-switch" style="display:inline-block"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+      <tr><td>Historia</td><td>Sección con texto + fotos</td><td class="editable-cell" ondblclick="editCell(this)">$10.000</td><td><span class="badge badge-gray">No</span></td><td><label class="toggle-switch" style="display:inline-block"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+      <tr><td>Galería Fotos QR</td><td>QR para subir fotos (hasta 1000)</td><td class="editable-cell" ondblclick="editCell(this)">$50.000</td><td><span class="badge badge-gray">No</span></td><td><label class="toggle-switch" style="display:inline-block"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:.75rem;color:var(--gray);margin-top:12px">Doble click en el precio para editar inline. Enter para guardar.</p>
+</div>
+
+<!-- ══════ TEMPLATES ══════ -->
+<div class="view" id="view-templates">
+  <h3 style="margin-bottom:20px">Gestión de Templates</h3>
+  <div class="tpl-grid" id="manageTemplatesGrid"></div>
+</div>
+
+<!-- ══════ REPORTS ══════ -->
+<div class="view" id="view-reports">
+  <div class="tabs" id="reportTabs">
+    <button class="tab-btn active" onclick="showReportTab('active',this)">Invitaciones Activas</button>
+    <button class="tab-btn" onclick="showReportTab('expiring',this)">Próximas a Expirar</button>
+    <button class="tab-btn" onclick="showReportTab('deleted',this)">Eliminadas</button>
+  </div>
+  <div id="reportActive">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Título</th><th>Tipo</th><th>Fecha Evento</th><th>Días Rest.</th><th>Confirmados</th><th>Fotos</th><th>Storage</th></tr></thead>
+      <tbody>
+        <tr><td>Boda de María & Joaquín</td><td>Boda</td><td>15/11/2026</td><td style="color:var(--green)">248</td><td>45/120</td><td>85</td><td>120 MB</td></tr>
+        <tr><td>Los 15 de Valentina</td><td>Quinceañera</td><td>20/04/2026</td><td style="color:var(--orange)">39</td><td>80/150</td><td>210</td><td>340 MB</td></tr>
+        <tr><td>Cumple de 30 de Lucas</td><td>Cumpleaños</td><td>18/03/2026</td><td style="color:var(--red);font-weight:700">6</td><td>25/40</td><td>45</td><td>65 MB</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div id="reportExpiring" class="hidden">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Título</th><th>Tipo</th><th>Fecha Evento</th><th>Días Rest.</th><th>Confirmados</th></tr></thead>
+      <tbody><tr style="background:var(--red-bg)"><td>Cumple de 30 de Lucas</td><td>Cumpleaños</td><td>18/03/2026</td><td style="color:var(--red);font-weight:700">6</td><td>25/40</td></tr></tbody>
+    </table></div>
+  </div>
+  <div id="reportDeleted" class="hidden">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Título</th><th>Fecha Eliminación</th><th>Fotos Eliminadas</th><th>Detalles</th></tr></thead>
+      <tbody><tr><td>Boda de Martín & Carolina</td><td>10/03/2026</td><td>32</td><td>Expirada — evento 10/12/2025</td></tr></tbody>
+    </table></div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main-area -->
+</div><!-- /app -->
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modalTitle">Detalle</h3><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div style="font-size:.9rem;color:var(--gray)">Generando invitación...</div></div>
+
+<script>
+/* ══════ DATA ══════ */
+const ORDERS=[
+{id:'PED-001',client:'María García',phone:'+54 11 5555-1001',email:'maria@email.com',type:'Boda',template:'Clásico Dorado',services:['RSVP','Cuenta Regresiva','Música','Historia','Galería'],price:110000,status:'COMPLETADO',date:'10/03/2026'},
+{id:'PED-002',client:'Andrea Molina',phone:'+54 11 5555-2002',email:'andrea@email.com',type:'Quinceañera',template:'Rosa Imperial',services:['RSVP','Cuenta Regresiva','Música'],price:60000,status:'CONTACTADO',date:'09/03/2026'},
+{id:'PED-003',client:'Lucas Fernández',phone:'+54 11 5555-3003',email:'lucas@email.com',type:'Cumpleaños',template:'Elegante & 30',services:['Música','Galería'],price:90000,status:'PENDIENTE',date:'11/03/2026'},
+{id:'PED-004',client:'Valentina Ruiz',phone:'+54 11 5555-4004',email:'vale@email.com',type:'Quinceañera',template:'Noche Encantada',services:['RSVP','Cuenta Regresiva','Música','Historia','Galería'],price:110000,status:'PENDIENTE',date:'12/03/2026'},
+{id:'PED-005',client:'Martín & Carolina',phone:'+54 11 5555-5005',email:'martin@email.com',type:'Boda',template:'Jardín Eterno',services:['RSVP','Historia'],price:50000,status:'CANCELADO',date:'05/03/2026'}
+];
+
+const INVITATIONS=[
+{title:'Boda de María & Joaquín',type:'Boda',template:'Clásico Dorado',dateEvt:'15/11/2026',daysLeft:248,confirmed:45,total:120,status:'active'},
+{title:'Los 15 de Valentina',type:'Quinceañera',template:'Rosa Imperial',dateEvt:'20/04/2026',daysLeft:39,confirmed:80,total:150,status:'active'},
+{title:'Cumple de 30 de Lucas',type:'Cumpleaños',template:'Elegante & 30',dateEvt:'18/03/2026',daysLeft:6,confirmed:25,total:40,status:'expiring'},
+{title:'Boda de Martín & Carolina',type:'Boda',template:'Jardín Eterno',dateEvt:'10/12/2025',daysLeft:0,confirmed:0,total:0,status:'expired'}
+];
+
+const TPL_COLORS={
+boda:[
+{id:'clasico-dorado',name:'Clásico Dorado',bg:'linear-gradient(135deg,#f7ede3,#efe0cc)',color:'#2d2926'},
+{id:'jardin-eterno',name:'Jardín Eterno',bg:'linear-gradient(135deg,#e8f0e6,#d4ddd0)',color:'#3a5a3a'},
+{id:'minimal-love',name:'Minimal Love',bg:'linear-gradient(135deg,#fff,#f5f5f5)',color:'#2d2926'}
+],
+quince:[
+{id:'rosa-imperial',name:'Rosa Imperial',bg:'linear-gradient(135deg,#fce4ec,#f8d0dc)',color:'#5a3a4a'},
+{id:'noche-encantada',name:'Noche Encantada',bg:'linear-gradient(135deg,#1a1a3a,#2a2a5a)',color:'#e0d0ff'},
+{id:'primavera',name:'Primavera',bg:'linear-gradient(135deg,#fef9f0,#fdf0f5)',color:'#6a4a5a'}
+],
+cumple:[
+{id:'fiesta-neon',name:'Fiesta Neon',bg:'linear-gradient(135deg,#1a1a2e,#16213e)',color:'#ff6fd8'},
+{id:'elegante-30',name:'Elegante & 30',bg:'linear-gradient(135deg,#f5f0ea,#ebe5dd)',color:'#2d2926'},
+{id:'party-time',name:'Party Time',bg:'linear-gradient(135deg,#fff3e0,#ffe0b2)',color:'#e65100'}
+]
+};
+
+function fmtPrice(n){return '$'+n.toLocaleString('es-AR')}
+const statusBadge=s=>({PENDIENTE:'badge-yellow',CONTACTADO:'badge-blue',COMPLETADO:'badge-green',CANCELADO:'badge-red'})[s]||'badge-gray';
+
+/* ══════ LOGIN ══════ */
+let loginAttempts=0;
+function doLogin(){
+  const u=document.getElementById('loginUser').value;
+  const p=document.getElementById('loginPass').value;
+  if(u==='admin'&&p==='admin'){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').classList.add('visible');
+    renderOrders();renderInvitations();renderManageTemplates();
+  }else{
+    loginAttempts++;
+    document.getElementById('loginError').style.display='block';
+    document.getElementById('loginCard').classList.add('shake');
+    setTimeout(()=>document.getElementById('loginCard').classList.remove('shake'),400);
+  }
+}
+function doLogout(){
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginError').style.display='none';
+}
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+
+/* ══════ NAVIGATION ══════ */
+function navigate(view,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const titles={dashboard:'Dashboard',orders:'Pedidos',invitations:'Invitaciones',create:'Crear Invitación',services:'Servicios',templates:'Templates',reports:'Reportes'};
+  document.getElementById('topbarTitle').textContent=titles[view]||'';
+  if(view==='create')resetCreateWizard();
+  closeSidebar();
+}
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+/* ══════ ORDERS ══════ */
+function renderOrders(){
+  const body=document.getElementById('ordersBody');
+  body.innerHTML=ORDERS.map(o=>`<tr data-status="${o.status}" data-type="${o.type}" data-client="${o.client.toLowerCase()}">
+    <td style="font-weight:500;font-size:.8rem">${o.id}</td>
+    <td>${o.client}</td><td style="font-size:.82rem">${o.phone}</td>
+    <td>${o.type}</td><td>${o.template}</td>
+    <td>${o.services.map(s=>`<span class="tag">${s}</span>`).join('')}</td>
+    <td style="font-weight:600">${fmtPrice(o.price)}</td>
+    <td><span class="badge ${statusBadge(o.status)}">${o.status}</span></td>
+    <td style="font-size:.82rem">${o.date}</td>
+    <td><div class="action-btns">
+      <button class="btn btn-sm btn-outline" onclick="showOrderDetail('${o.id}')">Ver</button>
+      <button class="btn btn-sm btn-wa" onclick="window.open('https://wa.me/${o.phone.replace(/[^0-9+]/g,'')}?text=${encodeURIComponent('Hola '+o.client.split(' ')[0]+', soy de festejá. Recibimos tu pedido de invitación para '+o.type+'.')}')">WA</button>
+      ${o.status==='COMPLETADO'?'<button class="btn btn-sm btn-gold" onclick="navigate(\'create\',document.querySelector(\'[data-view=create]\'))">Crear</button>':''}
+    </div></td>
+  </tr>`).join('');
+}
+function filterOrders(){
+  const st=document.getElementById('filterStatus').value;
+  const tp=document.getElementById('filterType').value;
+  const cl=document.getElementById('filterClient').value.toLowerCase();
+  document.querySelectorAll('#ordersBody tr').forEach(r=>{
+    const match=(!st||r.dataset.status===st)&&(!tp||r.dataset.type===tp)&&(!cl||r.dataset.client.includes(cl));
+    r.style.display=match?'':'none';
+  });
+}
+function showOrderDetail(id){
+  const o=ORDERS.find(x=>x.id===id);if(!o)return;
+  document.getElementById('modalTitle').textContent='Pedido '+o.id;
+  const steps=['PENDIENTE','CONTACTADO','COMPLETADO'];
+  const idx=steps.indexOf(o.status);
+  document.getElementById('modalBody').innerHTML=`
+    <div style="display:flex;gap:16px;margin-bottom:20px">${steps.map((s,i)=>`<div style="display:flex;align-items:center;gap:6px"><div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;color:#fff;background:${i<=idx?'var(--green)':'var(--gray-lighter)'}">${i<idx?'✓':i+1}</div><span style="font-size:.78rem;color:${i<=idx?'var(--charcoal)':'var(--gray)'}">${s}</span></div>`).join('<div style="flex:1;height:2px;background:var(--gray-lighter);align-self:center"></div>')}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.88rem">
+      <div><span style="color:var(--gray)">Cliente:</span> <strong>${o.client}</strong></div>
+      <div><span style="color:var(--gray)">Teléfono:</span> ${o.phone}</div>
+      <div><span style="color:var(--gray)">Email:</span> ${o.email}</div>
+      <div><span style="color:var(--gray)">Tipo:</span> ${o.type}</div>
+      <div><span style="color:var(--gray)">Template:</span> ${o.template}</div>
+      <div><span style="color:var(--gray)">Precio:</span> <strong>${fmtPrice(o.price)}</strong></div>
+      <div style="grid-column:1/-1"><span style="color:var(--gray)">Servicios:</span> ${o.services.map(s=>`<span class="tag">${s}</span>`).join(' ')}</div>
+    </div>`;
+  document.getElementById('modalFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal()">Cerrar</button>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+/* ══════ INVITATIONS ══════ */
+function renderInvitations(filter='all'){
+  const body=document.getElementById('invBody');
+  const data=filter==='all'?INVITATIONS:INVITATIONS.filter(i=>i.status===filter);
+  body.innerHTML=data.map(i=>{
+    const statusLabel=i.status==='active'?'Activa':i.status==='expiring'?'Expira pronto':'Expirada';
+    const statusCls=i.status==='active'?'badge-green':i.status==='expiring'?'badge-orange':'badge-red';
+    const daysCls=i.daysLeft>30?'color:var(--green)':i.daysLeft>7?'color:var(--orange)':'color:var(--red);font-weight:700';
+    return `<tr>
+      <td style="font-weight:500">${i.title}</td><td>${i.type}</td><td>${i.template}</td><td>${i.dateEvt}</td>
+      <td style="${daysCls}">${i.daysLeft}</td><td>${i.confirmed}/${i.total}</td>
+      <td><span class="badge ${statusCls}">${statusLabel}</span></td>
+      <td><div class="action-btns">
+        <button class="btn btn-sm btn-outline">Ver</button>
+        <button class="btn btn-sm btn-outline" onclick="copyToClip('invitaciones.com/${i.title.toLowerCase().replace(/\s/g,'-').substring(0,20)}')">URL</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+function filterInvitations(filter,btn){
+  document.querySelectorAll('#invTabs .tab-btn').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderInvitations(filter);
+}
+
+/* ══════ CREATE WIZARD ══════ */
+let adminStep=1;
+const adminSvcState={rsvp:false,countdown:false,music:false,history:false,gallery:false};
+let selectedAdminTemplate='';
+let historyBlockCount=1;
+let guestList=[];
+let photoCount=0;
+
+function resetCreateWizard(){
+  adminStep=1;
+  Object.keys(adminSvcState).forEach(k=>adminSvcState[k]=false);
+  selectedAdminTemplate='';historyBlockCount=1;guestList=[];photoCount=0;
+  document.getElementById('genResult').classList.add('hidden');
+  document.getElementById('reviewContent').classList.remove('hidden');
+  updateAdminStepper();
+  document.querySelectorAll('#view-create .step-content').forEach(s=>s.classList.remove('active'));
+  document.getElementById('as1').classList.add('active');
+  document.querySelectorAll('#view-create .toggle-row input[type=checkbox]').forEach(cb=>{cb.checked=false;cb.closest('.toggle-row').classList.remove('on')});
+  document.getElementById('photoGrid').innerHTML='';
+  document.getElementById('asTitle').value='';
+  document.getElementById('asEventType').value='';
+  document.getElementById('asPedido').value='';
+  document.getElementById('asTemplateGrid').innerHTML='';
+  showDynamicFields();
+}
+
+function updateAdminStepper(){
+  document.querySelectorAll('.as-step').forEach(s=>{
+    const n=+s.dataset.as;
+    s.classList.remove('active','done');
+    if(n===adminStep)s.classList.add('active');
+    else if(n<adminStep)s.classList.add('done');
+  });
+}
+function showAdminStep(n){
+  adminStep=n;
+  updateAdminStepper();
+  document.querySelectorAll('#view-create .step-content').forEach(s=>s.classList.remove('active'));
+  document.getElementById('as'+n).classList.add('active');
+  if(n===4)updateContentVisibility();
+  if(n===6)buildReview();
+  document.getElementById('contentArea').scrollTop=0;
+}
+function nextAdminStep(){if(adminStep<6){showAdminStep(adminStep+1)}}
+function prevAdminStep(){if(adminStep>1){showAdminStep(adminStep-1)}}
+function goAdminStep(n){if(n<adminStep)showAdminStep(n)}
+
+function showAdminTemplates(){
+  const type=document.getElementById('asEventType').value;
+  const grid=document.getElementById('asTemplateGrid');
+  if(!type){grid.innerHTML='<p style="color:var(--gray);font-size:.85rem">Seleccioná un tipo de evento primero</p>';return;}
+  const tpls=TPL_COLORS[type]||[];
+  grid.innerHTML=tpls.map(t=>`<div class="tpl-card ${selectedAdminTemplate===t.id?'selected':''}" onclick="selectAdminTpl('${t.id}')"><div class="tpl-preview" style="background:${t.bg};color:${t.color}">${t.name}</div><div class="tpl-name">${t.name}</div></div>`).join('');
+}
+function selectAdminTpl(id){
+  selectedAdminTemplate=id;
+  showAdminTemplates();
+}
+
+function showDynamicFields(){
+  const t=document.getElementById('asEventType').value;
+  document.getElementById('fieldsBoda').classList.toggle('hidden',t!=='boda');
+  document.getElementById('fieldsQuince').classList.toggle('hidden',t!=='quince');
+  document.getElementById('fieldsCumple').classList.toggle('hidden',t!=='cumple');
+}
+
+function prefillFromOrder(){
+  const v=document.getElementById('asPedido').value;
+  if(v==='1'){
+    document.getElementById('asEventType').value='boda';
+    document.getElementById('asTitle').value='Boda de María & Joaquín';
+    showAdminTemplates();
+    selectAdminTpl('clasico-dorado');
+    showDynamicFields();
+    // Pre-activate services
+    ['rsvp','countdown','music','history','gallery'].forEach(k=>{
+      const el=document.getElementById('svc'+k.charAt(0).toUpperCase()+k.slice(1));
+      if(!el)return;
+      const cb=el.querySelector('input[type=checkbox]');
+      cb.checked=true;adminSvcState[k]=true;el.classList.add('on');
+    });
+  }
+}
+
+function toggleSvc(input,key){
+  adminSvcState[key]=input.checked;
+  input.closest('.toggle-row').classList.toggle('on',input.checked);
+}
+function updateContentVisibility(){
+  document.getElementById('musicSection').classList.toggle('hidden',!adminSvcState.music);
+  document.getElementById('historySection').classList.toggle('hidden',!adminSvcState.history);
+}
+
+function addPhotoPlaceholder(){
+  if(photoCount>=5)return;
+  photoCount++;
+  const grid=document.getElementById('photoGrid');
+  const div=document.createElement('div');
+  div.className='photo-thumb';
+  div.innerHTML=`Foto ${photoCount}<div class="remove" onclick="this.parentElement.remove();photoCount--">×</div>`;
+  grid.appendChild(div);
+}
+
+function addHistoryBlock(){
+  if(historyBlockCount>=3)return;
+  historyBlockCount++;
+  const div=document.createElement('div');
+  div.className='history-block';
+  div.innerHTML=`<h5>Sección ${historyBlockCount} de 3</h5><button class="hb-remove" onclick="this.parentElement.remove();historyBlockCount--">Eliminar</button><div class="fg"><label>Texto</label><textarea maxlength="1000" placeholder="Contá tu historia..."></textarea></div><div class="upload-zone" style="padding:16px"><div class="uz-text" style="font-size:.78rem">📷 Subir imagen para esta sección</div></div>`;
+  document.getElementById('historyBlocks').appendChild(div);
+}
+
+function toggleGuestMode(){
+  document.getElementById('guestSection').classList.toggle('hidden',!document.getElementById('toggleGuestUrls').checked);
+}
+function loadGuests(){
+  try{
+    guestList=JSON.parse(document.getElementById('guestJson').value);
+    if(!Array.isArray(guestList))throw'not array';
+    const body=document.getElementById('guestBody');
+    body.innerHTML=guestList.map((g,i)=>`<tr><td>${i+1}</td><td>${g.nombre||''}</td><td>${g.apellido||''}</td><td style="font-family:monospace;font-size:.78rem">invitaciones.com/abc123/${(g.nombre||'').toLowerCase()}-${(g.apellido||'').toLowerCase()}</td></tr>`).join('');
+    document.getElementById('guestCount').textContent=guestList.length+' invitados cargados';
+    document.getElementById('guestPreview').classList.remove('hidden');
+  }catch(e){alert('JSON inválido. Verificá el formato.')}
+}
+function clearGuests(){
+  guestList=[];
+  document.getElementById('guestBody').innerHTML='';
+  document.getElementById('guestPreview').classList.add('hidden');
+  document.getElementById('guestJson').value='';
+}
+
+function updateCharCount(input,max){
+  const span=input.parentElement.querySelector('.char-count span');
+  if(span)span.textContent=input.value.length;
+}
+
+function buildReview(){
+  const type=document.getElementById('asEventType').value;
+  const typeLabel={boda:'Boda',quince:'Quinceañera',cumple:'Cumpleaños'}[type]||'—';
+  const tpl=TPL_COLORS[type]?.find(t=>t.id===selectedAdminTemplate);
+  document.getElementById('rvType').textContent=typeLabel;
+  document.getElementById('rvTemplate').textContent=tpl?tpl.name:'—';
+  document.getElementById('rvTitle').textContent=document.getElementById('asTitle').value||'—';
+  document.getElementById('rvDate').textContent=document.getElementById('asDate').value||'—';
+  document.getElementById('rvTime').textContent=document.getElementById('asTime').value||'—';
+  const active=Object.entries(adminSvcState).filter(([,v])=>v).map(([k])=>({rsvp:'RSVP',countdown:'Cuenta Regresiva',music:'Música',history:'Historia',gallery:'Galería QR'})[k]);
+  document.getElementById('rvServices').innerHTML=(active.length?active.map(s=>`<span class="tag">${s}</span>`).join(' '):'Mapa (incluido)')+'<br><span class="tag" style="background:var(--green-bg);color:var(--green)">Mapa (incluido)</span>';
+  document.getElementById('rvContent').textContent=`${photoCount} fotos · ${adminSvcState.music?'MP3 cargado':'Sin música'} · ${adminSvcState.history?historyBlockCount+' sección(es)':'Sin historia'} · ${guestList.length} invitados`;
+}
+
+function generateInvitation(){
+  const loading=document.getElementById('loadingOverlay');
+  loading.classList.add('show');
+  setTimeout(()=>{
+    loading.classList.remove('show');
+    document.getElementById('reviewContent').classList.add('hidden');
+    document.getElementById('genResult').classList.remove('hidden');
+  },2000);
+}
+
+/* ══════ TEMPLATES MANAGE ══════ */
+function renderManageTemplates(){
+  const grid=document.getElementById('manageTemplatesGrid');
+  let html='';
+  ['boda','quince','cumple'].forEach(type=>{
+    (TPL_COLORS[type]||[]).forEach(t=>{
+      const typeLabel={boda:'Boda',quince:'Quinceañera',cumple:'Cumpleaños'}[type];
+      html+=`<div class="tpl-card"><div class="tpl-preview" style="background:${t.bg};color:${t.color}">${t.name}</div><div class="tpl-name" style="display:flex;justify-content:space-between;align-items:center"><div>${t.name}<br><span style="font-size:.72rem;color:var(--gray)">${typeLabel}</span></div><label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label></div></div>`;
+    });
+  });
+  grid.innerHTML=html;
+}
+
+/* ══════ REPORTS ══════ */
+function showReportTab(tab,btn){
+  document.querySelectorAll('#reportTabs .tab-btn').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['Active','Expiring','Deleted'].forEach(t=>document.getElementById('report'+t).classList.add('hidden'));
+  document.getElementById('report'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.remove('hidden');
+}
+
+/* ══════ SERVICES INLINE EDIT ══════ */
+function editCell(td){
+  if(td.querySelector('input'))return;
+  const val=td.textContent;
+  const input=document.createElement('input');
+  input.value=val;input.style.cssText='width:100%;padding:8px;border:2px solid var(--gold);border-radius:6px;font-size:.85rem';
+  td.textContent='';td.appendChild(input);input.focus();
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'){td.textContent=input.value}});
+  input.addEventListener('blur',()=>{td.textContent=input.value});
+}
+
+/* ══════ UTILS ══════ */
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function copyToClip(text){navigator.clipboard?.writeText(text);alert('URL copiada: '+text)}
+function copyUrl(){navigator.clipboard?.writeText('invitaciones.com/abc123-4f7e-uuid');alert('URL copiada!')}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal()});
+</script>
+</body>
+</html>
