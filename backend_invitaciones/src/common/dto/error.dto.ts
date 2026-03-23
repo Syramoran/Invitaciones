@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsOptional, IsArray } from 'class-validator';
+import { IsNumber, IsString, IsOptional } from 'class-validator';
 
 /**
  * Estructura global para respuestas de error (400, 401, 403, 404, 500).

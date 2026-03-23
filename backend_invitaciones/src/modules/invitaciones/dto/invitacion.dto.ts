@@ -13,7 +13,6 @@ import {
   Matches,
   Min,
   Max,
-  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 

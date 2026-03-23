@@ -6,15 +6,16 @@ import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([
-        Pedido,
-        PedidoServicio,
-        Servicio,
-        Template,
-        TipoEvento
-      ]),
-    ],
+    TypeOrmModule.forFeature([
+      Pedido,
+      PedidoServicio,
+      TipoEvento,
+      Template,
+      Servicio,
+    ]),
+  ],
   controllers: [PedidosController],
-  providers: [PedidosService]
+  providers: [PedidosService],
+  exports: [PedidosService],
 })
 export class PedidosModule {}
