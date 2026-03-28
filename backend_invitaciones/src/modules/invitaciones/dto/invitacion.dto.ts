@@ -4,17 +4,17 @@ import {
   IsOptional,
   IsInt,
   IsNumber,
-  IsBoolean,
   IsArray,
+  IsBoolean,
   IsObject,
   IsDateString,
   IsMilitaryTime,
-  MaxLength,
   Matches,
-  Min,
-  Max,
+  MaxLength,
+  Allow,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
+import { PartialType } from '@nestjs/mapped-types';
 
 // ═══════════════════════════════════════════
 // REQUEST DTOs
@@ -22,11 +22,8 @@ import { Type } from 'class-transformer';
 
 /**
  * POST /invitaciones
- * Crear invitación desde el panel admin (JWT, multipart/form-data).
- *
- * Los archivos (fotos y música) no van en el DTO — se procesan
- * en el controller con @UploadedFiles() y @UseInterceptors(FileFieldsInterceptor).
- * Los campos de texto viajan como form fields dentro del multipart.
+ * Crear invitación desde el panel admin (JWT).
+ * Los archivos (fotos, música) se envían como multipart/form-data.
  */
 export class CreateInvitacionDto {
   @IsInt()
@@ -46,11 +43,11 @@ export class CreateInvitacionDto {
   @MaxLength(200)
   titulo!: string;
 
-  @IsDateString()
-  fechaEvento!: string; // YYYY-MM-DD
+  @IsDateString({}, { message: 'fechaEvento debe ser una fecha válida (YYYY-MM-DD)' })
+  fechaEvento!: Date;
 
-  @IsMilitaryTime()
-  horaEvento!: string; // HH:mm
+  @IsMilitaryTime({ message: 'horaEvento debe tener formato HH:mm' })
+  horaEvento!: string;
 
   @IsString()
   @IsNotEmpty()
@@ -73,7 +70,7 @@ export class CreateInvitacionDto {
   @IsString()
   @IsOptional()
   @Matches(/^#[0-9A-Fa-f]{6}$/, {
-    message: 'colorPrimario debe ser formato hex: #RRGGBB',
+    message: 'colorPrimario debe tener formato hex: #RRGGBB',
   })
   colorPrimario?: string;
 
@@ -85,8 +82,6 @@ export class CreateInvitacionDto {
   @IsInt()
   @IsOptional()
   @Type(() => Number)
-  @Min(1)
-  @Max(1000)
   maxFotos?: number;
 
   @IsObject()
@@ -95,91 +90,37 @@ export class CreateInvitacionDto {
 
   @IsArray()
   @IsInt({ each: true })
-  @Type(() => Number)
+  @Transform(({ value }) => {
+    // form-data envía strings: "4" o ["4","5","6"]
+    if (Array.isArray(value)) return value.map(Number);
+    if (value === undefined || value === null) return [];
+    return [Number(value)];
+  })
   serviciosIds!: number[];
+
+  // Campos de archivos — Multer los maneja via @UploadedFiles(),
+  // pero form-data puede filtrar los nombres al body.
+  // @Allow() evita que forbidNonWhitelisted los rechace.
+  @Allow()
+  fotos?: any;
+
+  @Allow()
+  musica?: any;
 }
 
 /**
  * PUT /invitaciones/:id
- * Actualizar invitación (admin, JWT).
- * Todos los campos son opcionales.
+ * Actualizar invitación (admin, JWT). Todos los campos opcionales.
  */
-export class UpdateInvitacionDto {
-  @IsInt()
-  @IsOptional()
-  @Type(() => Number)
-  templateId?: number;
-
-  @IsString()
-  @IsOptional()
-  @MaxLength(200)
-  titulo?: string;
-
-  @IsDateString()
-  @IsOptional()
-  fechaEvento?: string;
-
-  @IsMilitaryTime()
-  @IsOptional()
-  horaEvento?: string;
-
-  @IsString()
-  @IsOptional()
-  @MaxLength(300)
-  ubicacion?: string;
-
-  @IsString()
-  @IsOptional()
-  @MaxLength(500)
-  direccion?: string;
-
-  @IsNumber({ maxDecimalPlaces: 7 })
-  @IsOptional()
-  @Type(() => Number)
-  latitud?: number;
-
-  @IsNumber({ maxDecimalPlaces: 7 })
-  @IsOptional()
-  @Type(() => Number)
-  longitud?: number;
-
-  @IsString()
-  @IsOptional()
-  @Matches(/^#[0-9A-Fa-f]{6}$/, {
-    message: 'colorPrimario debe ser formato hex: #RRGGBB',
-  })
-  colorPrimario?: string;
-
-  @IsString()
-  @IsOptional()
-  @MaxLength(255)
-  contrasenaAsistentes?: string;
-
-  @IsInt()
-  @IsOptional()
-  @Type(() => Number)
-  @Min(1)
-  @Max(1000)
-  maxFotos?: number;
-
-  @IsObject()
-  @IsOptional()
-  camposEspecificos?: Record<string, any>;
-
-  @IsArray()
-  @IsOptional()
-  @IsInt({ each: true })
-  @Type(() => Number)
-  serviciosIds?: number[];
-
+export class UpdateInvitacionDto extends PartialType(CreateInvitacionDto) {
   @IsBoolean()
   @IsOptional()
   activa?: boolean;
 }
 
 /**
- * GET /invitaciones?page=1&limit=20&activa=true
- * Query params para listar invitaciones con paginación (admin).
+ * GET /invitaciones?page=1&limit=20&activa=true&tipoEventoId=1
+ * Query params para listar invitaciones con filtro y paginación (admin).
  */
 export class InvitacionQueryDto {
   @IsOptional()
@@ -208,15 +149,14 @@ export class InvitacionQueryDto {
 // ═══════════════════════════════════════════
 
 /**
- * GET /invitaciones/:id — Response completo (admin).
- * Incluye todos los datos, servicios habilitados, fotos y música.
+ * Response completo de una invitación (admin).
+ * Usado en GET /invitaciones, GET /invitaciones/:id, POST /invitaciones, PUT /invitaciones/:id.
  */
 export class InvitacionResponseDto {
-  id!: string; // UUID
+  id!: string;
   pedidoId!: number;
   templateId!: number;
   templateNombre!: string;
-  templateSlug!: string;
   tipoEventoId!: number;
   tipoEventoNombre!: string;
   titulo!: string;
@@ -231,51 +171,16 @@ export class InvitacionResponseDto {
   maxFotos!: number;
   camposEspecificos!: Record<string, any> | null;
   activa!: boolean;
-  createdAt!: Date;
   fechaExpiracion!: Date;
-  urlPublica!: string; // Ej: https://invitaciones.com/{id}
-
-  servicios!: {
-    id: number;
-    nombre: string;
-    habilitado: boolean;
-  }[];
-
-  fotosAnfitrion!: {
-    id: number;
-    url: string;
-    orden: number;
-    tamano: number;
-  }[];
-
-  musica!: {
-    id: number;
-    archivoUrl: string;
-    tamano: number;
-    mimeType: string;
-  } | null;
-
-  historias!: {
-    id: number;
-    texto: string;
-    imagenUrl: string | null;
-    orden: number;
-  }[];
-
-  totalInvitados!: number;
-  totalConfirmados!: number;
-  totalFotos!: number;
+  servicios!: { servicioId: number; nombre: string; habilitado: boolean }[];
+  createdAt!: Date;
 }
 
 /**
- * GET /invitaciones/:id/public — Response público (invitado, sin auth).
- *
- * Es lo que recibe el frontend cuando alguien abre la URL de la invitación.
- * El frontend usa template.slug para resolver el componente React.
- * Si la URL tiene ?invitado=nombre-apellido, se muestra saludo personalizado
- * y el botón de confirmar asistencia.
+ * GET /invitaciones/:id/public
+ * Vista pública que renderiza la invitación para el invitado.
  */
-export class InvitacionPublicaDto {
+export class InvitacionPublicDto {
   id!: string;
   titulo!: string;
   fechaEvento!: Date;
@@ -291,17 +196,10 @@ export class InvitacionPublicaDto {
     id: number;
     nombre: string;
     slug: string;
+    thumbnailUrl: string | null;
   };
 
-  tipoEvento!: {
-    id: number;
-    nombre: string;
-  };
-
-  servicios!: {
-    id: number;
-    nombre: string;
-  }[];
+  servicios!: { id: number; nombre: string }[];
 
   fotosAnfitrion!: {
     id: number;
@@ -310,8 +208,8 @@ export class InvitacionPublicaDto {
   }[];
 
   musica!: {
+    id: number;
     archivoUrl: string;
-    mimeType: string;
   } | null;
 
   historias!: {
@@ -321,25 +219,20 @@ export class InvitacionPublicaDto {
     orden: number;
   }[];
 
-  // Personalización según query param ?invitado=
   saludoPersonalizado!: string | null;
-  tieneConfirmacion!: boolean;    // si el servicio de confirmación está habilitado
-  mostrarBotonConfirmar!: boolean; // true solo si ?invitado= está presente
-  tieneGaleria!: boolean;          // si el servicio de galería está habilitado
-  tieneCuentaRegresiva!: boolean;  // si el servicio de countdown está habilitado
-  tieneMusica!: boolean;           // si el servicio de música está habilitado
+  tieneConfirmacion!: boolean;
+  mostrarBotonConfirmar!: boolean;
 }
 
 /**
- * GET /invitaciones/:id/countdown — Datos de cuenta regresiva (público).
+ * GET /invitaciones/:id/countdown
+ * Datos de cuenta regresiva para el frontend.
  */
 export class CountdownResponseDto {
+  titulo!: string;
   fechaEvento!: Date;
   horaEvento!: string;
-  diasRestantes!: number;
-  horasRestantes!: number;
-  minutosRestantes!: number;
-  segundosRestantes!: number;
+  fechaHoraEventoISO!: string;  // "2026-08-15T20:00:00-03:00"
   eventoFinalizado!: boolean;
 }
 

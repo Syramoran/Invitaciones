@@ -12,6 +12,7 @@ import { TipoEventoService } from '../tipos-evento/tipos-evento.service';
       ]),
     ],
   controllers: [TemplatesController],
+  exports: [TemplatesService],
   providers: [TemplatesService, TipoEventoService]
 })
 export class TemplatesModule {}

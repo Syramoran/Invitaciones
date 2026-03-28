@@ -11,6 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
       ]),
     ],
   controllers: [ServiciosController],
+  exports: [ServiciosService],
   providers: [ServiciosService]
 })
 export class ServiciosModule {}

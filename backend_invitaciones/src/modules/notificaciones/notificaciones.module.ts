@@ -1,18 +1,14 @@
-import { Module } from '@nestjs/common';
-import { Notificacion, LogEliminacion, Invitacion } from '../../entities';
+import { Module, Global } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Notificacion } from '../../entities/notificacion.entity';
 import { NotificacionesController } from './notificaciones.controller';
 import { NotificacionesService } from './notificaciones.service';
-import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 
+@Global() // Accesible desde PedidosService, cron jobs, etc. sin importar en cada módulo
 @Module({
-  imports: [
-      TypeOrmModule.forFeature([
-        Notificacion,
-        LogEliminacion,
-        Invitacion
-      ]),
-    ],
+  imports: [TypeOrmModule.forFeature([Notificacion])],
   controllers: [NotificacionesController],
-  providers: [NotificacionesService]
+  providers: [NotificacionesService],
+  exports: [NotificacionesService],
 })
 export class NotificacionesModule {}

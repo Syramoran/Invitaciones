@@ -11,6 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
       ]),
     ],
   controllers: [TipoEventoController],
+  exports: [TipoEventoService],
   providers: [TipoEventoService]
 })
 export class TiposEventoModule {}

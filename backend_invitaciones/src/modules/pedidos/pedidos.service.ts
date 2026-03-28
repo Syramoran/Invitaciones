@@ -129,13 +129,14 @@ export class PedidosService {
         email: dto.email,
         tipoEventoId: dto.tipoEventoId,
         templateId: dto.templateId,
+        precioBase,
         precioTotal,
         estado: EstadoPedido.PENDIENTE,
       });
 
       const pedidoGuardado = await manager.save(Pedido, nuevoPedido);
 
-      // Crear registros en PedidoServicio con precio capturado al momento
+      // Crear registros en PedidoServicio con precio capturado al momentoñ
       if (servicios.length > 0) {
         const pedidoServicios = servicios.map((servicio) =>
           manager.create(PedidoServicio, {

@@ -31,9 +31,9 @@ export class FotoResponseDto {
  */
 export class GaleriaStatsResponseDto {
   invitacionId!: string;
-  titulo!: string;
+  totalFotos!: number;
   maxFotos!: number;
-  fotosActuales!: number;
-  bytesUsados!: number;
-  mbUsados!: number;
+  tamanoTotalBytes!: number;
+  tamanoTotalMB!: string;
+  espacioUsadoPorcentaje!: number;
 }

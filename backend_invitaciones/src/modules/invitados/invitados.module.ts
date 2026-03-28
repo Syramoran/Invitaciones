@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
-import { Invitado, Invitacion } from '../../entities';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Invitado } from '../../entities/invitado.entity';
 import { InvitadosController } from './invitados.controller';
 import { InvitadosService } from './invitados.service';
-import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
+import { InvitacionesModule } from '../invitaciones/invitaciones.module';
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([
-        Invitado,
-        Invitacion
-      ]),
-    ],
+    TypeOrmModule.forFeature([Invitado]),
+    InvitacionesModule,
+  ],
   controllers: [InvitadosController],
-  providers: [InvitadosService]
+  providers: [InvitadosService],
+  exports: [InvitadosService],
 })
 export class InvitadosModule {}

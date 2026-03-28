@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
-import { HistoriaSeccion, Invitacion } from '../../entities';
-import { HistoriaController } from './historia.controller';
-import { HistoriaService } from './historia.service';
-import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { HistoriaSeccion } from '../../entities/historia-seccion.entity';
+import { HistoriasController } from './historia.controller';
+import { HistoriasService } from './historia.service';
+import { InvitacionesModule } from '../invitaciones/invitaciones.module';
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([
-        HistoriaSeccion,
-        Invitacion
-      ]),
-    ],
-  controllers: [HistoriaController],
-  providers: [HistoriaService]
+    TypeOrmModule.forFeature([HistoriaSeccion]),
+    InvitacionesModule,
+  ],
+  controllers: [HistoriasController],
+  providers: [HistoriasService],
+  exports: [HistoriasService],
 })
-export class HistoriaModule {}
+export class HistoriasModule {}

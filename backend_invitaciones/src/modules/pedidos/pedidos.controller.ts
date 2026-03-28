@@ -22,6 +22,7 @@ import {
   PedidoResumenResponseDto,
   PaginatedPedidosDto,
 } from './dto/pedido.dto';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('pedidos')
 export class PedidosController {
@@ -33,6 +34,7 @@ export class PedidosController {
   // ═══════════════════════════════════════════
 
   @Post()
+  @Public()
   @HttpCode(HttpStatus.CREATED)
   async crear(@Body() dto: CreatePedidoDto): Promise<PedidoResponseDto> {
     return this.pedidosService.crear(dto);
@@ -81,6 +83,7 @@ export class PedidosController {
   // ═══════════════════════════════════════════
 
   @Get(':id/resumen')
+  @Public()
   async obtenerResumen(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<PedidoResumenResponseDto> {

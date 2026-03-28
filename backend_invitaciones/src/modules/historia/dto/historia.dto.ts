@@ -3,7 +3,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsInt,
-  IsUrl,
   MaxLength,
   Min,
   Max,
@@ -14,43 +13,48 @@ import { Type } from 'class-transformer';
 // REQUEST DTOs
 // ═══════════════════════════════════════════
 
+/**
+ * POST /invitaciones/:id/historias
+ * Crear sección de historia (admin, JWT).
+ * Request multipart/form-data: texto + imagen (File) + orden.
+ */
 export class CreateHistoriaSeccionDto {
-  // @IsString()
-  // @IsNotEmpty()
-  // invitacionId!: string; // UUID de la invitación vinculada
-
   @IsString({ message: 'El texto de la historia debe ser una cadena' })
   @IsNotEmpty({ message: 'El contenido de la sección no puede estar vacío' })
   @MaxLength(3000, { message: 'El texto no puede superar los 3000 caracteres' })
-  texto!: string; //
+  texto!: string;
 
-  @IsUrl({}, { message: 'La imagen debe ser una URL válida' })
-  @IsOptional()
-  @MaxLength(500)
-  imagenUrl?: string; // URL de Firebase
+  @IsString()                          // ← agregar
+  @IsOptional()                        // ← agregar
+  @MaxLength(500)                      // ← agregar
+  imagenUrl?: string;                  // ← agregar
 
   @IsInt()
   @Min(1)
-  @Max(3) 
+  @Max(3)
   @Type(() => Number)
   orden!: number;
 }
 
+/**
+ * PUT /invitaciones/:id/historias/:seccionId
+ * Actualizar sección existente (admin, JWT).
+ */
 export class UpdateHistoriaSeccionDto {
   @IsString()
   @IsOptional()
   @MaxLength(3000)
   texto?: string;
 
-  @IsUrl()
-  @IsOptional()
-  @MaxLength(500)
-  imagenUrl?: string;
+  @IsString()                          // ← agregar
+  @IsOptional()                        // ← agregar
+  @MaxLength(500)                      // ← agregar
+  imagenUrl?: string;                  // ← agregar
 
   @IsInt()
   @IsOptional()
   @Min(1)
-  @Max(10)
+  @Max(3)
   @Type(() => Number)
   orden?: number;
 }

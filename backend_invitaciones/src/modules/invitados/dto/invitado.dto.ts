@@ -2,8 +2,8 @@ import {
   IsString,
   IsNotEmpty,
   IsArray,
-  ArrayNotEmpty,
   ValidateNested,
+  ArrayMinSize,
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -13,16 +13,16 @@ import { Type } from 'class-transformer';
 // ═══════════════════════════════════════════
 
 /**
- * Item individual dentro de la carga masiva.
+ * Invitado individual dentro del array de carga masiva.
  */
 export class InvitadoItemDto {
-  @IsString({ message: 'El nombre debe ser una cadena de texto' })
-  @IsNotEmpty({ message: 'El nombre es obligatorio' })
+  @IsString()
+  @IsNotEmpty({ message: 'El nombre del invitado es obligatorio' })
   @MaxLength(100)
   nombre!: string;
 
-  @IsString({ message: 'El apellido debe ser una cadena de texto' })
-  @IsNotEmpty({ message: 'El apellido es obligatorio' })
+  @IsString()
+  @IsNotEmpty({ message: 'El apellido del invitado es obligatorio' })
   @MaxLength(100)
   apellido!: string;
 }
@@ -30,11 +30,10 @@ export class InvitadoItemDto {
 /**
  * POST /invitaciones/:id/invitados
  * Carga masiva de invitados desde JSON (admin, JWT).
- * El invitacionId viene del path param, no del body.
  */
-export class CreateInvitadosDto {
+export class CargarInvitadosDto {
   @IsArray()
-  @ArrayNotEmpty({ message: 'La lista de invitados no puede estar vacía' })
+  @ArrayMinSize(1, { message: 'La lista de invitados no puede estar vacía' })
   @ValidateNested({ each: true })
   @Type(() => InvitadoItemDto)
   invitados!: InvitadoItemDto[];
@@ -42,10 +41,7 @@ export class CreateInvitadosDto {
 
 /**
  * POST /invitaciones/:id/confirmar
- * Confirmación de asistencia (público, sin auth).
- * El invitado se identifica por nombre+apellido que vienen
- * del parámetro ?invitado=nombre-apellido de la URL.
- * Solo la primera confirmación se registra (idempotente).
+ * Confirmar asistencia de un invitado (público).
  */
 export class ConfirmarAsistenciaDto {
   @IsString()
@@ -64,41 +60,42 @@ export class ConfirmarAsistenciaDto {
 // ═══════════════════════════════════════════
 
 /**
- * URL personalizada generada para cada invitado.
+ * URL personalizada generada para un invitado.
  */
 export class UrlInvitadoDto {
   nombre!: string;
   apellido!: string;
-  url!: string; // Ej: https://invitaciones.com/{uuid}?invitado=juan-perez
+  url!: string;
 }
 
 /**
- * Response de POST /invitaciones/:id/invitados (201).
+ * POST /invitaciones/:id/invitados (201)
+ * Response de carga masiva.
  */
-export class InvitadosCargadosResponseDto {
+export class CargarInvitadosResponseDto {
   totalInvitados!: number;
   urlsGeneradas!: UrlInvitadoDto[];
-  csvDownloadUrl!: string;
 }
 
 /**
- * Response de POST /invitaciones/:id/confirmar (200).
+ * GET /invitaciones/:id/invitados
+ * Invitado con su estado de confirmación (admin).
+ */
+export class InvitadoResponseDto {
+  id!: number;
+  nombre!: string;
+  apellido!: string;
+  confirmado!: boolean;
+  fechaConfirmacion!: Date | null;
+  urlPersonalizada!: string;
+}
+
+/**
+ * POST /invitaciones/:id/confirmar (200)
+ * Response de confirmación de asistencia.
  */
 export class ConfirmacionResponseDto {
   mensaje!: string;
-  invitado!: {
-    nombre: string;
-    apellido: string;
-    confirmado: boolean;
-    fechaConfirmacion: Date;
-  };
-}
-
-/**
- * Item individual en la lista de asistentes.
- */
-export class InvitadoEstadoDto {
-  id!: number;
   nombre!: string;
   apellido!: string;
   confirmado!: boolean;
@@ -107,10 +104,15 @@ export class InvitadoEstadoDto {
 
 /**
  * GET /invitaciones/:id/asistentes
- * Lista de asistentes con stats (requiere contraseña del evento).
+ * Lista de asistentes con conteos (protegido por contraseña).
  */
 export class AsistentesResponseDto {
   totalEsperados!: number;
   totalConfirmados!: number;
-  invitados!: InvitadoEstadoDto[];
+  invitados!: {
+    nombre: string;
+    apellido: string;
+    confirmado: boolean;
+    fechaConfirmacion: Date | null;
+  }[];
 }

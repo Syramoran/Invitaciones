@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
 import { GaleriaController } from './galeria.controller';
 import { GaleriaService } from './galeria.service';
-import { Foto, Invitacion } from '../../entities';
+import { Foto } from '../../entities';
 import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
+import { InvitacionesModule } from '../invitaciones/invitaciones.module';
 
 @Module({
   imports: [
       TypeOrmModule.forFeature([
         Foto,
-        Invitacion
       ]),
+      InvitacionesModule
     ],
   controllers: [GaleriaController],
   providers: [GaleriaService]

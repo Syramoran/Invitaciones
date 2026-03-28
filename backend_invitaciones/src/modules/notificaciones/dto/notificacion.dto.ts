@@ -1,14 +1,14 @@
-import { IsOptional, IsInt, IsEnum } from 'class-validator';
+import { IsOptional, IsEnum, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TipoNotificacion } from '../../../entities/notificacion.entity';
 
 // ═══════════════════════════════════════════
-// QUERY DTOs
+// REQUEST DTOs
 // ═══════════════════════════════════════════
 
 /**
  * GET /notificaciones?page=1&limit=20&tipo=NUEVO_PEDIDO
- * Query params para listar notificaciones (admin, JWT).
+ * Query params para listar notificaciones con filtro y paginación (admin).
  */
 export class NotificacionQueryDto {
   @IsOptional()
@@ -30,13 +30,9 @@ export class NotificacionQueryDto {
 // RESPONSE DTOs
 // ═══════════════════════════════════════════
 
-/**
- * Item individual de notificación.
- * Tipos: NUEVO_PEDIDO, EXPIRACION_PROXIMA, AVISO_ELIMINACION
- */
 export class NotificacionResponseDto {
   id!: number;
-  tipo!: TipoNotificacion;
+  tipo!: string;
   destinatarioEmail!: string;
   asunto!: string;
   mensaje!: string;
@@ -45,9 +41,6 @@ export class NotificacionResponseDto {
   createdAt!: Date;
 }
 
-/**
- * Response paginado para listado de notificaciones (admin).
- */
 export class PaginatedNotificacionesDto {
   data!: NotificacionResponseDto[];
   meta!: {
@@ -56,17 +49,4 @@ export class PaginatedNotificacionesDto {
     total: number;
     totalPages: number;
   };
-}
-
-/**
- * Registro de auditoría de eliminación automática.
- * La invitacion_id_ref es una referencia blanda (UUID)
- * porque el registro original ya fue eliminado (hard delete).
- */
-export class LogEliminacionResponseDto {
-  id!: number;
-  invitacionIdRef!: string; // UUID de la invitación eliminada
-  fechaEliminacion!: Date;
-  fotosEliminadas!: number;
-  detalles!: string | null;
 }
