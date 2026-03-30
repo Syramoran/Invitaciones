@@ -1,10 +1,13 @@
 import {
   Injectable,
   Logger,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
+import * as nodemailer from 'nodemailer';
+import { Transporter } from 'nodemailer';
 
 import {
   Notificacion,
@@ -18,15 +21,56 @@ import {
 } from './dto/notificacion.dto';
 
 @Injectable()
-export class NotificacionesService {
+export class NotificacionesService implements OnModuleInit {
   private readonly logger = new Logger(NotificacionesService.name);
+  private transporter!: Transporter;
+  private fromEmail!: string;
 
   constructor(
     @InjectRepository(Notificacion)
     private readonly notificacionRepo: Repository<Notificacion>,
-
     private readonly configService: ConfigService,
   ) {}
+
+  // ═══════════════════════════════════════════
+  // Inicialización — Configurar transporter de nodemailer
+  // ═══════════════════════════════════════════
+
+  onModuleInit() {
+    const host = this.configService.get<string>('SMTP_HOST');
+    const port = this.configService.get<number>('SMTP_PORT', 587);
+    const user = this.configService.get<string>('SMTP_USER');
+    const pass = this.configService.get<string>('SMTP_PASS');
+
+    this.fromEmail = this.configService.get<string>(
+      'SMTP_FROM',
+      `"Invitaciones Digitales" <${user}>`,
+    );
+
+    if (!host || !user || !pass) {
+      this.logger.warn(
+        '⚠️ SMTP no configurado (faltan SMTP_HOST, SMTP_USER o SMTP_PASS). ' +
+        'Las notificaciones se registrarán en BD pero NO se enviarán por email.',
+      );
+      return;
+    }
+
+    this.transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
+    });
+
+    this.transporter
+      .verify()
+      .then(() =>
+        this.logger.log(`📧 SMTP conectado — ${host}:${port} (${user})`),
+      )
+      .catch((err) =>
+        this.logger.error(`❌ SMTP falló verificación: ${err.message}`),
+      );
+  }
 
   // ═══════════════════════════════════════════
   // GET /notificaciones — Listar notificaciones (admin, JWT)
@@ -51,17 +95,12 @@ export class NotificacionesService {
 
     return {
       data: notificaciones.map((n) => this.mapearResponse(n)),
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
   }
 
   // ═══════════════════════════════════════════
-  // POST /notificaciones/test — Enviar notificación de prueba (admin, JWT)
+  // POST /notificaciones/test — Enviar prueba (admin, JWT)
   // ═══════════════════════════════════════════
 
   async enviarPrueba(): Promise<NotificacionResponseDto> {
@@ -74,24 +113,22 @@ export class NotificacionesService {
       tipo: TipoNotificacion.NUEVO_PEDIDO,
       destinatarioEmail: adminEmail,
       asunto: '[TEST] Notificación de prueba',
-      mensaje:
-        'Esta es una notificación de prueba enviada desde el panel de administración. ' +
-        'Si estás viendo esto, el sistema de notificaciones funciona correctamente.',
+      mensaje: 'Esta es una notificación de prueba desde el panel de administración.',
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+          <h2 style="color:#333;">Notificación de prueba</h2>
+          <p>Si estás viendo esto, el sistema de notificaciones funciona correctamente.</p>
+          <p style="color:#888;font-size:12px;">Invitaciones Digitales</p>
+        </div>`,
     });
   }
 
   // ═══════════════════════════════════════════
-  // Métodos públicos — Llamados por otros módulos
+  // NUEVO_PEDIDO
+  // Llamar desde: PedidosService.crear()
+  // Destinatario: ADMIN_EMAIL (propietario)
   // ═══════════════════════════════════════════
 
-  /**
-   * NUEVO_PEDIDO — Notifica al propietario cuando se crea un pedido.
-   * Llamado desde PedidosService.crear() (fire-and-forget).
-   *
-   * // TODO: Reemplazar console.log por nodemailer:
-   * // await this.transporter.sendMail({ to, subject, html })
-   * // Usar template HTML con datos del pedido
-   */
   async notificarNuevoPedido(datos: {
     pedidoId: number;
     nombreCliente: string;
@@ -101,37 +138,51 @@ export class NotificacionesService {
     template: string;
     precioTotal: number;
   }): Promise<void> {
-    const adminEmail = this.configService.get<string>(
-      'ADMIN_EMAIL',
-      'admin@invitaciones.com',
-    );
-
+    const adminEmail = this.configService.get<string>('ADMIN_EMAIL', 'admin@invitaciones.com');
     const asunto = `Nuevo pedido #${datos.pedidoId} — ${datos.nombreCliente}`;
     const mensaje =
-      `Nuevo pedido recibido:\n\n` +
+      `Nuevo pedido recibido:\n` +
       `Cliente: ${datos.nombreCliente}\n` +
       `Teléfono: ${datos.telefono}\n` +
       `Email: ${datos.email}\n` +
-      `Tipo de evento: ${datos.tipoEvento}\n` +
+      `Evento: ${datos.tipoEvento}\n` +
       `Template: ${datos.template}\n` +
-      `Precio total: $${datos.precioTotal}`;
+      `Total: $${datos.precioTotal.toLocaleString('es-AR')}`;
 
-    await this.crearYEnviar({
-      tipo: TipoNotificacion.NUEVO_PEDIDO,
-      destinatarioEmail: adminEmail,
-      asunto,
-      mensaje,
-    });
+    const html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <h2 style="color:#333;">Nuevo Pedido #${datos.pedidoId}</h2>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Cliente</td>
+              <td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">${datos.nombreCliente}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Teléfono</td>
+              <td style="padding:8px;border-bottom:1px solid #eee;">${datos.telefono}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Email</td>
+              <td style="padding:8px;border-bottom:1px solid #eee;">${datos.email}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Tipo de evento</td>
+              <td style="padding:8px;border-bottom:1px solid #eee;">${datos.tipoEvento}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Template</td>
+              <td style="padding:8px;border-bottom:1px solid #eee;">${datos.template}</td></tr>
+          <tr><td style="padding:8px;color:#666;">Precio total</td>
+              <td style="padding:8px;font-weight:bold;font-size:18px;color:#2e7d32;">$${datos.precioTotal.toLocaleString('es-AR')}</td></tr>
+        </table>
+        <p style="margin-top:20px;">
+          <a href="https://wa.me/${datos.telefono.replace(/[^0-9]/g, '')}"
+             style="background:#25D366;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;">
+            Contactar por WhatsApp</a>
+        </p>
+        <p style="color:#888;font-size:12px;margin-top:30px;">Invitaciones Digitales — Notificación automática</p>
+      </div>`;
+
+    await this.crearYEnviar({ tipo: TipoNotificacion.NUEVO_PEDIDO, destinatarioEmail: adminEmail, asunto, mensaje, html });
   }
 
-  /**
-   * EXPIRACION_PROXIMA — Avisa al anfitrión que su invitación será eliminada.
-   * Llamado desde el cron job de verificación (7 días y 3 días antes).
-   *
-   * // TODO: Reemplazar console.log por nodemailer:
-   * // await this.transporter.sendMail({ to: emailAnfitrion, subject, html })
-   * // Incluir link para descargar ZIP de fotos antes de la eliminación
-   */
+  // ═══════════════════════════════════════════
+  // EXPIRACION_PROXIMA
+  // Llamar desde: CronJobsService.notificarExpiracionProxima()
+  // Destinatario: email del anfitrión (pedido.email)
+  // ═══════════════════════════════════════════
+
   async notificarExpiracionProxima(datos: {
     invitacionId: string;
     titulo: string;
@@ -139,141 +190,114 @@ export class NotificacionesService {
     diasRestantes: number;
     fechaEliminacion: Date;
   }): Promise<void> {
-    const asunto =
-      `Tu invitación "${datos.titulo}" será eliminada en ${datos.diasRestantes} días`;
+    const fechaStr = datos.fechaEliminacion instanceof Date
+      ? datos.fechaEliminacion.toLocaleDateString('es-AR')
+      : new Date(datos.fechaEliminacion).toLocaleDateString('es-AR');
+
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'https://invitaciones.com');
+    const asunto = `Tu invitación "${datos.titulo}" será eliminada en ${datos.diasRestantes} días`;
     const mensaje =
       `Hola,\n\n` +
-      `Te recordamos que tu invitación "${datos.titulo}" será eliminada ` +
-      `el ${datos.fechaEliminacion.toLocaleDateString('es-AR')}.\n\n` +
-      `Si querés conservar las fotos de la galería, podés descargarlas ` +
-      `antes de esa fecha desde el link de tu invitación.\n\n` +
-      `ID de invitación: ${datos.invitacionId}`;
+      `Tu invitación "${datos.titulo}" será eliminada el ${fechaStr}.\n` +
+      `Descargá las fotos antes de esa fecha: ${frontendUrl}/${datos.invitacionId}`;
 
-    await this.crearYEnviar({
-      tipo: TipoNotificacion.EXPIRACION_PROXIMA,
-      destinatarioEmail: datos.emailAnfitrion,
-      asunto,
-      mensaje,
-    });
+    const html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <h2 style="color:#e65100;">Tu invitación será eliminada en ${datos.diasRestantes} días</h2>
+        <p>Hola,</p>
+        <p>Tu invitación <strong>"${datos.titulo}"</strong> será eliminada el <strong>${fechaStr}</strong>.</p>
+        <p>Si querés conservar las fotos de la galería, descargalas antes de esa fecha:</p>
+        <p style="margin:20px 0;">
+          <a href="${frontendUrl}/${datos.invitacionId}"
+             style="background:#1976d2;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;">
+            Ver invitación y descargar fotos</a>
+        </p>
+        <p style="color:#888;font-size:13px;">
+          Después del ${fechaStr}, la invitación, la galería de fotos
+          y todos los datos asociados serán eliminados permanentemente.</p>
+        <p style="color:#888;font-size:12px;margin-top:30px;">Invitaciones Digitales — Notificación automática</p>
+      </div>`;
+
+    await this.crearYEnviar({ tipo: TipoNotificacion.EXPIRACION_PROXIMA, destinatarioEmail: datos.emailAnfitrion, asunto, mensaje, html });
   }
 
-  /**
-   * AVISO_ELIMINACION — Registro interno cuando el cron job elimina datos.
-   * No se envía email real — solo se registra en BD como auditoría.
-   *
-   * // TODO: Opcionalmente enviar resumen diario al admin con
-   * // cantidad de invitaciones eliminadas esa noche
-   */
+  // ═══════════════════════════════════════════
+  // AVISO_ELIMINACION
+  // Llamar desde: CronJobsService.eliminarInvitacionesExpiradas()
+  //               InvitacionesService.eliminar() (manual)
+  // Solo registro en BD, no envía email.
+  // ═══════════════════════════════════════════
+
   async registrarEliminacion(datos: {
     invitacionId: string;
     titulo: string;
     fotosEliminadas: number;
   }): Promise<void> {
-    const adminEmail = this.configService.get<string>(
-      'ADMIN_EMAIL',
-      'admin@invitaciones.com',
+    const adminEmail = this.configService.get<string>('ADMIN_EMAIL', 'admin@invitaciones.com');
+
+    await this.notificacionRepo.save(
+      this.notificacionRepo.create({
+        tipo: TipoNotificacion.AVISO_ELIMINACION,
+        destinatarioEmail: adminEmail,
+        asunto: `Eliminación — "${datos.titulo}"`,
+        mensaje:
+          `Invitación: ${datos.invitacionId}\n` +
+          `Título: ${datos.titulo}\n` +
+          `Fotos eliminadas: ${datos.fotosEliminadas}\n` +
+          `Fecha: ${new Date().toLocaleString('es-AR')}`,
+        enviada: true,
+        fechaEnvio: new Date(),
+      }),
     );
 
-    const asunto = `Eliminación automática — "${datos.titulo}"`;
-    const mensaje =
-      `Eliminación automática ejecutada:\n\n` +
-      `Invitación: ${datos.invitacionId}\n` +
-      `Título: ${datos.titulo}\n` +
-      `Fotos eliminadas: ${datos.fotosEliminadas}\n` +
-      `Fecha: ${new Date().toLocaleString('es-AR')}`;
-
-    // Este tipo no envía email, solo registra en BD
-    const notificacion = this.notificacionRepo.create({
-      tipo: TipoNotificacion.AVISO_ELIMINACION,
-      destinatarioEmail: adminEmail,
-      asunto,
-      mensaje,
-      enviada: true, // Se marca como "enviada" porque es solo un registro interno
-      fechaEnvio: new Date(),
-    });
-
-    await this.notificacionRepo.save(notificacion);
-
-    this.logger.log(
-      `📋 Eliminación registrada — Invitación: ${datos.invitacionId} | ` +
-      `Fotos: ${datos.fotosEliminadas}`,
-    );
+    this.logger.log(`📋 Eliminación registrada — ${datos.invitacionId} | Fotos: ${datos.fotosEliminadas}`);
   }
 
   // ═══════════════════════════════════════════
-  // Métodos privados
+  // Método privado — Crear registro + enviar email
   // ═══════════════════════════════════════════
 
-  /**
-   * Crea el registro en BD e intenta "enviar" la notificación.
-   * Por ahora solo loguea en consola. Cuando se implemente nodemailer,
-   * este método envía el email real y marca como enviada.
-   *
-   * // TODO: Implementar envío real con nodemailer:
-   * // 1. npm install nodemailer && npm install -D @types/nodemailer
-   * // 2. Crear transporter en onModuleInit():
-   * //    this.transporter = nodemailer.createTransport({
-   * //      host: configService.get('SMTP_HOST'),
-   * //      port: configService.get('SMTP_PORT'),
-   * //      auth: { user: configService.get('SMTP_USER'), pass: configService.get('SMTP_PASS') },
-   * //    });
-   * // 3. En este método reemplazar el console.log por:
-   * //    await this.transporter.sendMail({
-   * //      from: `"Invitaciones Digitales" <${configService.get('SMTP_USER')}>`,
-   * //      to: destinatarioEmail,
-   * //      subject: asunto,
-   * //      text: mensaje,
-   * //      html: this.generarHtml(asunto, mensaje), // template HTML
-   * //    });
-   * // 4. Variables de entorno necesarias:
-   * //    SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
-   */
   private async crearYEnviar(datos: {
     tipo: TipoNotificacion;
     destinatarioEmail: string;
     asunto: string;
     mensaje: string;
+    html?: string;
   }): Promise<NotificacionResponseDto> {
-    // 1. Crear registro en BD (estado: no enviada)
-    const notificacion = this.notificacionRepo.create({
-      tipo: datos.tipo,
-      destinatarioEmail: datos.destinatarioEmail,
-      asunto: datos.asunto,
-      mensaje: datos.mensaje,
-      enviada: false,
-    });
+    const guardada = await this.notificacionRepo.save(
+      this.notificacionRepo.create({
+        tipo: datos.tipo,
+        destinatarioEmail: datos.destinatarioEmail,
+        asunto: datos.asunto,
+        mensaje: datos.mensaje,
+        enviada: false,
+      }),
+    );
 
-    const guardada = await this.notificacionRepo.save(notificacion);
-
-    // 2. "Enviar" — por ahora solo consola
     try {
-      this.logger.log(
-        `📧 ══════════════════════════════════════\n` +
-        `   NOTIFICACIÓN [${datos.tipo}]\n` +
-        `   Para: ${datos.destinatarioEmail}\n` +
-        `   Asunto: ${datos.asunto}\n` +
-        `   ──────────────────────────────────────\n` +
-        `   ${datos.mensaje.replace(/\n/g, '\n   ')}\n` +
-        `   ══════════════════════════════════════`,
-      );
+      if (this.transporter) {
+        await this.transporter.sendMail({
+          from: this.fromEmail,
+          to: datos.destinatarioEmail,
+          subject: datos.asunto,
+          text: datos.mensaje,
+          html: datos.html ?? datos.mensaje.replace(/\n/g, '<br>'),
+        });
+        this.logger.log(`📧 Email enviado [${datos.tipo}] → ${datos.destinatarioEmail}`);
+      } else {
+        this.logger.warn(`📧 SMTP no configurado — [${datos.tipo}] → ${datos.destinatarioEmail} (solo BD)`);
+      }
 
-      // Marcar como enviada
       guardada.enviada = true;
       guardada.fechaEnvio = new Date();
       await this.notificacionRepo.save(guardada);
     } catch (error: any) {
-      // Si falla el envío, queda en BD como no enviada para reintentar
-      this.logger.error(
-        `❌ Error enviando notificación #${guardada.id}: ${error.message}`,
-      );
+      this.logger.error(`❌ Error enviando email #${guardada.id}: ${error.message}`);
     }
 
     return this.mapearResponse(guardada);
   }
 
-  /**
-   * Mapea una entidad Notificacion a NotificacionResponseDto.
-   */
   private mapearResponse(n: Notificacion): NotificacionResponseDto {
     return {
       id: n.id,

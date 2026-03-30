@@ -42,17 +42,13 @@ export class CargarInvitadosDto {
 /**
  * POST /invitaciones/:id/confirmar
  * Confirmar asistencia de un invitado (público).
+ * Se recibe el slug tal como viene en el parámetro ?invitado de la URL.
  */
 export class ConfirmarAsistenciaDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(100)
-  nombre!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  apellido!: string;
+  @MaxLength(250)
+  invitadoSlug!: string;
 }
 
 // ═══════════════════════════════════════════

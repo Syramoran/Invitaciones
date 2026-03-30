@@ -13,7 +13,8 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       /\.vercel\.app$/,            // Permite cualquier subdominio de Vercel
-      'https://tu-app.vercel.app'  // Tu dominio específico de producción
+      'https://tu-app.vercel.app',
+      'http://localhost:5173'  // Tu dominio específico de producción
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

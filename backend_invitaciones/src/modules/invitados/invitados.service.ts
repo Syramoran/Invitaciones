@@ -176,23 +176,20 @@ export class InvitadosService {
   ): Promise<ConfirmacionResponseDto> {
     await this.invitacionesService.buscarInvitacionOFail(invitacionId);
 
-    // Buscar invitado por nombre + apellido en esta invitación
-    const invitado = await this.invitadoRepo.findOne({
-      where: {
-        invitacionId,
-        nombre: dto.nombre,
-        apellido: dto.apellido,
-      },
+    // Reconstruir nombre y apellido desde el slug del parámetro URL
+    // El slug es: `${nombre}-${apellido}`.toLowerCase().sin-acentos.espacios→guiones
+    // Como no hay lista previa, usamos el slug directamente para identificar al invitado
+    const partes = dto.invitadoSlug.split('-');
+    const nombre = partes[0] ?? dto.invitadoSlug;
+    const apellido = partes.slice(1).join(' ') || nombre;
+
+    // Buscar si ya existe un registro para este invitado
+    let invitado = await this.invitadoRepo.findOne({
+      where: { invitacionId, nombre, apellido },
     });
 
-    if (!invitado) {
-      throw new NotFoundException(
-        `Invitado "${dto.nombre} ${dto.apellido}" no encontrado en esta invitación.`,
-      );
-    }
-
     // Si ya confirmó, retornar sin modificar (idempotente)
-    if (invitado.confirmado) {
+    if (invitado?.confirmado) {
       return {
         mensaje: 'Ya habías confirmado tu asistencia anteriormente.',
         nombre: invitado.nombre,
@@ -202,14 +199,17 @@ export class InvitadosService {
       };
     }
 
-    // Registrar confirmación
+    // Crear o actualizar el registro con la confirmación
+    if (!invitado) {
+      invitado = this.invitadoRepo.create({ invitacionId, nombre, apellido });
+    }
     invitado.confirmado = true;
     invitado.fechaConfirmacion = new Date();
     await this.invitadoRepo.save(invitado);
 
     this.logger.log(
       `✅ Asistencia confirmada — Invitación: ${invitacionId} | ` +
-      `Invitado: ${dto.nombre} ${dto.apellido}`,
+      `Invitado: ${invitado.nombre} ${invitado.apellido}`,
     );
 
     return {

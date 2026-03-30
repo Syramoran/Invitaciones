@@ -111,6 +111,12 @@ export class ServiciosService {
 
 
     async calcularPrecio(ids: number[]): Promise<{ total: number; desglose: { id: number; nombre: string; precio: number }[] }> {
+        
+        if (!ids || ids.length === 0) {
+            return { total: 30000, desglose: [] };
+        }
+        console.log('IDs recibidos para calcular precio:', ids);
+        
         const servicios = await this.servicioRepository.findBy({
             id: In(ids) as FindOptionsWhere<Servicio>['id'],
             activo: true,

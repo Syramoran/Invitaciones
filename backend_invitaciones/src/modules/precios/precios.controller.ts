@@ -6,13 +6,13 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { IsArray, IsInt, ArrayNotEmpty } from 'class-validator';
+import { IsArray, IsInt } from 'class-validator';
 import { ServiciosService } from '../servicios/servicios.service';
 import { Public } from '../auth/decorators/public.decorator';
 
 class CalcularPrecioDto {
   @IsArray()
-  @ArrayNotEmpty({ message: 'Debe seleccionar al menos un servicio' })
+  // @ArrayNotEmpty({ message: 'Debe seleccionar al menos un servicio' })
   @IsInt({ each: true, message: 'Cada id debe ser un número entero' })
   servicioIds!: number[];
 }

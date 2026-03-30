@@ -24,6 +24,7 @@ import {
   PedidoServicioResponseDto,
   PaginatedPedidosDto,
 } from './dto/pedido.dto';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 // ═══════════════════════════════════════════
 // Mapa de transiciones válidas de estado
@@ -56,9 +57,11 @@ export class PedidosService {
     // @InjectRepository(PedidoServicio)
     // private readonly pedidoServicioRepo: Repository<PedidoServicio>,
 
+    private readonly notificacionesService: NotificacionesService,  // ← agregar
+
     private readonly dataSource: DataSource,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   // ═══════════════════════════════════════════
   // POST /pedidos — Crear pedido (público)
@@ -152,9 +155,18 @@ export class PedidosService {
     });
 
     // 6. Enviar notificación por email al propietario (fire-and-forget)
-    this.enviarNotificacionNuevoPedido(pedido, tipoEvento.nombre, template.nombre)
+    this.notificacionesService
+      .notificarNuevoPedido({
+        pedidoId: pedido.id,
+        nombreCliente: dto.nombreCliente,
+        telefono: dto.telefono,
+        email: dto.email,
+        tipoEvento: tipoEvento.nombre,
+        template: template.nombre,
+        precioTotal,
+      })
       .catch((err) =>
-        this.logger.error(`Error enviando email de nuevo pedido #${pedido.id}: ${err.message}`),
+        this.logger.error(`Error enviando notificación pedido #${pedido.id}: ${err.message}`),
       );
 
     // 7. Mapear y retornar response
@@ -377,21 +389,5 @@ export class PedidosService {
    * Corresponde al paso "Envía notificación por email al propietario"
    * del Diagrama de Actividad #1.
    */
-  private async enviarNotificacionNuevoPedido(
-    pedido: Pedido,
-    tipoEventoNombre: string,
-    templateNombre: string,
-  ): Promise<void> {
-    // TODO: Implementar con nodemailer / servicio de email
-    // Enviar a ADMIN_EMAIL con los datos del pedido:
-    //   - Nombre del cliente, teléfono, email
-    //   - Tipo de evento, template seleccionado
-    //   - Precio base, precio total
-    //   - Lista de servicios seleccionados
-    this.logger.log(
-      `📧 Notificación nuevo pedido #${pedido.id} — ` +
-      `Cliente: ${pedido.nombreCliente} | Evento: ${tipoEventoNombre} | ` +
-      `Template: ${templateNombre} | Total: $${pedido.precioTotal}`,
-    );
-  }
+
 }
