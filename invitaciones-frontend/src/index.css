@@ -3,7 +3,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ─────────────────────────────────────────────
+   CUSTOM PROPERTIES — Brand Design System
+   ───────────────────────────────────────────── */
 :root {
+  /* shadcn/ui tokens */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -24,9 +28,32 @@
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   --radius: 0.625rem;
+
+  /* Brand colors */
+  --champagne: #f5e6d3;
+  --champagne-light: #faf3eb;
+  --champagne-dark: #e8d5be;
+  --rose: #c9a087;
+  --rose-deep: #a67c5b;
+  --gold: #c5a572;
+  --gold-light: #ddc9a0;
+  --gold-dark: #9e7f4e;
+  --cream: #fefcf9;
+  --ivory: #f9f5ef;
+  --charcoal: #2d2926;
+  --charcoal-soft: #4a4441;
+  --warm-gray: #8a7e76;
+  --warm-gray-light: #b5aba2;
+  --blush: #e8c4b0;
+  --sage: #a8b5a0;
+  --sage-light: #d4ddd0;
 }
 
+/* ─────────────────────────────────────────────
+   TAILWIND THEME EXTENSION
+   ───────────────────────────────────────────── */
 @theme inline {
+  /* shadcn/ui */
   --font-sans: system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
   --color-background: var(--background);
@@ -52,13 +79,119 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Brand fonts */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Outfit', sans-serif;
+
+  /* Brand colors */
+  --color-champagne: var(--champagne);
+  --color-champagne-light: var(--champagne-light);
+  --color-champagne-dark: var(--champagne-dark);
+  --color-rose: var(--rose);
+  --color-rose-deep: var(--rose-deep);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --color-cream: var(--cream);
+  --color-ivory: var(--ivory);
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-soft: var(--charcoal-soft);
+  --color-warm-gray: var(--warm-gray);
+  --color-warm-gray-light: var(--warm-gray-light);
+  --color-blush: var(--blush);
+  --color-sage: var(--sage);
+  --color-sage-light: var(--sage-light);
 }
 
+/* ─────────────────────────────────────────────
+   BASE STYLES
+   ───────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
   }
+}
+
+/* ─────────────────────────────────────────────
+   ANIMATIONS
+   ───────────────────────────────────────────── */
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroPhoneIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px) rotate(2deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+.animate-hero-fade-in {
+  animation: heroFadeIn 1s ease-out;
+}
+
+.animate-hero-phone-in {
+  animation: heroPhoneIn 1.2s ease-out 0.3s both;
+}
+
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-step-in {
+  animation: stepFadeIn 0.35s ease-out;
+}
+
+/* ─────────────────────────────────────────────
+   UTILITY
+   ───────────────────────────────────────────── */
+.page-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
+}
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR
+   ───────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ivory);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--champagne-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--warm-gray-light);
 }

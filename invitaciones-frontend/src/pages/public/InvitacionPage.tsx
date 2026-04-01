@@ -1,8 +1,19 @@
-import { useEffect, useState } from 'react'
+import { Suspense, useMemo, useEffect, useState } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import type { InvitacionPublica } from '@/types/invitation'
 import { getInvitacionPublica } from '@/services/invitacionService'
-import { InvitationView } from '@/components/invitation-basic/invitation-view'
+import { getInvitationComponent } from '@/components/invitations/registry'
+
+function LoadingScreen() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#e8e8e8]">
+      <div className="text-center">
+        <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-600" />
+        <p className="text-sm text-gray-500">Cargando invitación...</p>
+      </div>
+    </div>
+  )
+}
 
 export default function InvitacionPage() {
   const { eventoId } = useParams<{ eventoId: string }>()
@@ -39,18 +50,19 @@ export default function InvitacionPage() {
     }
   }, [status, navigate])
 
-  if (status === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#e8e8e8]">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-600" />
-          <p className="text-sm text-gray-500">Cargando invitación...</p>
-        </div>
-      </div>
-    )
-  }
+  // Lazy-load the component that matches the template slug
+  const InvitationComponent = useMemo(
+    () => (invitacion ? getInvitationComponent(invitacion.template.slug) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [invitacion?.template.slug],
+  )
 
-  if (!invitacion) return null
+  if (status === 'loading') return <LoadingScreen />
+  if (!invitacion || !InvitationComponent) return null
 
-  return <InvitationView invitacion={invitacion} invitadoParam={invitado} />
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <InvitationComponent invitacion={invitacion} invitadoParam={invitado} />
+    </Suspense>
+  )
 }

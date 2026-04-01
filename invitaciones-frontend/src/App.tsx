@@ -6,6 +6,7 @@ import { Suspense, lazy } from 'react'
 
 // Lazy loading — cada chunk se carga solo cuando se navega a esa ruta
 const LandingPage          = lazy(() => import('@/pages/public/LandingPage'))
+const SolicitarPage        = lazy(() => import('@/pages/public/SolicitarPage'))
 const InvitacionPage       = lazy(() => import('@/pages/public/InvitacionPage'))
 const GaleriaPage          = lazy(() => import('@/pages/public/GaleriaPage'))
 const AsistentesPage       = lazy(() => import('@/pages/public/AsistentesPage'))
@@ -15,6 +16,7 @@ const PoliticaPrivacidad   = lazy(() => import('@/pages/legal/PoliticaPrivacidad
 const AvisoCookies         = lazy(() => import('@/pages/legal/AvisoCookies'))
 const Disclaimer           = lazy(() => import('@/pages/legal/Disclaimer'))
 const NotFoundPage         = lazy(() => import('@/pages/public/NotFoundPage'))
+const AdminLayout          = lazy(() => import('@/components/admin/AdminLayout').then(m => ({ default: m.AdminLayout })))
 const LoginPage            = lazy(() => import('@/pages/admin/LoginPage'))
 const DashboardPage        = lazy(() => import('@/pages/admin/DashboardPage'))
 const PedidosPage          = lazy(() => import('@/pages/admin/PedidosPage'))
@@ -43,6 +45,7 @@ export default function App() {
 
             {/* ── PÚBLICAS ── */}
             <Route path="/"                        element={<LandingPage />} />
+            <Route path="/crear"                   element={<SolicitarPage />} />
             <Route path="/pedido-enviado"          element={<PedidoEnviadoPage />} />
             <Route path="/:eventoId"               element={<InvitacionPage />} />
             <Route path="/:eventoId/galeria"       element={<GaleriaPage />} />
@@ -55,24 +58,18 @@ export default function App() {
             <Route path="/disclaimer"            element={<Disclaimer />} />
 
             {/* ── ADMIN ── */}
-            <Route path="/admin/login"            element={<LoginPage />} />
-            <Route path="/admin"                  element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="/admin/dashboard"
-              element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
-            <Route path="/admin/pedidos"
-              element={<PrivateRoute><PedidosPage /></PrivateRoute>} />
-            <Route path="/admin/invitaciones"
-              element={<PrivateRoute><InvitacionesPage /></PrivateRoute>} />
-            <Route path="/admin/invitaciones/crear"
-              element={<PrivateRoute><CrearInvitacionPage /></PrivateRoute>} />
-            <Route path="/admin/invitaciones/:id"
-              element={<PrivateRoute><EditarInvitacionPage /></PrivateRoute>} />
-            <Route path="/admin/servicios"
-              element={<PrivateRoute><ServiciosPage /></PrivateRoute>} />
-            <Route path="/admin/templates"
-              element={<PrivateRoute><TemplatesPage /></PrivateRoute>} />
-            <Route path="/admin/reportes"
-              element={<PrivateRoute><ReportesPage /></PrivateRoute>} />
+            <Route path="/admin/login" element={<LoginPage />} />
+            <Route path="/admin" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard"              element={<DashboardPage />} />
+              <Route path="pedidos"                element={<PedidosPage />} />
+              <Route path="invitaciones"           element={<InvitacionesPage />} />
+              <Route path="invitaciones/crear"     element={<CrearInvitacionPage />} />
+              <Route path="invitaciones/:id"       element={<EditarInvitacionPage />} />
+              <Route path="servicios"              element={<ServiciosPage />} />
+              <Route path="templates"              element={<TemplatesPage />} />
+              <Route path="reportes"               element={<ReportesPage />} />
+            </Route>
 
             {/* ── 404 ── */}
             <Route path="*"                        element={<NotFoundPage />} />

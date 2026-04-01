@@ -6,14 +6,14 @@ interface LoginPayload {
 }
 
 interface LoginResponse {
-  token: string
+  access_token: string
   user: { id: number; username: string; email: string; role: string }
 }
 
 export const authService = {
   async login(payload: LoginPayload): Promise<LoginResponse> {
     const { data } = await apiClient.post<LoginResponse>('/auth/login', payload)
-    localStorage.setItem(JWT_KEY, data.token)
+    localStorage.setItem(JWT_KEY, data.access_token)
     return data
   },
 

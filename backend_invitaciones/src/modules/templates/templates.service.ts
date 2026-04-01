@@ -18,7 +18,6 @@ export class TemplatesService {
     async findAll(query: TemplateQueryDto): Promise<TemplateResponseDto[]> {
         const where: any = {};
 
-        where.activo = query.activo ?? true;
 
         if (query.tipoEventoId) {
             where.tipoEventoId = query.tipoEventoId;

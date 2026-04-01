@@ -1,0 +1,123 @@
+@import 'tailwindcss';
+
+/* ═══════════════════════════════════════════
+   CUSTOM PROPERTIES (CSS VARIABLES)
+   ═══════════════════════════════════════════ */
+:root {
+  /* Brand Colors */
+  --champagne: #f5e6d3;
+  --champagne-light: #faf3eb;
+  --champagne-dark: #e8d5be;
+  --rose: #c9a087;
+  --rose-deep: #a67c5b;
+  --gold: #c5a572;
+  --gold-light: #ddc9a0;
+  --gold-dark: #9e7f4e;
+  --cream: #fefcf9;
+  --ivory: #f9f5ef;
+  --charcoal: #2d2926;
+  --charcoal-soft: #4a4441;
+  --warm-gray: #8a7e76;
+  --warm-gray-light: #b5aba2;
+  --blush: #e8c4b0;
+  --sage: #a8b5a0;
+  --sage-light: #d4ddd0;
+}
+
+/* ═══════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════ */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  color: var(--charcoal);
+  background: var(--cream);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════ */
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroPhoneIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px) rotate(2deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+.animate-hero-fade-in {
+  animation: heroFadeIn 1s ease-out;
+}
+
+.animate-hero-phone-in {
+  animation: heroPhoneIn 1.2s ease-out 0.3s both;
+}
+
+/* ═══════════════════════════════════════════
+   TAILWIND THEME EXTENSION
+   ═══════════════════════════════════════════ */
+@theme inline {
+  /* Font families */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Outfit', sans-serif;
+
+  /* Colors */
+  --color-champagne: var(--champagne);
+  --color-champagne-light: var(--champagne-light);
+  --color-champagne-dark: var(--champagne-dark);
+  --color-rose: var(--rose);
+  --color-rose-deep: var(--rose-deep);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --color-cream: var(--cream);
+  --color-ivory: var(--ivory);
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-soft: var(--charcoal-soft);
+  --color-warm-gray: var(--warm-gray);
+  --color-warm-gray-light: var(--warm-gray-light);
+  --color-blush: var(--blush);
+  --color-sage: var(--sage);
+  --color-sage-light: var(--sage-light);
+}
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR STYLING
+   ═══════════════════════════════════════════ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ivory);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--champagne-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--warm-gray-light);
+}
