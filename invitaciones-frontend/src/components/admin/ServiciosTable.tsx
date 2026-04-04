@@ -64,11 +64,11 @@ export function ServiciosTable({
                 {s.descripcion ?? <span className="text-[#9ca3af]">—</span>}
               </td>
 
-              {/* Precio — editable con doble click si no está incluido en base */}
+              {/* Precio — editable con doble click */}
               <td
-                className={`px-3 py-2.5 text-[.85rem] relative min-w-[110px] ${!s.incluidoEnBase ? 'cursor-pointer hover:bg-[rgba(197,165,114,.06)]' : ''}`}
-                onDoubleClick={() => !s.incluidoEnBase && onStartEdit(s)}
-                title={!s.incluidoEnBase ? 'Doble click para editar' : ''}
+                className="px-3 py-2.5 text-[.85rem] relative min-w-[110px] cursor-pointer hover:bg-[rgba(197,165,114,.06)]"
+                onDoubleClick={() => onStartEdit(s)}
+                title="Doble click para editar"
               >
                 {editState.id === s.id ? (
                   <input
@@ -88,8 +88,6 @@ export function ServiciosTable({
                     }}
                     className="w-28 px-2 py-1 border-2 border-[#c5a572] rounded text-[.85rem] outline-none bg-white"
                   />
-                ) : s.incluidoEnBase ? (
-                  <span className="text-[#9ca3af]">—</span>
                 ) : (
                   <span className="font-medium">{fmtPrice(s.precio)}</span>
                 )}

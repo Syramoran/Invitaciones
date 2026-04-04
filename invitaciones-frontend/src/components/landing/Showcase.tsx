@@ -23,7 +23,7 @@ export function Showcase() {
             Vista previa
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal mb-4">
-            Mira como se ve
+            Mirá como se ve
           </h2>
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
             Cada tipo de evento tiene su propio estilo visual

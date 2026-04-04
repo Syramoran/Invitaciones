@@ -42,7 +42,7 @@ export function AdminTopbar({ onMenuClick }: Props) {
       {/* Title */}
       <span className="text-[1.1rem] font-semibold flex-1">{title}</span>
 
-      {/* Search */}
+      {/* Search 
       <div className="relative hidden sm:block">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9ca3af]" />
         <input
@@ -52,11 +52,12 @@ export function AdminTopbar({ onMenuClick }: Props) {
         />
       </div>
 
-      {/* Bell */}
+       Bell 
       <button className="relative p-1.5 text-[#6b7280] hover:text-[#2d2926] transition-colors" aria-label="Notificaciones">
         <Bell className="w-5 h-5" />
         <span className="absolute top-1 right-1 w-2 h-2 bg-[#dc2626] rounded-full border-2 border-white" />
       </button>
+      */}
 
       {/* User */}
       <div className="flex items-center gap-2 cursor-pointer px-2 py-1 rounded-lg hover:bg-[#f4f5f7] transition-colors">

@@ -28,6 +28,15 @@ export interface Template {
   thumbnailUrl: string | null
 }
 
+export interface UbicacionEventoPublica {
+  tipo: string
+  nombre: string
+  direccion: string
+  latitud: number
+  longitud: number
+  hora?: string
+}
+
 export interface CamposEspecificosBoda {
   nombreNovia: string
   nombreNovio: string

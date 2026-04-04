@@ -84,6 +84,12 @@ export class CreateInvitacionDto {
   @Type(() => Number)
   maxFotos?: number;
 
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try { return JSON.parse(value) } catch { return value }
+    }
+    return value;
+  })
   @IsObject()
   @IsOptional()
   camposEspecificos?: Record<string, any>;
@@ -173,6 +179,7 @@ export class InvitacionResponseDto {
   activa!: boolean;
   fechaExpiracion!: Date;
   servicios!: { servicioId: number; nombre: string; habilitado: boolean }[];
+  fotosAnfitrion!: { id: number; url: string; orden: number; tamano: number }[];
   createdAt!: Date;
 }
 

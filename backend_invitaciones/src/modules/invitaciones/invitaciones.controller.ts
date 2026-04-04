@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UseGuards,
   ParseUUIDPipe,
+  ParseIntPipe,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -111,6 +112,44 @@ export class InvitacionesController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async eliminar(@Param('id', ParseUUIDPipe) id: string) {
     return this.invitacionesService.eliminar(id);
+  }
+
+  // ═══════════════════════════════════════════
+  // POST /invitaciones/:id/fotos-anfitrion — Agregar fotos del anfitrión (admin, JWT)
+  // ═══════════════════════════════════════════
+
+  @Post(':id/fotos-anfitrion')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [{ name: 'fotos', maxCount: 5 }],
+      {
+        storage: memoryStorage(),
+        limits: { fileSize: 20 * 1024 * 1024 },
+      },
+    ),
+  )
+  async agregarFotosAnfitrion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFiles() archivos: { fotos?: Express.Multer.File[] },
+  ) {
+    await this.invitacionesService.agregarFotosAnfitrion(id, archivos?.fotos ?? []);
+    return { mensaje: 'Fotos agregadas correctamente' };
+  }
+
+  // ═══════════════════════════════════════════
+  // DELETE /invitaciones/:id/fotos-anfitrion/:fotoId — Eliminar foto (admin, JWT)
+  // ═══════════════════════════════════════════
+
+  @Delete(':id/fotos-anfitrion/:fotoId')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async eliminarFotoAnfitrion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('fotoId', ParseIntPipe) fotoId: number,
+  ) {
+    return this.invitacionesService.eliminarFotoAnfitrion(id, fotoId);
   }
 
   // ═══════════════════════════════════════════

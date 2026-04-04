@@ -115,14 +115,14 @@ export class PedidosService {
     }
 
     // 4. Calcular precios
-    //    precioBase = precio del template
-    //    precioTotal = base + suma de servicios seleccionados
-    const precioBase = 30000;
-    const sumaServicios = servicios.reduce(
-      (acc, s) => acc + (Number(s.precio) || 0),
-      0,
-    );
-    const precioTotal = precioBase + sumaServicios;
+    //    precioBase = suma de servicios incluidos en base
+    //    precioTotal = (base + opcionales) * 1.5 si segunda tarjeta, sino base + opcionales
+    const serviciosBase = servicios.filter(s => s.incluidoEnBase);
+    const serviciosOpcionales = servicios.filter(s => !s.incluidoEnBase);
+    const precioBase = serviciosBase.reduce((acc, s) => acc + (Number(s.precio) || 0), 0);
+    const sumaOpcionales = serviciosOpcionales.reduce((acc, s) => acc + (Number(s.precio) || 0), 0);
+    const subtotal = precioBase + sumaOpcionales;
+    const precioTotal = dto.segundaTarjeta ? Math.round(subtotal * 1.5) : subtotal;
 
     // 5. Transacción: crear pedido + pedido_servicios
     const pedido = await this.dataSource.transaction(async (manager) => {

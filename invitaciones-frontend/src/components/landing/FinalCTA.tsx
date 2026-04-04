@@ -16,10 +16,10 @@ export function FinalCTA() {
         </div>
 
         <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-champagne-light mb-4">
-          Listo para crear algo unico?
+          ¿Listo para crear algo único?
         </h2>
         <p className="text-base text-warm-gray-light font-light leading-relaxed max-w-[560px] mx-auto mb-10">
-          Tu invitacion personalizada a un click de distancia
+          Tu invitación personalizada a un click de distancia
         </p>
 
         <div className="flex items-center justify-center gap-4 flex-wrap">
@@ -27,17 +27,17 @@ export function FinalCTA() {
             to="/crear"
             className="inline-flex items-center gap-2 bg-gold text-white font-medium px-10 py-4 rounded-full hover:bg-gold-dark hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(197,165,114,0.3)] transition-all"
           >
-            Crea tu invitacion
+            Creá tu invitacion
             <span>→</span>
           </Link>
           <a
-            href="https://wa.me/"
+            href="https://wa.me/5493435083034"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-transparent text-champagne-light border border-warm-gray font-medium px-8 py-4 rounded-full hover:border-champagne-light hover:bg-white/5 transition-all"
           >
             <MessageCircle className="w-4 h-4" />
-            Tenes dudas? Escribinos
+            ¿Tenés dudas? ¡Escribinos!
             <span>→</span>
           </a>
         </div>

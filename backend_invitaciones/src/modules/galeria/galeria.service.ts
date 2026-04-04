@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
+  UnauthorizedException,
   Logger,
   StreamableFile,
 } from '@nestjs/common';
@@ -110,10 +111,21 @@ export class GaleriaService {
   }
 
   // ═══════════════════════════════════════════
-  // DELETE /invitaciones/:id/galeria/:fotoId — Eliminar foto (admin, JWT)
+  // DELETE /invitaciones/:id/galeria/:fotoId — Eliminar foto (contraseña del evento)
   // ═══════════════════════════════════════════
 
-  async eliminar(invitacionId: string, fotoId: number): Promise<void> {
+  async eliminar(invitacionId: string, fotoId: number, password: string): Promise<void> {
+    // Validar contraseña del evento
+    const invitacion =
+      await this.invitacionesService.buscarInvitacionOFail(invitacionId);
+
+    if (
+      !invitacion.contrasenaAsistentes ||
+      invitacion.contrasenaAsistentes !== password
+    ) {
+      throw new UnauthorizedException('Contraseña del evento incorrecta.');
+    }
+
     const foto = await this.fotoRepo.findOne({
       where: { id: fotoId, invitacionId },
     });

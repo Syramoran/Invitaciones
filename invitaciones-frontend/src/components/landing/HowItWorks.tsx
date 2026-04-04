@@ -5,13 +5,13 @@ import { Ornament } from './Ornament'
 const steps = [
   {
     icon: Monitor,
-    title: 'Elegi y configura',
-    description: 'Selecciona el tipo de evento, elegi un diseno y suma los servicios que quieras',
+    title: 'Elegí y configurá',
+    description: 'Seleccioná el tipo de evento, elegí un diseño y sumá los servicios que quieras',
   },
   {
     icon: ClipboardList,
-    title: 'Hace tu pedido',
-    description: 'Completa tus datos, revisa el precio y envia la solicitud',
+    title: 'Hacé tu pedido',
+    description: 'Completá tus datos, revisá el precio y enviá la solicitud',
   },
   {
     icon: MessageCircle,
@@ -21,7 +21,7 @@ const steps = [
   {
     icon: Link2,
     title: 'Listo para compartir!',
-    description: 'Recibis tu invitacion con links unicos para cada invitado',
+    description: 'Recibís tu invitación con links únicos para cada invitado',
   },
 ]
 
@@ -37,10 +37,10 @@ export function HowItWorks() {
             El proceso
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal mb-4">
-            Asi de simple
+            Así de simple
           </h2>
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
-            En 4 pasos tenes tu invitacion lista para compartir
+            En 4 pasos tenes tu invitación lista para compartir
           </p>
         </div>
 
@@ -73,7 +73,7 @@ export function HowItWorks() {
             to="/crear"
             className="inline-flex items-center gap-2 bg-charcoal text-champagne-light font-medium px-8 py-3.5 rounded-full hover:bg-charcoal-soft hover:-translate-y-0.5 hover:shadow-md transition-all"
           >
-            Empeza ahora
+            Empezá ahora
             <span>→</span>
           </Link>
         </div>

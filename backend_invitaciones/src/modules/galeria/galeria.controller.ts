@@ -10,6 +10,7 @@ import {
   ParseUUIDPipe,
   ParseIntPipe,
   Res,
+  Headers,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -19,6 +20,8 @@ import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 import { GaleriaService } from './galeria.service';
 import { Public } from '../auth/decorators/public.decorator';
+
+// JwtAuthGuard se mantiene importado para el endpoint de stats
 
 @Controller('invitaciones/:id/galeria')
 export class GaleriaController {
@@ -58,17 +61,19 @@ export class GaleriaController {
   }
 
   // ═══════════════════════════════════════════
-  // DELETE /invitaciones/:id/galeria/:fotoId — Eliminar foto (admin, JWT)
+  // DELETE /invitaciones/:id/galeria/:fotoId — Eliminar foto (contraseña del evento)
+  // Requiere header X-Event-Password
   // ═══════════════════════════════════════════
 
   @Delete(':fotoId')
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @HttpCode(HttpStatus.NO_CONTENT)
   async eliminar(
     @Param('id', ParseUUIDPipe) invitacionId: string,
     @Param('fotoId', ParseIntPipe) fotoId: number,
+    @Headers('x-event-password') password: string,
   ) {
-    return this.galeriaService.eliminar(invitacionId, fotoId);
+    return this.galeriaService.eliminar(invitacionId, fotoId, password);
   }
 
   // ═══════════════════════════════════════════

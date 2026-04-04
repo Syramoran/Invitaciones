@@ -158,6 +158,7 @@ export class InvitacionesService {
       .leftJoinAndSelect('invitacion.template', 'template')
       .leftJoinAndSelect('invitacion.invitacionServicios', 'is')
       .leftJoinAndSelect('is.servicio', 'servicio')
+      .leftJoinAndSelect('invitacion.fotosAnfitrion', 'fotosAnfitrion')
       .orderBy('invitacion.createdAt', 'DESC')
       .skip(skip)
       .take(limit);
@@ -375,6 +376,67 @@ export class InvitacionesService {
   // ═══════════════════════════════════════════
   // Operaciones privadas
   // ═══════════════════════════════════════════
+
+  // ═══════════════════════════════════════════
+  // POST /invitaciones/:id/fotos-anfitrion — Agregar fotos (admin, JWT)
+  // ═══════════════════════════════════════════
+
+  async agregarFotosAnfitrion(
+    invitacionId: string,
+    archivos: Express.Multer.File[],
+  ): Promise<void> {
+    await this.buscarInvitacionOFail(invitacionId);
+
+    const existentes = await this.fotoAnfitrionRepo.count({ where: { invitacionId } });
+    const disponibles = Math.max(0, 5 - existentes);
+    const fotosASubir = archivos.slice(0, disponibles);
+
+    if (fotosASubir.length === 0) return;
+
+    for (let i = 0; i < fotosASubir.length; i++) {
+      const orden = existentes + i + 1;
+      const resultado = await this.r2StorageService.subirFotoAnfitrion(
+        invitacionId,
+        fotosASubir[i],
+        orden,
+      );
+
+      await this.fotoAnfitrionRepo.save(
+        this.fotoAnfitrionRepo.create({
+          invitacionId,
+          url: resultado.url,
+          orden,
+          tamano: resultado.tamano,
+        }),
+      );
+    }
+
+    this.logger.log(
+      `📷 ${fotosASubir.length} fotos del anfitrión agregadas — Invitación: ${invitacionId}`,
+    );
+  }
+
+  // ═══════════════════════════════════════════
+  // DELETE /invitaciones/:id/fotos-anfitrion/:fotoId — Eliminar foto (admin, JWT)
+  // ═══════════════════════════════════════════
+
+  async eliminarFotoAnfitrion(invitacionId: string, fotoId: number): Promise<void> {
+    const foto = await this.fotoAnfitrionRepo.findOne({
+      where: { id: fotoId, invitacionId },
+    });
+
+    if (!foto) {
+      throw new NotFoundException(`Foto #${fotoId} no encontrada para la invitación ${invitacionId}.`);
+    }
+
+    if (foto.url) {
+      await this.r2StorageService.eliminarArchivo(foto.url);
+    }
+
+    await this.fotoAnfitrionRepo.remove(foto);
+
+    this.logger.log(`🗑️ Foto anfitrión eliminada — Invitación: ${invitacionId} | Foto: #${fotoId}`);
+  }
 
   private async subirFotosAnfitrion(
     invitacionId: string,

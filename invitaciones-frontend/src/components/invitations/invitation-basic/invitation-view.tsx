@@ -116,6 +116,7 @@ export function InvitationView({ invitacion, invitadoParam }: InvitationViewProp
           direccion={invitacion.direccion}
           latitud={invitacion.latitud}
           longitud={invitacion.longitud}
+          camposEspecificos={invitacion.camposEspecificos}
         />
 
         {/* Historia */}

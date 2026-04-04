@@ -84,7 +84,7 @@ export class HistoriasService {
     }
 
     // 4. Sanitizar texto HTML para prevenir XSS
-    const textoSanitizado = this.sanitizarTexto(dto.texto);
+    const textoSanitizado = dto.texto ? this.sanitizarTexto(dto.texto) : '';
 
     // 5. Subir imagen a R2 si se envía
     let imagenUrl: string | undefined;

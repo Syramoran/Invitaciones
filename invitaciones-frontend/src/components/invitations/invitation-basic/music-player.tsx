@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { Play, Pause, SkipBack, SkipForward, Music, X } from "lucide-react"
+import { Play, Pause, SkipBack, SkipForward, Music, X, Volume2 } from "lucide-react"
 import type { Musica } from "@/types/invitation"
 
 interface MusicPlayerProps {
@@ -12,7 +12,14 @@ export function MusicPlayer({ musica, autoPlay = false }: MusicPlayerProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [volume, setVolume] = useState(0.2)
   const audioRef = useRef<HTMLAudioElement>(null)
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.2
+    }
+  }, [])
 
   useEffect(() => {
     if (autoPlay && audioRef.current) {
@@ -24,6 +31,14 @@ export function MusicPlayer({ musica, autoPlay = false }: MusicPlayerProps) {
       })
     }
   }, [autoPlay])
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value)
+    setVolume(val)
+    if (audioRef.current) {
+      audioRef.current.volume = val
+    }
+  }
 
   const togglePlay = () => {
     if (!audioRef.current) return
@@ -156,6 +171,30 @@ export function MusicPlayer({ musica, autoPlay = false }: MusicPlayerProps) {
             >
               <SkipForward className="h-4 w-4" />
             </button>
+          </div>
+
+          {/* Control de volumen */}
+          <div className="mt-3 flex items-center gap-2">
+            <Volume2 className="h-4 w-4 shrink-0 text-[#777777]" />
+            <div className="relative h-1 flex-1 overflow-hidden rounded-sm bg-[#f5f5f5]">
+              <div
+                className="h-full rounded-sm bg-[var(--invitation-primary)] transition-all"
+                style={{ width: `${volume * 100}%` }}
+              />
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={volume}
+                onChange={handleVolumeChange}
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                aria-label="Volumen"
+              />
+            </div>
+            <span className="min-w-[2rem] text-right text-[10px] text-[#777777]">
+              {Math.round(volume * 100)}%
+            </span>
           </div>
         </div>
       )}

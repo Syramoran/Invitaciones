@@ -14,8 +14,8 @@ interface TimeLeft {
 
 function calcularTiempoRestante(fechaEvento: string, horaEvento: string): TimeLeft {
   const [hora, minuto] = horaEvento.split(":").map(Number)
-  const fechaObjetivo = new Date(fechaEvento)
-  fechaObjetivo.setHours(hora, minuto, 0, 0)
+  const [y, m, d] = fechaEvento.split('T')[0].split('-').map(Number)
+  const fechaObjetivo = new Date(y, m - 1, d, hora, minuto, 0, 0)
 
   const ahora = new Date()
   const diferencia = fechaObjetivo.getTime() - ahora.getTime()

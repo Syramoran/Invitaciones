@@ -5,8 +5,8 @@ interface HeroSectionProps {
 }
 
 function formatFechaLarga(fechaISO: string): string {
-  const fecha = new Date(fechaISO)
-  return fecha.toLocaleDateString("es-ES", {
+  const [y, m, d] = fechaISO.split('T')[0].split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString("es-ES", {
     day: "numeric",
     month: "long",
     year: "numeric",

@@ -1,5 +1,5 @@
 import { Check, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
-import { COLORS, EVENT_LABELS, btnBack, btnNext } from './data'
+import { COLORS, btnBack, btnNext } from './data'
 import type { EventType } from './types'
 import type { Template } from '@/services/templateService'
 
@@ -30,10 +30,7 @@ export function StepDiseno({
 
   return (
     <>
-      <h2 className="font-display text-4xl font-semibold text-center mb-2">Elegí el diseño que más te guste</h2>
-      <p className="text-warm-gray text-center font-light mb-12">
-        Diseños para {EVENT_LABELS[eventType]}
-      </p>
+      <h2 className="font-display text-4xl font-semibold text-center mb-4 pb-4">Elegí el diseño que más te guste</h2>
 
       {/* Grid de templates */}
       {templatesLoading ? (

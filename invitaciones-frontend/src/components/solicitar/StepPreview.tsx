@@ -1,28 +1,29 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { PhoneMockup } from '@/components/landing/PhoneMockup'
 import { InvitationPreview } from '@/components/landing/InvitationPreview'
-import { EVENT_LABELS, ADDON_LABELS, btnBack, btnNext } from './data'
+import { EVENT_LABELS, btnBack, btnNext } from './data'
 import { fmtPrice } from './utils'
 import { SummaryItem } from './SummaryItem'
-import type { AddonState, EventType, PriceBreakdown } from './types'
+import type { AddonState, AddonData, EventType, PriceBreakdown } from './types'
 
 interface Props {
   eventType: EventType
   templateName: string | null
   color: string
   addons: AddonState
+  addonsData: AddonData[]
   secondVersion: boolean
   prices: PriceBreakdown
   onNext: () => void
   onPrev: () => void
 }
 
-export function StepPreview({ eventType, templateName, color, addons, secondVersion, prices, onNext, onPrev }: Props) {
+export function StepPreview({ eventType, templateName, color, addons, addonsData, secondVersion, prices, onNext, onPrev }: Props) {
   const { total } = prices
 
-  const activeAddonLabels = Object.entries(addons)
-    .filter(([, v]) => v)
-    .map(([k]) => ADDON_LABELS[k])
+  const activeAddonLabels = addonsData
+    .filter(a => !a.incluidoEnBase && addons[a.id])
+    .map(a => a.label)
 
   const allServices = ['Info del evento', 'Mapa', 'Fotos', 'URL única', ...activeAddonLabels]
   if (secondVersion) allServices.push('2da versión')
@@ -39,7 +40,7 @@ export function StepPreview({ eventType, templateName, color, addons, secondVers
             <InvitationPreview type={eventType} />
           </PhoneMockup>
           <p className="text-sm text-warm-gray font-light text-center max-w-xs italic leading-relaxed">
-            Preview aproximado. La invitación final será creada por nuestro equipo con los datos reales de tu evento.
+           La invitación final será creada por nuestro equipo con los datos reales de tu evento.
           </p>
         </div>
 

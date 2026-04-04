@@ -1,7 +1,8 @@
 import { ChevronLeft, Loader2, AlertCircle } from 'lucide-react'
-import { BASE_PRICE, ADDONS_DATA, EVENT_LABELS, btnBack } from './data'
+import { Link } from 'react-router-dom'
+import { EVENT_LABELS, btnBack } from './data'
 import { fmtPrice } from './utils'
-import type { AddonState, EventType, PriceBreakdown } from './types'
+import type { AddonState, AddonData, EventType, PriceBreakdown } from './types'
 
 type FormState   = { name: string; phone: string; email: string }
 type TouchedState = { name: boolean; phone: boolean; email: boolean }
@@ -26,8 +27,12 @@ interface Props {
   touched: TouchedState
   setTouched: React.Dispatch<React.SetStateAction<TouchedState>>
   isFormValid: boolean
+  termsAccepted: boolean
+  setTermsAccepted: (v: boolean) => void
   addons: AddonState
   secondVersion: boolean
+  addonsData: AddonData[]
+  basePrice: number
   eventType: EventType
   templateName: string | null
   prices: PriceBreakdown
@@ -39,7 +44,9 @@ interface Props {
 
 export function StepContacto({
   form, setForm, touched, setTouched,
-  isFormValid, addons, secondVersion,
+  isFormValid, termsAccepted, setTermsAccepted,
+  addons, secondVersion,
+  addonsData, basePrice,
   eventType, templateName, prices,
   isSubmitting, submitError, onSubmit, onPrev,
 }: Props) {
@@ -112,13 +119,13 @@ export function StepContacto({
         <div className="bg-white rounded-2xl border border-black/[0.06] p-7">
           <h4 className="font-display text-xl font-semibold mb-5">Resumen del pedido</h4>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-warm-gray font-light">Invitación base</span><span className="font-medium">{fmtPrice(BASE_PRICE)}</span></div>
-            {ADDONS_DATA.map(a => addons[a.id as keyof AddonState] ? (
+            <div className="flex justify-between"><span className="text-warm-gray font-light">Invitación base</span><span className="font-medium">{fmtPrice(basePrice)}</span></div>
+            {addonsData.map(a => !a.incluidoEnBase && addons[a.id] ? (
               <div key={a.id} className="flex justify-between"><span className="text-warm-gray font-light">{a.label}</span><span>{fmtPrice(a.price)}</span></div>
             ) : null)}
             {secondVersion && <div className="flex justify-between"><span className="text-warm-gray font-light">2da versión (50%)</span><span>+{fmtPrice(secondCost)}</span></div>}
           </div>
-          {subtotal !== BASE_PRICE && <div className="h-px bg-ivory my-3" />}
+          {subtotal !== basePrice && <div className="h-px bg-ivory my-3" />}
           <div className="h-px bg-ivory my-4" />
           <div className="flex justify-between items-center mb-4">
             <span className="font-display text-lg font-semibold">Total</span>
@@ -137,10 +144,42 @@ export function StepContacto({
         </div>
       )}
 
-      <div className="flex justify-between items-center mt-8 max-w-4xl mx-auto">
+      {/* Terms acceptance */}
+      <div className="max-w-4xl mx-auto mt-8">
+        <label className="flex items-start gap-3 cursor-pointer group">
+          <div className="relative shrink-0 mt-0.5">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={e => setTermsAccepted(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-5 h-5 rounded border-2 border-champagne-dark peer-checked:bg-gold peer-checked:border-gold transition-all flex items-center justify-center">
+              {termsAccepted && (
+                <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+          </div>
+          <span className="text-sm font-light text-charcoal-soft leading-relaxed">
+            Leí y acepto los{' '}
+            <Link to="/terminos" target="_blank" className="text-gold hover:underline font-medium">
+              Términos de Servicio
+            </Link>{' '}
+            y la{' '}
+            <Link to="/privacidad" target="_blank" className="text-gold hover:underline font-medium">
+              Política de Privacidad
+            </Link>
+            . Entiendo que mis datos serán utilizados para coordinar el servicio de invitación digital.
+          </span>
+        </label>
+      </div>
+
+      <div className="flex justify-between items-center mt-6 max-w-4xl mx-auto">
         <button onClick={onPrev} className={btnBack}><ChevronLeft className="w-4 h-4" /> Anterior</button>
         <button
-          disabled={!isFormValid || isSubmitting}
+          disabled={!isFormValid || !termsAccepted || isSubmitting}
           onClick={onSubmit}
           className="inline-flex items-center gap-2 bg-gradient-to-r from-gold to-gold-dark text-white px-10 py-4 rounded-full font-medium text-base disabled:opacity-35 disabled:cursor-not-allowed hover:shadow-[0_8px_24px_rgba(197,165,114,0.35)] hover:-translate-y-0.5 transition-all"
         >

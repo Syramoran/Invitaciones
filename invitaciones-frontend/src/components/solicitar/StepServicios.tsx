@@ -1,27 +1,21 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { BASE_PRICE, ADDONS_DATA, btnBack, btnNext } from './data'
+import { btnBack, btnNext } from './data'
 import { fmtPrice } from './utils'
-import type { AddonState, PriceBreakdown } from './types'
+import type { AddonState, AddonData, PriceBreakdown } from './types'
 
 interface Props {
   addons: AddonState
-  toggleAddon: (id: keyof AddonState) => void
+  toggleAddon: (id: string) => void
   secondVersion: boolean
   setSecondVersion: React.Dispatch<React.SetStateAction<boolean>>
+  addonsData: AddonData[]
+  basePrice: number
   prices: PriceBreakdown
   onNext: () => void
   onPrev: () => void
 }
 
-const INCLUDED_FEATURES = [
-  'Información del evento (fecha, hora, ubicación, dress code)',
-  'Mapa con Google Maps',
-  'Hasta 5 fotos del anfitrión',
-  'URL única para compartir',
-  '3 meses de almacenamiento post-evento',
-]
-
-export function StepServicios({ addons, toggleAddon, secondVersion, setSecondVersion, prices, onNext, onPrev }: Props) {
+export function StepServicios({ addons, toggleAddon, secondVersion, setSecondVersion, addonsData, basePrice, prices, onNext, onPrev }: Props) {
   const { addonsTotal, subtotal, secondCost, total } = prices
 
   return (
@@ -32,35 +26,31 @@ export function StepServicios({ addons, toggleAddon, secondVersion, setSecondVer
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
         {/* Left */}
         <div>
-          <div className="bg-[#edf7ed] rounded-2xl p-6 mb-8">
-            <h4 className="font-display text-lg font-semibold text-[#3a7a3a] mb-3">Incluido en la base</h4>
-            <ul className="space-y-2">
-              {INCLUDED_FEATURES.map(item => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-charcoal-soft font-light">
-                  <span className="text-[#5a9a5a] font-bold mt-0.5 shrink-0">✓</span>{item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <h4 className="font-display text-lg font-semibold mb-4">Servicios adicionales</h4>
+          <h4 className="font-display text-lg font-semibold mb-4">Servicios</h4>
           <div className="space-y-3">
-            {ADDONS_DATA.map(a => {
-              const active = addons[a.id as keyof AddonState]
+            {addonsData.map(a => {
+              const isBase = a.incluidoEnBase
+              const active = isBase || !!addons[a.id]
               return (
                 <div key={a.id} className={`flex items-center gap-4 bg-white rounded-2xl p-5 border transition-all ${active ? 'border-gold bg-[rgba(197,165,114,0.04)]' : 'border-black/[0.06] hover:border-champagne-dark'}`}>
                   <button
                     role="switch" aria-checked={active}
-                    onClick={() => toggleAddon(a.id as keyof AddonState)}
-                    className={`relative min-w-[48px] h-7 rounded-full transition-colors duration-200 ${active ? 'bg-gold' : 'bg-champagne-dark'}`}
+                    onClick={() => { if (!isBase) toggleAddon(a.id) }}
+                    disabled={isBase}
+                    className={`relative min-w-[48px] h-7 rounded-full transition-colors duration-200 ${active ? 'bg-gold' : 'bg-champagne-dark'} ${isBase ? 'cursor-default opacity-80' : ''}`}
                   >
                     <span className={`absolute top-[3px] w-[22px] h-[22px] bg-white rounded-full shadow-sm transition-all duration-200 ${active ? 'left-[23px]' : 'left-[3px]'}`} />
                   </button>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm">{a.label}</div>
-                    <div className="text-xs text-warm-gray font-light">{a.desc}</div>
+                    <div className="font-medium text-sm flex items-center gap-2">
+                      {a.label}
+                      {isBase && <span className="text-[10px] px-2 py-0.5 bg-[#edf7ed] text-[#3a7a3a] rounded-full font-medium leading-5">Incluido</span>}
+                    </div>
+                    {a.desc && <div className="text-xs text-warm-gray font-light">{a.desc}</div>}
                   </div>
-                  <div className="font-semibold text-sm whitespace-nowrap">{fmtPrice(a.price)}</div>
+                  <div className="font-semibold text-sm whitespace-nowrap">
+                    {isBase ? <span className="text-[#3a7a3a] text-xs font-semibold">✓</span> : fmtPrice(a.price)}
+                  </div>
                 </div>
               )
             })}
@@ -88,10 +78,10 @@ export function StepServicios({ addons, toggleAddon, secondVersion, setSecondVer
           <div className="sticky top-[140px] bg-white rounded-2xl border border-black/[0.06] p-7">
             <h4 className="font-display text-xl font-semibold mb-5 pb-4 border-b border-ivory">Tu presupuesto</h4>
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-warm-gray font-light">Invitación base</span><span className="font-medium">{fmtPrice(BASE_PRICE)}</span></div>
-              {ADDONS_DATA.map(a => addons[a.id as keyof AddonState] ? (
+              <div className="flex justify-between"><span className="text-warm-gray font-light">Invitación base</span><span className="font-medium">{fmtPrice(basePrice)}</span></div>
+              {addonsData.filter(a => !a.incluidoEnBase && addons[a.id]).map(a => (
                 <div key={a.id} className="flex justify-between"><span className="text-warm-gray font-light">{a.label}</span><span>{fmtPrice(a.price)}</span></div>
-              ) : null)}
+              ))}
             </div>
             {(addonsTotal > 0 || secondVersion) && (
               <>

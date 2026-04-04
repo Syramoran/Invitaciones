@@ -14,6 +14,13 @@ export function mapearInvitacionResponse(
   templateNombre: string,
   servicios: { servicioId: number; nombre: string; habilitado: boolean }[],
 ): InvitacionResponseDto {
+  // PostgreSQL 'time' columns return 'HH:mm:ss' — normalize to 'HH:mm'
+  const horaEvento = (invitacion.horaEvento ?? '').slice(0, 5);
+
+  const fotosAnfitrion = (invitacion.fotosAnfitrion ?? [])
+    .sort((a, b) => a.orden - b.orden)
+    .map((f) => ({ id: f.id, url: f.url, orden: f.orden, tamano: f.tamano }));
+
   return {
     id: invitacion.id,
     pedidoId: invitacion.pedidoId,
@@ -23,7 +30,7 @@ export function mapearInvitacionResponse(
     tipoEventoNombre,
     titulo: invitacion.titulo,
     fechaEvento: invitacion.fechaEvento,
-    horaEvento: invitacion.horaEvento,
+    horaEvento,
     ubicacion: invitacion.ubicacion,
     direccion: invitacion.direccion,
     latitud: Number(invitacion.latitud),
@@ -35,6 +42,7 @@ export function mapearInvitacionResponse(
     activa: invitacion.activa,
     fechaExpiracion: invitacion.fechaExpiracion,
     servicios,
+    fotosAnfitrion,
     createdAt: invitacion.createdAt,
   };
 }
@@ -151,7 +159,9 @@ export function capitalizarNombre(nombre: string): string {
  * Calcula la fecha de expiración: fecha_evento + 3 meses.
  */
 export function calcularFechaExpiracion(fechaEvento: Date | string): Date {
-  const fecha = new Date(fechaEvento);
+  const iso = typeof fechaEvento === 'string' ? fechaEvento : fechaEvento.toISOString();
+  const [y, m, d] = iso.split('T')[0].split('-').map(Number);
+  const fecha = new Date(y, m - 1, d);
   fecha.setMonth(fecha.getMonth() + 3);
   return fecha;
 }

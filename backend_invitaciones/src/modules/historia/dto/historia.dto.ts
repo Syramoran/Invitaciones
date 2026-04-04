@@ -1,6 +1,5 @@
 import {
   IsString,
-  IsNotEmpty,
   IsOptional,
   IsInt,
   MaxLength,
@@ -20,9 +19,9 @@ import { Type } from 'class-transformer';
  */
 export class CreateHistoriaSeccionDto {
   @IsString({ message: 'El texto de la historia debe ser una cadena' })
-  @IsNotEmpty({ message: 'El contenido de la sección no puede estar vacío' })
+  @IsOptional()
   @MaxLength(3000, { message: 'El texto no puede superar los 3000 caracteres' })
-  texto!: string;
+  texto?: string;
 
   @IsString()                          // ← agregar
   @IsOptional()                        // ← agregar

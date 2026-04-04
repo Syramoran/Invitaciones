@@ -8,6 +8,7 @@ export interface CrearPedidoDto {
   tipoEventoId: number
   templateId: number
   serviciosIds?: number[]
+  segundaTarjeta?: boolean
 }
 
 export interface PedidoResponseDto {

@@ -1,11 +1,14 @@
 export type EventType = 'boda' | 'quince' | 'cumple'
 
-export interface AddonState {
-  rsvp: boolean
-  countdown: boolean
-  music: boolean
-  history: boolean
-  gallery: boolean
+export type AddonState = Record<string, boolean>
+
+export interface AddonData {
+  id: string           // String version of dbId
+  dbId: number
+  label: string
+  desc: string
+  price: number
+  incluidoEnBase: boolean
 }
 
 export interface PriceBreakdown {

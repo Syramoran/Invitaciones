@@ -6,6 +6,7 @@ import {
   IsEmail,
   IsEnum,
   IsArray,
+  IsBoolean,
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -48,6 +49,10 @@ export class CreatePedidoDto {
   @IsOptional()
   @IsInt({ each: true })
   serviciosIds?: number[];
+
+  @IsBoolean()
+  @IsOptional()
+  segundaTarjeta?: boolean;
 }
 
 /**

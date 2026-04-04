@@ -35,7 +35,7 @@ export function Header() {
       >
         <div className="max-w-[1200px] mx-auto px-6 flex items-center justify-between">
           <Link to="/" className="font-display text-2xl font-semibold text-charcoal tracking-tight">
-            festeja<span className="text-gold italic">.</span>
+            festejá
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
@@ -50,16 +50,16 @@ export function Header() {
               onClick={() => scrollToSection('como-funciona')}
               className="text-sm text-charcoal-soft hover:text-charcoal transition-colors relative group"
             >
-              Como Funciona
+              ¿Cómo funciona?
               <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-gold transition-all group-hover:w-full" />
             </button>
-            <button
+            {/* <button
               onClick={() => scrollToSection('precios')}
               className="text-sm text-charcoal-soft hover:text-charcoal transition-colors relative group"
             >
               Precios
               <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-gold transition-all group-hover:w-full" />
-            </button>
+            </button> */}
             <button
               onClick={() => scrollToSection('contacto')}
               className="text-sm text-charcoal-soft hover:text-charcoal transition-colors relative group"
@@ -113,12 +113,12 @@ export function Header() {
         >
           Como Funciona
         </button>
-        <button
+        {/* <button
           onClick={() => scrollToSection('precios')}
           className="font-display text-3xl font-medium text-charcoal"
         >
           Precios
-        </button>
+        </button> */}
         <button
           onClick={() => scrollToSection('contacto')}
           className="font-display text-3xl font-medium text-charcoal"

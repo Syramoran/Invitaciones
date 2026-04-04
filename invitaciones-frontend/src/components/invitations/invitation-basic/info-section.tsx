@@ -6,10 +6,11 @@ interface InfoSectionProps {
 }
 
 function formatFechaCompleta(fechaISO: string): string {
-  const fecha = new Date(fechaISO)
+  const [y, m, d] = fechaISO.split('T')[0].split('-').map(Number)
+  const fecha = new Date(y, m - 1, d)
   const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
   const diaSemana = diasSemana[fecha.getDay()]
-  
+
   return `${diaSemana} ${fecha.toLocaleDateString("es-ES", {
     day: "numeric",
     month: "long",
@@ -30,9 +31,9 @@ export function InfoSection({ invitacion }: InfoSectionProps) {
 
   // Generar URL de Google Calendar
   const generarLinkCalendario = () => {
-    const fechaInicio = new Date(fechaEvento)
+    const [year, month, day] = fechaEvento.split('T')[0].split('-').map(Number)
     const [hora, minuto] = horaEvento.split(":").map(Number)
-    fechaInicio.setHours(hora, minuto, 0, 0)
+    const fechaInicio = new Date(year, month - 1, day, hora, minuto, 0, 0)
 
     const fechaFin = new Date(fechaInicio)
     fechaFin.setHours(fechaFin.getHours() + 4) // Evento de 4 horas por defecto
@@ -105,10 +106,18 @@ export function InfoSection({ invitacion }: InfoSectionProps) {
             <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#777777]">
               Lugar
             </p>
-            <p className="text-[15px] font-medium leading-snug text-[#1a1a1a]">
-              {ubicacion}
-            </p>
-            <p className="mt-0.5 text-xs text-[#777777]">{direccion}</p>
+            {ubicacion === 'multiple' ? (
+              <p className="text-[15px] font-medium leading-snug text-[#1a1a1a]">
+                Múltiples lugares — ver ubicaciones abajo
+              </p>
+            ) : (
+              <>
+                <p className="text-[15px] font-medium leading-snug text-[#1a1a1a]">
+                  {ubicacion}
+                </p>
+                <p className="mt-0.5 text-xs text-[#777777]">{direccion}</p>
+              </>
+            )}
           </div>
         </div>
 

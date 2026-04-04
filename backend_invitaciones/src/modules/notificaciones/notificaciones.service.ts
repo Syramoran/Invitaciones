@@ -208,7 +208,7 @@ export class NotificacionesService implements OnModuleInit {
         <p>Tu invitación <strong>"${datos.titulo}"</strong> será eliminada el <strong>${fechaStr}</strong>.</p>
         <p>Si querés conservar las fotos de la galería, descargalas antes de esa fecha:</p>
         <p style="margin:20px 0;">
-          <a href="${frontendUrl}/${datos.invitacionId}"
+          <a href="${frontendUrl}/${datos.invitacionId}/galeria"
              style="background:#1976d2;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;">
             Ver invitación y descargar fotos</a>
         </p>

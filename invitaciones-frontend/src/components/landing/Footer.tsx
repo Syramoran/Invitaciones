@@ -11,29 +11,20 @@ export function Footer() {
               festeja<span className="text-gold italic">.</span>
             </Link>
             <p className="text-sm font-light leading-relaxed max-w-[280px]">
-              Invitaciones digitales personalizadas para los momentos que mas importan.
+              Invitaciones digitales personalizadas para los momentos que más importan.
             </p>
           </div>
 
           {/* Navigation */}
           <div>
-            <h4 className="font-display text-lg font-semibold text-champagne-light mb-4">Navegacion</h4>
+            <h4 className="font-display text-lg font-semibold text-champagne-light mb-4">Navegación</h4>
             <nav className="space-y-2.5">
               <Link to="/" className="block text-sm font-light hover:text-champagne-light transition-colors">
                 Inicio
               </Link>
               <Link to="/crear" className="block text-sm font-light hover:text-champagne-light transition-colors">
-                Crear Invitacion
+                Crear invitación
               </Link>
-              <button
-                onClick={() => {
-                  const el = document.getElementById('precios')
-                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }}
-                className="block text-sm font-light hover:text-champagne-light transition-colors text-left"
-              >
-                Precios
-              </button>
               <button
                 onClick={() => {
                   const el = document.getElementById('contacto')
@@ -67,7 +58,7 @@ export function Footer() {
             <h4 className="font-display text-lg font-semibold text-champagne-light mb-4">Contacto</h4>
             <nav className="space-y-2.5">
               <a
-                href="https://wa.me/"
+                href="https://wa.me/5493435083034"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-sm font-light hover:text-champagne-light transition-colors"
@@ -75,10 +66,10 @@ export function Footer() {
                 WhatsApp
               </a>
               <a
-                href="mailto:hola@festeja.com"
+                href="mailto:festeja.plataforma@gmail.com"
                 className="block text-sm font-light hover:text-champagne-light transition-colors"
               >
-                hola@festeja.com
+                festeja.plataforma@gmail.com
               </a>
             </nav>
           </div>

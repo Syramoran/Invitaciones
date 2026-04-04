@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
-import { Sparkles, ChevronDown } from 'lucide-react'
+import {  ChevronDown } from 'lucide-react'
 import { PhoneMockup } from './PhoneMockup'
 import { InvitationPreview } from './InvitationPreview'
 
 export function Hero() {
   const scrollToEvents = () => {
-    const element = document.getElementById('eventos')
+    const element = document.getElementById('showcase')
     if (element) {
       const offset = 80
       const pos = element.getBoundingClientRect().top + window.scrollY - offset
@@ -20,31 +20,31 @@ export function Hero() {
       <div className="absolute -bottom-[10%] -left-[5%] w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,var(--sage-light)_0%,transparent_70%)] opacity-30 pointer-events-none" />
 
       <div className="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
-        <div className="animate-hero-fade-in lg:text-left text-center">
-          <div className="inline-flex items-center gap-2 bg-champagne px-5 py-2 rounded-full text-xs font-medium text-rose-deep tracking-[1px] uppercase mb-6">
+        <div className="lg:text-left text-center">
+          {/* <div className="inline-flex items-center gap-2 bg-champagne px-5 py-2 rounded-full text-xs font-medium text-rose-deep tracking-[1px] uppercase mb-6">
             <Sparkles className="w-3 h-3" />
             Invitaciones digitales
-          </div>
+          </div> */}
 
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-[clamp(2.8rem,6vw,4.2rem)] font-semibold leading-[1.08] text-charcoal mb-5">
+          <h1 className="animate-hero-item animate-hero-item-1 font-display text-4xl sm:text-5xl lg:text-[clamp(2.8rem,6vw,4.2rem)] font-semibold leading-[1.08] text-charcoal mb-5">
             Tu evento merece
             <br />
-            una invitacion
+            una invitación
             <br />
-            <em className="italic text-rose-deep">inolvidable</em>
+            <em className="animate-em-shimmer italic">inolvidable</em>
           </h1>
 
-          <p className="text-lg text-warm-gray font-light leading-relaxed max-w-[480px] mb-9 lg:mx-0 mx-auto">
-            Crea invitaciones digitales personalizadas con mapa, musica, confirmacion de asistencia
-            y mas. Todo en un link, listo para compartir.
+          <p className="animate-hero-item animate-hero-item-2 text-lg text-warm-gray font-light leading-relaxed max-w-[480px] mb-9 lg:mx-0 mx-auto">
+            Creá invitaciones digitales personalizadas con mapa, música, confirmación de asistencia
+            y más. Todo en un link, listo para compartir.
           </p>
 
-          <div className="flex items-center gap-4 flex-wrap lg:justify-start justify-center">
+          <div className="animate-hero-item animate-hero-item-3 flex items-center gap-4 flex-wrap lg:justify-start justify-center">
             <Link
               to="/crear"
               className="inline-flex items-center gap-2 bg-charcoal text-champagne-light font-medium px-8 py-3.5 rounded-full hover:bg-charcoal-soft hover:-translate-y-0.5 hover:shadow-md transition-all"
             >
-              Empeza a crear
+              Empezá a crear
               <span>→</span>
             </Link>
             <button

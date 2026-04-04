@@ -1,10 +1,10 @@
 import { Check } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { env } from '@/config/env'
-import { EVENT_LABELS, ADDON_LABELS } from './data'
+import { EVENT_LABELS } from './data'
 import { fmtPrice } from './utils'
 import { SummaryItem } from './SummaryItem'
-import type { AddonState, EventType, PriceBreakdown } from './types'
+import type { AddonState, AddonData, EventType, PriceBreakdown } from './types'
 import type { PedidoResponseDto } from '@/services/pedidoService'
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
   templateName: string | null
   form: { name: string; phone: string; email: string }
   addons: AddonState
+  addonsData: AddonData[]
   secondVersion: boolean
   prices: PriceBreakdown
 }
@@ -24,13 +25,13 @@ const NEXT_STEPS = [
   '¡Creamos tu invitación y te enviamos los links!',
 ]
 
-export function StepConfirmacion({ confirmedOrder, eventType, templateName, form, addons, secondVersion, prices }: Props) {
+export function StepConfirmacion({ confirmedOrder, eventType, templateName, form, addons, addonsData, secondVersion, prices }: Props) {
   const { total } = prices
   const orderId = confirmedOrder?.ordenId || `#PED-${Math.floor(Math.random() * 9000 + 1000)}`
 
-  const activeAddonLabels = Object.entries(addons)
-    .filter(([, v]) => v)
-    .map(([k]) => ADDON_LABELS[k])
+  const activeAddonLabels = addonsData
+    .filter(a => !a.incluidoEnBase && addons[a.id])
+    .map(a => a.label)
 
   const waMsg = encodeURIComponent(
     `Hola! Acabo de hacer un pedido de invitación digital.\n\nPedido: ${orderId}\nEvento: ${EVENT_LABELS[eventType]}\nTemplate: ${templateName || '-'}\nTotal: ${fmtPrice(total)}\n\nNombre: ${form.name}\nTeléfono: ${form.phone}\nEmail: ${form.email}`

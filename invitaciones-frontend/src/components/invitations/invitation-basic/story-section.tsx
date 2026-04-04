@@ -19,7 +19,7 @@ export function StorySection({ historias }: StorySectionProps) {
       <div className="flex flex-col gap-9">
         {historiasOrdenadas.map((historia) => (
           <div key={historia.id} className="flex flex-col gap-4">
-            {historia.imagenUrl ? (
+            {historia.imagenUrl && (
               <div className="h-[220px] w-full overflow-hidden rounded-xl">
                 <img
                   src={historia.imagenUrl}
@@ -27,15 +27,13 @@ export function StorySection({ historias }: StorySectionProps) {
                   className="h-full w-full object-cover"
                 />
               </div>
-            ) : (
-              <div className="flex h-[220px] w-full items-center justify-center rounded-xl border border-dashed border-[#e0e0e0] bg-[#f5f5f5] text-xs font-medium text-[#777777]">
-                Foto {historia.orden}
-              </div>
             )}
 
-            <p className="text-sm leading-relaxed text-[#777777]">
-              {historia.texto}
-            </p>
+            {historia.texto && (
+              <p className="text-sm leading-relaxed text-[#777777]">
+                {historia.texto}
+              </p>
+            )}
           </div>
         ))}
       </div>

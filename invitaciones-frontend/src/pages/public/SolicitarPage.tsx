@@ -4,9 +4,11 @@ import { ChevronLeft } from 'lucide-react'
 import { crearPedido } from '@/services/pedidoService'
 import type { PedidoResponseDto } from '@/services/pedidoService'
 import { templateService, type Template } from '@/services/templateService'
+import { servicioService } from '@/services/servicioService'
 
-import { TIPO_EVENTO_IDS, SERVICIO_DB_IDS } from '@/components/solicitar/data'
+import { TIPO_EVENTO_IDS, BASE_PRICE } from '@/components/solicitar/data'
 import { calcPrices } from '@/components/solicitar/utils'
+import type { AddonData } from '@/components/solicitar/types'
 import { SolicitarStepper } from '@/components/solicitar/SolicitarStepper'
 import { StepEvento } from '@/components/solicitar/StepEvento'
 import { StepDiseno } from '@/components/solicitar/StepDiseno'
@@ -42,14 +44,49 @@ export default function SolicitarPage() {
       .finally(() => setTemplatesLoading(false))
   }, [])
 
+  // ── Servicios y precios desde API ─────────────────────────────────────────
+  const [addonsData, setAddonsData] = useState<AddonData[]>([])
+  const [basePrice,  setBasePrice]  = useState(BASE_PRICE)
+
+  useEffect(() => {
+    servicioService.getAll()
+      .then(servicios => {
+        const activos = servicios.filter(s => s.activo)
+
+        const baseTotal = activos
+          .filter(s => s.incluidoEnBase)
+          .reduce((sum, s) => sum + Number(s.precio), 0)
+        if (baseTotal > 0) setBasePrice(baseTotal)
+
+        const mapped: AddonData[] = activos
+          .sort((a, b) => (b.incluidoEnBase ? 1 : 0) - (a.incluidoEnBase ? 1 : 0))
+          .map(s => ({
+            id:             String(s.id),
+            dbId:           s.id,
+            label:          s.nombre,
+            desc:           s.descripcion ?? '',
+            price:          Number(s.precio),
+            incluidoEnBase: s.incluidoEnBase,
+          }))
+
+        setAddonsData(mapped)
+
+        // Initialize addons: optional services start unchecked
+        const initialAddons: AddonState = {}
+        activos.filter(s => !s.incluidoEnBase).forEach(s => { initialAddons[String(s.id)] = false })
+        setAddons(initialAddons)
+      })
+      .catch(() => {})
+  }, [])
+
   // ── Selections ─────────────────────────────────────────────────────────────
   const [eventType,     setEventType]     = useState<EventType | null>(null)
   const [templateId,    setTemplateId]    = useState<number | null>(null)
   const [color,         setColor]         = useState('#c5a572')
-  const [addons,        setAddons]        = useState<AddonState>({ rsvp: false, countdown: false, music: false, history: false, gallery: false })
+  const [addons,        setAddons]        = useState<AddonState>({})
   const [secondVersion, setSecondVersion] = useState(false)
 
-  function toggleAddon(id: keyof AddonState) {
+  function toggleAddon(id: string) {
     setAddons(prev => ({ ...prev, [id]: !prev[id] }))
   }
 
@@ -62,29 +99,34 @@ export default function SolicitarPage() {
     /^[\d\s+\-()]{6,30}$/.test(form.phone.trim()) &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
 
+  // ── Terms acceptance ───────────────────────────────────────────────────────
+  const [termsAccepted, setTermsAccepted] = useState(false)
+
   // ── Submission ─────────────────────────────────────────────────────────────
   const [isSubmitting,   setIsSubmitting]   = useState(false)
   const [submitError,    setSubmitError]    = useState<string | null>(null)
   const [confirmedOrder, setConfirmedOrder] = useState<PedidoResponseDto | null>(null)
 
   async function submitOrder() {
-    if (!isFormValid || !eventType || !templateId || isSubmitting) return
+    if (!isFormValid || !termsAccepted || !eventType || !templateId || isSubmitting) return
     setIsSubmitting(true)
     setSubmitError(null)
 
-    const serviciosIds = Object.entries(addons)
+    const baseIds = addonsData.filter(a => a.incluidoEnBase).map(a => a.dbId)
+    const optionalIds = Object.entries(addons)
       .filter(([, active]) => active)
-      .map(([key]) => SERVICIO_DB_IDS[key])
-      .filter(Boolean)
+      .map(([key]) => Number(key))
+    const serviciosIds = [...baseIds, ...optionalIds]
 
     try {
       const result = await crearPedido({
-        nombreCliente: form.name.trim(),
-        telefono:      form.phone.trim(),
-        email:         form.email.trim(),
-        tipoEventoId:  TIPO_EVENTO_IDS[eventType],
-        templateId:    templateId!,
+        nombreCliente:  form.name.trim(),
+        telefono:       form.phone.trim(),
+        email:          form.email.trim(),
+        tipoEventoId:   TIPO_EVENTO_IDS[eventType],
+        templateId:     templateId!,
         serviciosIds,
+        segundaTarjeta: secondVersion,
       })
       setConfirmedOrder(result)
       setStep(6)
@@ -97,7 +139,7 @@ export default function SolicitarPage() {
   }
 
   // ── Derived values ─────────────────────────────────────────────────────────
-  const prices         = calcPrices(addons, secondVersion)
+  const prices         = calcPrices(addons, secondVersion, addonsData, basePrice)
   const templateName   = apiTemplates.find(t => t.id === templateId)?.nombre ?? null
   const stepTemplates  = eventType
     ? apiTemplates.filter(t => t.tipoEventoId === TIPO_EVENTO_IDS[eventType] && t.activo)
@@ -150,6 +192,8 @@ export default function SolicitarPage() {
               toggleAddon={toggleAddon}
               secondVersion={secondVersion}
               setSecondVersion={setSecondVersion}
+              addonsData={addonsData}
+              basePrice={basePrice}
               prices={prices}
               onNext={goNext}
               onPrev={goPrev}
@@ -161,6 +205,7 @@ export default function SolicitarPage() {
               templateName={templateName}
               color={color}
               addons={addons}
+              addonsData={addonsData}
               secondVersion={secondVersion}
               prices={prices}
               onNext={goNext}
@@ -174,8 +219,12 @@ export default function SolicitarPage() {
               touched={touched}
               setTouched={setTouched}
               isFormValid={isFormValid}
+              termsAccepted={termsAccepted}
+              setTermsAccepted={setTermsAccepted}
               addons={addons}
               secondVersion={secondVersion}
+              addonsData={addonsData}
+              basePrice={basePrice}
               eventType={eventType}
               templateName={templateName}
               prices={prices}
@@ -192,6 +241,7 @@ export default function SolicitarPage() {
               templateName={templateName}
               form={form}
               addons={addons}
+              addonsData={addonsData}
               secondVersion={secondVersion}
               prices={prices}
             />

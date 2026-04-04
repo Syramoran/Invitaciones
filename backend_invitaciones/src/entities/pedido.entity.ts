@@ -69,6 +69,12 @@ export class Pedido {
   @OneToMany(() => PedidoServicio, (ps) => ps.pedido, { cascade: true })
   pedidoServicios!: PedidoServicio[];
 
+  // NOTA: Un pedido puede tener múltiples invitaciones (ej. dos horarios distintos).
+  // La relación correcta sería @OneToMany → invitaciones!: Invitacion[].
+  // Se mantiene @OneToOne porque no se usa esta navegación en el código actual
+  // y el cron de notificaciones consulta siempre desde el lado de Invitacion.
+  // Si en el futuro se necesita obtener todas las invitaciones de un pedido,
+  // cambiar a: @OneToMany(() => Invitacion, (inv) => inv.pedido) invitaciones!: Invitacion[];
   @OneToOne(() => Invitacion, (inv) => inv.pedido)
   invitacion!: Invitacion;
 }

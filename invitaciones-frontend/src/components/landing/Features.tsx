@@ -4,20 +4,20 @@ import { Ornament } from './Ornament'
 const features = [
   {
     icon: Zap,
-    title: 'Lista en minutos',
-    description: 'Arma tu invitacion en pocos pasos, sin experiencia tecnica ni complicaciones',
+    title: 'Lista en el día',
+    description: 'Armá tu invitacion en pocos pasos.',
     bgColor: 'bg-champagne',
   },
   {
     icon: Link2,
     title: 'Todo en un link',
-    description: 'Mapa, musica, confirmacion de asistencia y galeria de fotos en una sola URL',
+    description: 'Mapa, música, confirmación de asistencia y galería de fotos en una sola URL',
     bgColor: 'bg-sage-light',
   },
   {
     icon: Palette,
     title: 'Personalizada',
-    description: 'Elegi tipo de evento, diseno, colores y los servicios que necesites',
+    description: 'Elegí tipo de evento, diseño, colores y los servicios que necesites',
     bgColor: 'bg-blush',
   },
   {
@@ -30,20 +30,20 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="py-24 bg-ivory relative">
+    <section id="features" className="py-24 relative">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-champagne-dark to-transparent" />
 
       <div className="max-w-[1200px] mx-auto px-6">
         <div className="text-center mb-16">
           <Ornament />
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
-            Por que elegirnos?
+            ¿Por qué elegirnos?
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal mb-4">
-            Simple, unico y hermoso
+            Rápido, única y hermosa
           </h2>
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
-            Todo lo que necesitas para una invitacion perfecta, sin complicaciones
+            Todo lo que necesitás para una invitacion perfecta, sin complicaciones.
           </p>
         </div>
 

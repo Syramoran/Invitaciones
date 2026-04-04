@@ -17,8 +17,7 @@ const EVENTS = [
 export function StepEvento({ eventType, setEventType, onNext }: Props) {
   return (
     <>
-      <h2 className="font-display text-4xl font-semibold text-center mb-2">¿Qué estás celebrando?</h2>
-      <p className="text-warm-gray text-center font-light mb-12">Elegí el tipo de evento para ver diseños personalizados</p>
+      <h2 className="font-display text-4xl font-semibold text-center pb-4 mb-4">¿Qué estás celebrando?</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
         {EVENTS.map(e => (
