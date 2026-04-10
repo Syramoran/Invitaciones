@@ -122,7 +122,7 @@ export class R2StorageService implements OnModuleInit {
     this.validarTamano(archivo, MAX_FOTO_SIZE, '15 MB');
 
     const extension = this.obtenerExtension(archivo.mimetype);
-    const key = `invitaciones/${invitacionId}/historias/${orden}-historia.${extension}`;
+    const key = `invitaciones/${invitacionId}/historias/${orden}-${uuidv4()}.${extension}`;
     return this.subirArchivo(key, archivo);
   }
 

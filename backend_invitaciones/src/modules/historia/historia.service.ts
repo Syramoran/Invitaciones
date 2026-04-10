@@ -145,26 +145,33 @@ export class HistoriasService {
 
     // 3. Sanitizar texto si se actualiza
     if (dto.texto !== undefined) {
-      dto.texto = this.sanitizarTexto(dto.texto);
+      seccion.texto = this.sanitizarTexto(dto.texto);
     }
 
-    // 4. Subir nueva imagen a R2 si se envía
+    // 4. Aplicar cambio de orden si viene en el DTO
+    if (dto.orden !== undefined) {
+      seccion.orden = dto.orden;
+    }
+
+    // 5. Gestionar imagen
     if (imagenFile) {
-      // Eliminar imagen anterior si existe
+      // Eliminar imagen anterior si existe y subir la nueva
       if (seccion.imagenUrl) {
         await this.r2StorageService.eliminarArchivo(seccion.imagenUrl);
       }
-
       const resultado = await this.r2StorageService.subirImagenHistoria(
         invitacionId,
         imagenFile,
-        dto.orden ?? seccion.orden,
+        seccion.orden,
       );
       seccion.imagenUrl = resultado.url;
+    } else if (dto.removeImagen) {
+      // El usuario quitó la imagen sin reemplazarla
+      if (seccion.imagenUrl) {
+        await this.r2StorageService.eliminarArchivo(seccion.imagenUrl);
+      }
+      seccion.imagenUrl = null as unknown as string;
     }
-
-    // 5. Aplicar cambios del DTO (texto, orden)
-    Object.assign(seccion, dto);
     const seccionActualizada = await this.historiaRepo.save(seccion);
 
     this.logger.log(

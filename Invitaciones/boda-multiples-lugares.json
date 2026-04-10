@@ -1,0 +1,41 @@
+{
+  "ubicacion": "multiple",
+  "direccion": "multiple",
+  "latitud": "0",
+  "longitud": "0",
+
+  "camposEspecificos": {
+    "novio1": "Camila",
+    "novio2": "Joaquín",
+    "tipoCeremonia": "Ambas",
+    "dressCode": "Elegante",
+    "notas": "",
+
+    "ubicaciones": [
+      {
+        "tipo": "Civil",
+        "nombre": "Registro Civil de Pilar",
+        "direccion": "Av. Derqui 123, Pilar",
+        "latitud": "-34.4590",
+        "longitud": "-58.9140",
+        "hora": "16:00"
+      },
+      {
+        "tipo": "Iglesia",
+        "nombre": "Iglesia Nuestra Señora del Pilar",
+        "direccion": "Belgrano 500, Pilar",
+        "latitud": "-34.4601",
+        "longitud": "-58.9105",
+        "hora": "18:00"
+      },
+      {
+        "tipo": "Recepción",
+        "nombre": "Estancia La Primavera",
+        "direccion": "Ruta 6 Km 20, Pilar",
+        "latitud": "-34.5888",
+        "longitud": "-58.6796",
+        "hora": "21:00"
+      }
+    ]
+  }
+}

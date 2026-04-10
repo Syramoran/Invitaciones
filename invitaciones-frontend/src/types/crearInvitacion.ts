@@ -1,3 +1,17 @@
+// ─── Paleta de colores disponibles ───────────────────────────────────────────
+
+export const COLORES_PALETA = [
+  { hex: '#A41B1D', label: 'Rojo'        },
+  { hex: '#894F8E', label: 'Violeta'     },
+  { hex: '#B14B8F', label: 'Fucsia'      },
+  { hex: '#DC83AA', label: 'Rosa'        },
+  { hex: '#D16A32', label: 'Naranja'     },
+  { hex: '#BD9848', label: 'Dorado'      },
+  { hex: '#65795A', label: 'Verde Claro' },
+  { hex: '#2A63A8', label: 'Azul'        },
+  { hex: '#6B1533', label: 'Bordo'       },
+] as const
+
 // ─── Wizard form types for "Crear Invitación" (6-step flow) ───────────────────
 
 // Step 1 ─────────────────────────────────────────────────────────────────────
@@ -11,8 +25,12 @@ export interface WizardStep1 {
 
 // Step 2 ─────────────────────────────────────────────────────────────────────
 
+export type TipoUbicacion = 'Iglesia' | 'Civil' | 'Recepción' | 'Fiesta'
+
+export const TIPOS_UBICACION_OPTIONS: TipoUbicacion[] = ['Iglesia', 'Civil', 'Recepción', 'Fiesta']
+
 export interface UbicacionEvento {
-  tipo: string      // 'Ceremonia religiosa' | 'Ceremonia civil' | 'Recepción / Fiesta'
+  tipo: TipoUbicacion
   nombre: string
   direccion: string
   latitud: string
@@ -39,10 +57,10 @@ export interface WizardStep2 {
 // Default camposEspecificos per tipoEventoId (1=Boda, 2=Quinceañera, 3=Cumpleaños)
 export const INITIAL_CAMPOS: Record<number, Record<string, string>> = {
   1: {
-    novio1: '', novio2: '', tipoCeremonia: 'Ambas',
-    horaCeremonia: '16:00', lugarCeremonia: '',
-    horaRecepcion: '20:00', lugarRecepcion: '',
-    dressCode: 'Elegante', notas: '',
+    novio1: '', novio2: '', tipoCeremonia: 'Recepción',
+    dressCode: 'Elegante',
+    mostrarLluviaSobres: 'true', alias: '', cbu: '',
+    infoAdicional: '',
   },
   2: {
     nombre: '', colorTematico: '#d4a0b8', horaPresentacion: '21:00',
@@ -127,7 +145,7 @@ export function createInitialFormState(): WizardFormState {
     step1: { pedidoId: '', tipoEventoId: null, templateId: null, titulo: '' },
     step2: {
       fechaEvento: '', horaEvento: '', ubicacion: '', direccion: '',
-      latitud: '', longitud: '', colorPrimario: '#c5a572',
+      latitud: '', longitud: '', colorPrimario: '#BD9848',
       contrasenaAsistentes: '', maxFotos: 1000, camposEspecificos: {}, ubicaciones: [],
     },
     step3: { servicios: [] },

@@ -2,11 +2,12 @@ import {
   IsString,
   IsOptional,
   IsInt,
+  IsBoolean,
   MaxLength,
   Min,
   Max,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 // ═══════════════════════════════════════════
 // REQUEST DTOs
@@ -56,6 +57,12 @@ export class UpdateHistoriaSeccionDto {
   @Max(3)
   @Type(() => Number)
   orden?: number;
+
+  /** true cuando el usuario quitó la imagen sin reemplazarla */
+  @IsBoolean()
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  removeImagen?: boolean;
 }
 
 // ═══════════════════════════════════════════

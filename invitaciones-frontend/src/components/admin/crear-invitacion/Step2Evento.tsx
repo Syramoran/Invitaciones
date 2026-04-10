@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import type { WizardStep2, UbicacionEvento } from '@/types/crearInvitacion'
+import { Check } from 'lucide-react'
+import type { WizardStep2, UbicacionEvento, TipoUbicacion } from '@/types/crearInvitacion'
+import { TIPOS_UBICACION_OPTIONS as TIPOS_UBICACION, COLORES_PALETA } from '@/types/crearInvitacion'
 
 // ─── Dynamic field definitions per tipoEventoId ───────────────────────────────
 
-type FieldType = 'text' | 'time' | 'textarea' | 'select' | 'color'
+type FieldType = 'text' | 'time' | 'textarea' | 'select' | 'color' | 'checkbox' | 'section'
 
 interface FieldDef {
   key: string
@@ -17,9 +19,15 @@ interface FieldDef {
 const CAMPOS_BODA: FieldDef[] = [
   { key: 'novio1',    label: 'Nombre Novio/a 1',  type: 'text', placeholder: 'Camila' },
   { key: 'novio2',    label: 'Nombre Novio/a 2',  type: 'text', placeholder: 'Joaquín' },
-  { key: 'tipoCeremonia', label: 'Tipo ceremonia', type: 'select', options: ['Civil', 'Religiosa', 'Ambas'] },
   { key: 'dressCode',  label: 'Dress code', type: 'text', placeholder: 'Elegante' },
-  { key: 'notas', label: 'Notas', type: 'textarea', placeholder: 'Indicar si aplica', fullWidth: true },
+  // ── Mesa de regalos ──────────────────────────────────────────────────────────
+  { key: '_s_regalos', label: 'Mesa de regalos', type: 'section', fullWidth: true },
+  { key: 'mostrarLluviaSobres', label: 'Mostrar lluvia de sobres', type: 'checkbox', fullWidth: false },
+  { key: 'alias',  label: 'Alias (cuenta bancaria)', type: 'text', placeholder: 'nombreapellido.mp' },
+  { key: 'cbu',    label: 'CBU / CVU', type: 'text', placeholder: '0000003100010000000000' },
+  // ── Información adicional ─────────────────────────────────────────────────────
+  { key: '_s_info', label: 'Información adicional', type: 'section', fullWidth: true },
+  { key: 'infoAdicional', label: 'Información adicional', type: 'textarea', placeholder: 'Ej: avisanos si tenés alguna restricción alimentaria', fullWidth: true },
 ]
 
 const CAMPOS_QUINCE: FieldDef[] = [
@@ -44,8 +52,6 @@ const CAMPOS_CUMPLE: FieldDef[] = [
 
 const CAMPOS_MAP: Record<number, FieldDef[]> = { 1: CAMPOS_BODA, 2: CAMPOS_QUINCE, 3: CAMPOS_CUMPLE }
 const TIPO_NOMBRES: Record<number, string> = { 1: 'Boda', 2: 'Quinceañera', 3: 'Cumpleaños' }
-
-const TIPOS_UBICACION = ['Ceremonia religiosa', 'Ceremonia civil', 'Recepción / Fiesta'] as const
 
 // ─── Shared input classes ─────────────────────────────────────────────────────
 
@@ -90,6 +96,18 @@ function DynamicField({
       <span className="text-[.82rem] text-[#6b7280]">{value || '#d4a0b8'}</span>
     </div>
   )
+  if (def.type === 'checkbox') {
+    const checked = value !== 'false'
+    return (
+      <button
+        type="button"
+        onClick={() => onFieldChange(def.key, checked ? 'false' : 'true')}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${checked ? 'bg-[#c5a572]' : 'bg-[#d1d5db]'}`}
+      >
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+      </button>
+    )
+  }
   return (
     <input type={def.type === 'time' ? 'time' : 'text'} value={value}
       onChange={e => onFieldChange(def.key, e.target.value)}
@@ -231,7 +249,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
     setMapsLinkInput('')
   }
 
-  function agregarUbicacion(tipo: string) {
+  function agregarUbicacion(tipo: TipoUbicacion) {
     onChange({ ubicaciones: [...state.ubicaciones, { tipo, nombre: '', direccion: '', latitud: '', longitud: '', hora: '' }] })
   }
 
@@ -301,6 +319,16 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
       {/* ── Single location mode ── */}
       {!modoMultiple && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <Label text="Tipo de lugar" />
+            <select
+              value={state.camposEspecificos.tipoCeremonia ?? 'Recepción'}
+              onChange={e => setCampo('tipoCeremonia', e.target.value)}
+              className={INPUT_CLS}
+            >
+              {TIPOS_UBICACION.map(o => <option key={o}>{o}</option>)}
+            </select>
+          </div>
           <div>
             <Label text="Nombre del lugar" required />
             <input type="text" maxLength={300} placeholder="Ej: Estancia La Primavera"
@@ -375,14 +403,31 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
 
       {/* Color, password, max photos — always visible */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div>
+        <div className="sm:col-span-2">
           <Label text="Color primario" />
-          <div className="flex items-center gap-2">
-            <input type="color" value={state.colorPrimario}
-              onChange={e => setField('colorPrimario', e.target.value)}
-              className="h-10 w-14 rounded border border-[#d1d5db] cursor-pointer p-0.5" />
-            <span className="text-[.82rem] text-[#6b7280]">{state.colorPrimario}</span>
+          <div className="flex flex-wrap gap-2 mt-1">
+            {COLORES_PALETA.map(c => (
+              <button
+                key={c.hex}
+                type="button"
+                title={c.label}
+                onClick={() => setField('colorPrimario', c.hex)}
+                className="relative w-8 h-8 rounded-full border-2 transition-all duration-150 hover:scale-110"
+                style={{
+                  backgroundColor: c.hex,
+                  borderColor: state.colorPrimario === c.hex ? c.hex : 'transparent',
+                  boxShadow: state.colorPrimario === c.hex ? `0 0 0 2px white, 0 0 0 4px ${c.hex}` : 'none',
+                }}
+              >
+                {state.colorPrimario === c.hex && (
+                  <Check className="w-3.5 h-3.5 absolute inset-0 m-auto text-white drop-shadow" />
+                )}
+              </button>
+            ))}
           </div>
+          <p className="mt-2 text-[.78rem] text-[#6b7280]">
+            {COLORES_PALETA.find(c => c.hex === state.colorPrimario)?.label ?? state.colorPrimario}
+          </p>
         </div>
         <div>
           <Label text="Contraseña lista asistentes" />
@@ -409,16 +454,34 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
             Campos específicos — {TIPO_NOMBRES[tipoEventoId!]}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {camposFields.map(def => (
-              <div key={def.key} className={def.fullWidth ? 'sm:col-span-2' : ''}>
-                <Label text={def.label} />
-                <DynamicField
-                  def={def}
-                  value={state.camposEspecificos[def.key] ?? ''}
-                  onFieldChange={setCampo}
-                />
-              </div>
-            ))}
+            {camposFields.map(def => {
+              if (def.type === 'section') return (
+                <div key={def.key} className="sm:col-span-2 flex items-center gap-3 pt-2">
+                  <span className="text-[.78rem] font-semibold uppercase tracking-wider text-[#6b7280]">{def.label}</span>
+                  <div className="flex-1 h-px bg-[#e5e7eb]" />
+                </div>
+              )
+              if (def.type === 'checkbox') return (
+                <div key={def.key} className="flex items-center gap-3">
+                  <DynamicField
+                    def={def}
+                    value={state.camposEspecificos[def.key] ?? 'true'}
+                    onFieldChange={setCampo}
+                  />
+                  <Label text={def.label} />
+                </div>
+              )
+              return (
+                <div key={def.key} className={def.fullWidth ? 'sm:col-span-2' : ''}>
+                  <Label text={def.label} />
+                  <DynamicField
+                    def={def}
+                    value={state.camposEspecificos[def.key] ?? ''}
+                    onFieldChange={setCampo}
+                  />
+                </div>
+              )
+            })}
           </div>
         </div>
       )}

@@ -16,13 +16,15 @@ export const TEMPLATE_DB_IDS: Record<string, number> = {
 }
 
 export const COLORS = [
-  { hex: '#c5a572', label: 'Dorado' },
-  { hex: '#e8a0a8', label: 'Rosa'   },
-  { hex: '#8b2635', label: 'Bordo'  },
-  { hex: '#6b9fc8', label: 'Azul'   },
-  { hex: '#5a9070', label: 'Verde'  },
-  { hex: '#9b7fc8', label: 'Lila'   },
-  { hex: '#2d2926', label: 'Negro'  },
+  { hex: '#A41B1D', label: 'Rojo'        },
+  { hex: '#894F8E', label: 'Violeta'     },
+  { hex: '#B14B8F', label: 'Fucsia'      },
+  { hex: '#DC83AA', label: 'Rosa'        },
+  { hex: '#D16A32', label: 'Naranja'     },
+  { hex: '#BD9848', label: 'Dorado'      },
+  { hex: '#65795A', label: 'Verde Claro' },
+  { hex: '#2A63A8', label: 'Azul'        },
+  { hex: '#6B1533', label: 'Bordo'       },
 ]
 
 export const EVENT_LABELS: Record<EventType, string> = { boda: 'Boda', quince: 'Quinceañera', cumple: 'Cumpleaños' }

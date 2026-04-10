@@ -109,26 +109,10 @@ export function StepDiseno({
               )}
             </button>
           ))}
-          <label className="flex items-center gap-2 cursor-pointer ml-1 group">
-            <span className="relative w-9 h-9 rounded-full overflow-hidden border border-black/10 flex items-center justify-center">
-              <input
-                type="color"
-                value={color}
-                onChange={e => setColor(e.target.value)}
-                className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-                title="Color personalizado"
-              />
-              <span
-                className="w-full h-full block"
-                style={{ background: COLORS.some(c => c.hex === color) ? 'linear-gradient(135deg,#f0f,#0ff,#ff0)' : color }}
-              />
-            </span>
-            <span className="text-sm text-warm-gray group-hover:text-charcoal transition-colors">Personalizado</span>
-          </label>
         </div>
         <div className="flex items-center gap-2 mt-4">
           <span className="w-5 h-5 rounded-full border border-black/10 inline-block" style={{ background: color }} />
-          <span className="text-sm text-warm-gray font-mono">{color}</span>
+          <span className="text-sm text-warm-gray">{COLORS.find(c => c.hex === color)?.label ?? color}</span>
         </div>
       </div>
 

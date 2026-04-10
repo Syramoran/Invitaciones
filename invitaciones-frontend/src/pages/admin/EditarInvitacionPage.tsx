@@ -861,8 +861,9 @@ export default function EditarInvitacionPage() {
       // Update or create
       for (const h of formState.historias) {
         if (h.serverId !== undefined) {
-          // Update existing
-          await adminInvitacionService.updateHistoria(id, h.serverId, h.texto, h.orden, h.imagen)
+          // removeImagen = existingImagenUrl was cleared and no new image was provided
+          const removeImagen = h.existingImagenUrl === null && h.imagen === null
+          await adminInvitacionService.updateHistoria(id, h.serverId, h.texto, h.orden, h.imagen, removeImagen)
         } else {
           // Create new
           await adminInvitacionService.createHistoria(id, h.texto, h.orden, h.imagen)

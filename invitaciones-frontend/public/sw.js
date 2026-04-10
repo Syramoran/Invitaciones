@@ -114,6 +114,11 @@ async function handleInvitacionApi(request) {
 }
 
 async function handleStaticAsset(request) {
+  const url = new URL(request.url)
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return fetch(request)
+  }
+
   const cached = await caches.match(request)
   if (cached) return cached
 

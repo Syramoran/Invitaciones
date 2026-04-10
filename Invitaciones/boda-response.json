@@ -1,0 +1,50 @@
+
+{
+  "pedidoId": "42",
+  "templateId": 1,
+  "tipoEventoId": 1,
+  "titulo": "Boda Camila & Joaquín",
+
+  "fechaEvento": "2026-11-14",
+  "horaEvento": "18:00",
+
+  "ubicacion": "Estancia La Primavera",
+  "direccion": "Ruta 6 Km 20, Pilar, Buenos Aires",
+  "latitud": "-34.5888",
+  "longitud": "-58.6796",
+
+  "colorPrimario": "#c5a572",
+  "contrasenaAsistentes": "camila2026",
+  "maxFotos": 500,
+
+  "camposEspecificos": {
+    "novio1": "Camila",
+    "novio2": "Joaquín",
+    "tipoCeremonia": "Religiosa",
+    "dressCode": "Elegante",
+    "notas": "Confirmar asistencia antes del 1 de octubre"
+  },
+
+  "serviciosIds": [1, 2, 3],
+
+  "fotos": ["<File imagen_principal.jpg>", "<File foto2.jpg>"],
+  "musica": "<File cancion.mp3>",
+
+  "historias": [
+    {
+      "texto": "Nos conocimos en el verano de 2020...",
+      "orden": 1,
+      "imagen": "<File historia1.jpg>"
+    },
+    {
+      "texto": "La propuesta fue en París...",
+      "orden": 2,
+      "imagen": null
+    }
+  ],
+
+  "invitados": [
+    { "nombre": "Juan", "apellido": "Pérez" },
+    { "nombre": "María", "apellido": "García" }
+  ]
+}

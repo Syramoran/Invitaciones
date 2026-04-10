@@ -62,11 +62,12 @@ export const adminInvitacionService = {
     })
   },
 
-  async updateHistoria(id: string, seccionId: number, texto: string, orden: number, imagen: File | null): Promise<void> {
+  async updateHistoria(id: string, seccionId: number, texto: string, orden: number, imagen: File | null, removeImagen: boolean): Promise<void> {
     const fd = new FormData()
     fd.append('texto', texto)
     fd.append('orden', String(orden))
     if (imagen) fd.append('imagen', imagen)
+    if (removeImagen) fd.append('removeImagen', 'true')
     await apiClient.put(`/invitaciones/${id}/historias/${seccionId}`, fd, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })

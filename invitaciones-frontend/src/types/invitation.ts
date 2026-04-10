@@ -28,8 +28,10 @@ export interface Template {
   thumbnailUrl: string | null
 }
 
+export type TipoUbicacion = 'Iglesia' | 'Civil' | 'Recepción' | 'Fiesta'
+
 export interface UbicacionEventoPublica {
-  tipo: string
+  tipo: TipoUbicacion
   nombre: string
   direccion: string
   latitud: number
@@ -38,10 +40,11 @@ export interface UbicacionEventoPublica {
 }
 
 export interface CamposEspecificosBoda {
-  nombreNovia: string
-  nombreNovio: string
-  vestimenta?: string
-  dresscode?: string
+  novio1: string
+  novio2: string
+  tipoCeremonia?: TipoUbicacion
+  dressCode?: string
+  notas?: string
 }
 
 export interface InvitacionPublica {
