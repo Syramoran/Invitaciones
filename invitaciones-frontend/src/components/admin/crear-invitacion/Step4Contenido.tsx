@@ -208,8 +208,8 @@ function HistoriaSection({
 // ─── Step component ───────────────────────────────────────────────────────────
 
 export function Step4Contenido({ state, onChange, servicios, onNext, onPrev }: Props) {
-  const showMusica  = hasService(servicios, 'usic')   // matches "Música"
-  const showHistoria = hasService(servicios, 'storia') // matches "Historia"
+  const showMusica  = hasService(servicios, 'musica')
+  const showHistoria = hasService(servicios, 'historia')
 
   return (
     <div>

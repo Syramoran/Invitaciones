@@ -58,6 +58,18 @@ const THUMBNAILS: Record<string, ThumbnailConfig> = {
       </div>
     ),
   },
+  'quince-moderna': {
+    bg: 'linear-gradient(180deg,#090819,#1a0a24)',
+    node: (
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '3.5rem', fontWeight: 900, color: '#E91E8C', lineHeight: 1, letterSpacing: '-3px', textShadow: '0 0 20px rgba(233,30,140,0.5)' }}>XV</div>
+        <div style={{ fontSize: '0.42rem', letterSpacing: 5, color: '#E91E8C', margin: '4px 0 6px' }}>AÑOS</div>
+        <div style={{ fontFamily: SERIF, fontSize: '1.3rem', fontWeight: 600, color: '#ffffff' }}>Sofía</div>
+        <div style={{ width: 28, height: 1.5, background: '#E91E8C', margin: '6px auto' }} />
+        <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.5)' }}>10 de Octubre, 2026</div>
+      </div>
+    ),
+  },
   'noche-encantada': {
     bg: 'linear-gradient(180deg,#1a1a3a,#2a2a5a)',
     node: (

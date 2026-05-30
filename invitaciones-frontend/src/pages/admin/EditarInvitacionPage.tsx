@@ -8,7 +8,7 @@ import { templateService } from '@/services/templateService'
 import { servicioService } from '@/services/servicioService'
 import type { Template } from '@/services/templateService'
 import type { InvitacionAdmin } from '@/types/adminInvitacion'
-import type { WizardStep1, WizardStep2, WizardStep3, ServiceToggle } from '@/types/crearInvitacion'
+import type { WizardStep1, WizardStep2, WizardStep3, ServiceToggle, TipoUbicacion } from '@/types/crearInvitacion'
 import { INITIAL_CAMPOS } from '@/types/crearInvitacion'
 import { TIPO_LABEL } from '@/services/templateService'
 
@@ -87,7 +87,7 @@ function mapInvitacionToFormState(
 
   const ubicaciones = modoMultiple
     ? (ubicacionesRaw as { tipo: string; nombre: string; direccion: string; latitud: number | string; longitud: number | string; hora?: string }[]).map(u => ({
-        tipo: u.tipo,
+        tipo: u.tipo as TipoUbicacion,
         nombre: u.nombre,
         direccion: u.direccion,
         latitud: String(u.latitud),
@@ -147,7 +147,7 @@ function mapInvitacionToFormState(
       direccion: modoMultiple ? 'multiple' : inv.direccion,
       latitud: modoMultiple ? '0' : String(inv.latitud),
       longitud: modoMultiple ? '0' : String(inv.longitud),
-      colorPrimario: inv.colorPrimario ?? '#c5a572',
+      colorPrimario: inv.colorPrimario ?? '',
       contrasenaAsistentes: inv.contrasenaAsistentes ?? '',
       maxFotos: inv.maxFotos,
       camposEspecificos,
@@ -335,8 +335,8 @@ function Step4ContenidoEdit({
   function normalize(str: string) {
     return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   }
-  const showMusica = servicios.some(s => s.enabled && normalize(s.nombre).includes('usic'))
-  const showHistoria = servicios.some(s => s.enabled && normalize(s.nombre).includes('storia'))
+  const showMusica = servicios.some(s => s.enabled && normalize(s.nombre).includes('musica'))
+  const showHistoria = servicios.some(s => s.enabled && normalize(s.nombre).includes('historia'))
 
   // ── Photos ────────────────────────────────────────────────────────────────
 
@@ -616,6 +616,18 @@ function Step5Guardar({
   const esMultiple = state.step2.ubicacion === 'multiple'
   const enabled = state.step3.servicios.filter(s => s.enabled)
 
+  const ubicacionOk = esMultiple
+    ? state.step2.ubicaciones.length >= 1 &&
+      state.step2.ubicaciones.every(u => u.nombre.trim() && u.direccion.trim() && u.latitud && u.longitud)
+    : !!(state.step2.ubicacion && state.step2.direccion && state.step2.latitud && state.step2.longitud)
+
+  const checks = [
+    { ok: !!state.step1.tipoEventoId && !!state.step1.templateId && !!state.step1.titulo.trim(), text: 'Tipo, template y título definidos' },
+    { ok: !!(state.step2.fechaEvento && state.step2.horaEvento) && ubicacionOk, text: 'Datos del evento completos' },
+    { ok: state.step3.servicios.length > 0, text: 'Servicios configurados' },
+  ]
+  const canSave = checks.every(c => c.ok)
+
   function Row({ label, value }: { label: string; value: React.ReactNode }) {
     return (
       <div className="flex gap-2 flex-wrap text-[.85rem]">
@@ -634,6 +646,17 @@ function Step5Guardar({
     )
   }
 
+  function CheckItem({ ok, text }: { ok: boolean; text: string }) {
+    return (
+      <div className="flex items-center gap-2 text-[.85rem]">
+        <span className={['w-5 h-5 rounded-full flex items-center justify-center text-[.65rem] font-bold text-white shrink-0', ok ? 'bg-[#16a34a]' : 'bg-[#dc2626]'].join(' ')}>
+          {ok ? '✓' : '✕'}
+        </span>
+        <span className={ok ? 'text-[#2d2926]' : 'text-[#dc2626]'}>{text}</span>
+      </div>
+    )
+  }
+
   return (
     <div>
       <h2 className="text-lg font-semibold mb-5">Revisar y Guardar</h2>
@@ -643,6 +666,7 @@ function Step5Guardar({
           <Row label="Tipo" value={TIPO_LABEL[state.step1.tipoEventoId!] ?? '—'} />
           <Row label="Template" value={tpl?.nombre ?? '—'} />
           <Row label="Título" value={state.step1.titulo || '—'} />
+          {state.step1.pedidoId && <Row label="Pedido" value={`#${state.step1.pedidoId}`} />}
         </Card>
 
         <Card title="Evento">
@@ -653,7 +677,10 @@ function Step5Guardar({
               <Row key={u.tipo} label={u.tipo} value={u.nombre || '—'} />
             ))
           ) : (
-            <Row label="Lugar" value={state.step2.ubicacion || '—'} />
+            <>
+              <Row label="Lugar" value={state.step2.ubicacion || '—'} />
+              <Row label="Dirección" value={state.step2.direccion || '—'} />
+            </>
           )}
         </Card>
 
@@ -692,6 +719,14 @@ function Step5Guardar({
         </div>
       </div>
 
+      {/* Checklist */}
+      <div className="bg-white border border-[#f0f0f0] rounded-xl p-4 mb-5">
+        <h4 className="text-[.82rem] font-semibold text-[#6b7280] uppercase tracking-wider mb-3">Checklist</h4>
+        <div className="space-y-2">
+          {checks.map((c, i) => <CheckItem key={i} ok={c.ok} text={c.text} />)}
+        </div>
+      </div>
+
       {error && (
         <div className="flex items-start gap-3 px-4 py-3 bg-[#fee2e2] text-[#dc2626] rounded-xl mb-4 text-[.85rem]">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -704,7 +739,7 @@ function Step5Guardar({
           className="px-5 py-2.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.88rem] font-medium hover:border-[#2d2926] disabled:opacity-40 transition-colors">
           ← Anterior
         </button>
-        <button type="button" onClick={onSave} disabled={loading}
+        <button type="button" onClick={onSave} disabled={!canSave || loading}
           className="flex items-center gap-2 px-7 py-2.5 bg-[#c5a572] text-white rounded-lg text-[.95rem] font-semibold hover:bg-[#9e7f4e] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           {loading ? 'Guardando…' : 'Guardar cambios'}
@@ -820,7 +855,7 @@ export default function EditarInvitacionPage() {
         direccion: modoMultiple ? 'multiple' : step2.direccion.trim(),
         latitud: modoMultiple ? 0 : Number(step2.latitud),
         longitud: modoMultiple ? 0 : Number(step2.longitud),
-        colorPrimario: step2.colorPrimario || undefined,
+        colorPrimario: step2.colorPrimario || null,
         contrasenaAsistentes: step2.contrasenaAsistentes.trim() || undefined,
         maxFotos: step2.maxFotos,
         camposEspecificos: Object.keys(camposFinales).length > 0 ? camposFinales : undefined,

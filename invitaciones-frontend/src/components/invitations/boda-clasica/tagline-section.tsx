@@ -29,7 +29,7 @@ export function TaglineSection({ invitacion }: TaglineSectionProps) {
 
   return (
     <section
-      className="flex flex-col items-center px-0 pt-10 pb-12 gap-8 text-center"
+      className="flex flex-col items-center px-0 pt-20 pb-12 gap-8 text-center"
       style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
     >
       {/* Lema + fecha */}

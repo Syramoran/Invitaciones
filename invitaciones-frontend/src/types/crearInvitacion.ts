@@ -63,8 +63,7 @@ export const INITIAL_CAMPOS: Record<number, Record<string, string>> = {
     infoAdicional: '',
   },
   2: {
-    nombre: '', colorTematico: '#d4a0b8', horaPresentacion: '21:00',
-    valsPareja: '', valsCancion: '', padrinos: '',
+    nombre: '', colorTematico: '#DC83AA',
     dressCode: 'Elegante', tematica: '',
   },
   3: {
@@ -145,7 +144,7 @@ export function createInitialFormState(): WizardFormState {
     step1: { pedidoId: '', tipoEventoId: null, templateId: null, titulo: '' },
     step2: {
       fechaEvento: '', horaEvento: '', ubicacion: '', direccion: '',
-      latitud: '', longitud: '', colorPrimario: '#BD9848',
+      latitud: '', longitud: '', colorPrimario: '',
       contrasenaAsistentes: '', maxFotos: 1000, camposEspecificos: {}, ubicaciones: [],
     },
     step3: { servicios: [] },

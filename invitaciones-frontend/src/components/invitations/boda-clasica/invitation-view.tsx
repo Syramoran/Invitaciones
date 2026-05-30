@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import type { InvitacionPublica, CamposEspecificosBoda } from "@/types/invitation"
-import { EnvelopeOverlay } from "../invitation-basic/envelope-overlay"
+import { EnvelopeOverlayClasica } from "./envelope-overlay-clasica"
 import { MusicPlayer } from "../invitation-basic/music-player"
 import { HeroSection } from "./hero-section"
 import { CountdownSection } from "./countdown-section"
@@ -134,10 +134,11 @@ export function InvitationView({ invitacion, invitadoParam }: InvitationViewProp
     >
       {/* Overlay de bienvenida */}
       {showOverlay && (
-        <EnvelopeOverlay
+        <EnvelopeOverlayClasica
           titulo={getTituloOverlay(invitacion)}
           onOpen={handleOpenInvitation}
           tieneMusica={!!invitacion.musica}
+          colorAccent={colorAccent}
         />
       )}
 

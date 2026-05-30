@@ -34,44 +34,39 @@ export function Header() {
         }`}
       >
         <div className="max-w-[1200px] mx-auto px-6 flex items-center justify-between">
-          <Link to="/" className="font-display text-2xl font-semibold text-charcoal tracking-tight">
+          <Link
+            to="/"
+            className={`font-display text-2xl font-semibold tracking-tight transition-colors duration-300 ${
+              isScrolled ? 'text-charcoal' : 'text-white'
+            }`}
+          >
             festejá
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
-            <button
-              onClick={() => scrollToSection('eventos')}
-              className="text-sm text-charcoal-soft hover:text-charcoal transition-colors relative group"
-            >
-              Eventos
-              <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-gold transition-all group-hover:w-full" />
-            </button>
-            <button
-              onClick={() => scrollToSection('como-funciona')}
-              className="text-sm text-charcoal-soft hover:text-charcoal transition-colors relative group"
-            >
-              ¿Cómo funciona?
-              <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-gold transition-all group-hover:w-full" />
-            </button>
-            {/* <button
-              onClick={() => scrollToSection('precios')}
-              className="text-sm text-charcoal-soft hover:text-charcoal transition-colors relative group"
-            >
-              Precios
-              <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-gold transition-all group-hover:w-full" />
-            </button> */}
-            <button
-              onClick={() => scrollToSection('contacto')}
-              className="text-sm text-charcoal-soft hover:text-charcoal transition-colors relative group"
-            >
-              Contacto
-              <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-gold transition-all group-hover:w-full" />
-            </button>
+            {(['eventos', 'como-funciona', 'contacto'] as const).map((id) => (
+              <button
+                key={id}
+                onClick={() => scrollToSection(id)}
+                className={`text-sm transition-colors duration-300 relative group ${
+                  isScrolled
+                    ? 'text-charcoal-soft hover:text-charcoal'
+                    : 'text-white/80 hover:text-white'
+                }`}
+              >
+                {id === 'eventos' ? 'Eventos' : id === 'como-funciona' ? '¿Cómo funciona?' : 'Contacto'}
+                <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-gold transition-all group-hover:w-full" />
+              </button>
+            ))}
           </nav>
 
           <Link
             to="/crear"
-            className="hidden md:inline-flex items-center gap-2 bg-charcoal text-champagne-light text-sm font-medium px-6 py-2.5 rounded-full hover:bg-charcoal-soft hover:-translate-y-0.5 hover:shadow-md transition-all"
+            className={`hidden md:inline-flex items-center gap-2 text-sm font-medium px-6 py-2.5 rounded-full hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 ${
+              isScrolled
+                ? 'bg-charcoal text-champagne-light hover:bg-charcoal-soft'
+                : 'bg-white/15 border border-white/40 text-white backdrop-blur-sm hover:bg-white/25'
+            }`}
           >
             Crea tu invitacion
             <span className="text-xs">→</span>
@@ -82,7 +77,7 @@ export function Header() {
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Menu"
           >
-            <Menu className="w-6 h-6 text-charcoal" />
+            <Menu className={`w-6 h-6 transition-colors duration-300 ${isScrolled ? 'text-charcoal' : 'text-white'}`} />
           </button>
         </div>
       </header>

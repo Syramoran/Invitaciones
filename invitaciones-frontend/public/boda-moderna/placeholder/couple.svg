@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="330" viewBox="0 0 260 330">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f2e8df;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#e8d5c8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d9c2b0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="silhouette" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#c4a38a;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#b08870;stop-opacity:0.7" />
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="260" height="330" fill="url(#bg)" />
+
+  <!-- Female silhouette (left) -->
+  <!-- Head -->
+  <ellipse cx="105" cy="95" rx="22" ry="26" fill="url(#silhouette)" />
+  <!-- Neck -->
+  <rect x="99" y="118" width="12" height="14" fill="url(#silhouette)" />
+  <!-- Dress/body (A-line) -->
+  <path d="M82 132 Q105 128 128 132 L148 290 H62 Z" fill="url(#silhouette)" />
+  <!-- Arms -->
+  <path d="M82 140 Q60 170 58 210" stroke="url(#silhouette)" stroke-width="14" stroke-linecap="round" fill="none"/>
+  <!-- Bouquet hint -->
+  <circle cx="58" cy="215" r="12" fill="url(#silhouette)" opacity="0.6"/>
+
+  <!-- Male silhouette (right) -->
+  <!-- Head -->
+  <ellipse cx="170" cy="88" rx="20" ry="24" fill="url(#silhouette)" />
+  <!-- Neck -->
+  <rect x="164" y="109" width="12" height="14" fill="url(#silhouette)" />
+  <!-- Suit/body (rectangle) -->
+  <path d="M145 123 Q170 118 195 123 L200 290 H140 Z" fill="url(#silhouette)" />
+  <!-- Left arm -->
+  <path d="M145 135 Q125 165 122 200" stroke="url(#silhouette)" stroke-width="13" stroke-linecap="round" fill="none"/>
+  <!-- Right arm (reaching toward female) -->
+  <path d="M195 135 Q200 165 190 200" stroke="url(#silhouette)" stroke-width="13" stroke-linecap="round" fill="none"/>
+  <!-- Tie hint -->
+  <path d="M167 120 L170 145 L173 120" fill="url(#silhouette)" opacity="0.4"/>
+
+  <!-- Subtle texture overlay -->
+  <rect width="260" height="330" fill="white" opacity="0.08" />
+</svg>

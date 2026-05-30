@@ -90,8 +90,26 @@ export function StepDiseno({
       {/* Color selector */}
       <div className="max-w-3xl mx-auto bg-white rounded-2xl p-6 shadow-sm border border-black/[0.06] mb-2">
         <h4 className="font-display text-lg font-semibold mb-1">Color favorito</h4>
-        <p className="text-sm text-warm-gray font-light mb-5">Elegí el color que preferirías para tu invitación</p>
+        <p className="text-sm text-warm-gray font-light mb-5">Elegí el color que preferirías para tu invitación, o dejá el predeterminado de la plantilla</p>
         <div className="flex flex-wrap items-center gap-3">
+          {/* Swatch predeterminado */}
+          <button
+            title="Predeterminado"
+            onClick={() => setColor('')}
+            style={{
+              boxShadow: color === '' ? '0 0 0 2px white, 0 0 0 4px #9ca3af' : undefined,
+              transform: color === '' ? 'scale(1.15)' : undefined,
+            }}
+            className="relative w-9 h-9 rounded-full bg-white border border-black/20 overflow-hidden transition-all duration-200 hover:scale-110"
+          >
+            <span
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(135deg, transparent calc(50% - 1px), #dc2626 calc(50% - 1px), #dc2626 calc(50% + 1px), transparent calc(50% + 1px))' }}
+            />
+            {color === '' && (
+              <Check className="w-4 h-4 absolute inset-0 m-auto text-gray-500 drop-shadow" />
+            )}
+          </button>
           {COLORS.map(c => (
             <button
               key={c.hex}
@@ -111,8 +129,14 @@ export function StepDiseno({
           ))}
         </div>
         <div className="flex items-center gap-2 mt-4">
-          <span className="w-5 h-5 rounded-full border border-black/10 inline-block" style={{ background: color }} />
-          <span className="text-sm text-warm-gray">{COLORS.find(c => c.hex === color)?.label ?? color}</span>
+          {color === '' ? (
+            <span className="text-sm text-warm-gray">Predeterminado (según plantilla)</span>
+          ) : (
+            <>
+              <span className="w-5 h-5 rounded-full border border-black/10 inline-block" style={{ background: color }} />
+              <span className="text-sm text-warm-gray">{COLORS.find(c => c.hex === color)?.label ?? color}</span>
+            </>
+          )}
         </div>
       </div>
 

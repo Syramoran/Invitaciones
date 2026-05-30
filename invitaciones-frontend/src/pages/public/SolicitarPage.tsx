@@ -82,7 +82,7 @@ export default function SolicitarPage() {
   // ── Selections ─────────────────────────────────────────────────────────────
   const [eventType,     setEventType]     = useState<EventType | null>(null)
   const [templateId,    setTemplateId]    = useState<number | null>(null)
-  const [color,         setColor]         = useState('#c5a572')
+  const [color,         setColor]         = useState('')
   const [addons,        setAddons]        = useState<AddonState>({})
   const [secondVersion, setSecondVersion] = useState(false)
 

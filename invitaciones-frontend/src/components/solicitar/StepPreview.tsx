@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { PhoneMockup } from '@/components/landing/PhoneMockup'
-import { InvitationPreview } from '@/components/landing/InvitationPreview'
+import { InvitationPreview, SLUG_BY_EVENT_TYPE } from '@/components/landing/InvitationPreview'
 import { EVENT_LABELS, btnBack, btnNext } from './data'
 import { fmtPrice } from './utils'
 import { SummaryItem } from './SummaryItem'
@@ -37,7 +37,7 @@ export function StepPreview({ eventType, templateName, color, addons, addonsData
         {/* Phone mockup */}
         <div className="flex flex-col items-center gap-5">
           <PhoneMockup size="md">
-            <InvitationPreview type={eventType} />
+            <InvitationPreview slug={SLUG_BY_EVENT_TYPE[eventType]} />
           </PhoneMockup>
           <p className="text-sm text-warm-gray font-light text-center max-w-xs italic leading-relaxed">
            La invitación final será creada por nuestro equipo con los datos reales de tu evento.
@@ -51,10 +51,14 @@ export function StepPreview({ eventType, templateName, color, addons, addonsData
             <SummaryItem label="Tipo de evento" value={EVENT_LABELS[eventType]} />
             <SummaryItem label="Template"       value={templateName || '-'} />
             <SummaryItem label="Color elegido"  value={
-              <span className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full inline-block border border-black/10" style={{ background: color }} />
-                <span className="font-mono text-sm">{color}</span>
-              </span>
+              color === '' ? (
+                <span className="text-sm text-warm-gray">Predeterminado (según plantilla)</span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 rounded-full inline-block border border-black/10" style={{ background: color }} />
+                  <span className="font-mono text-sm">{color}</span>
+                </span>
+              )
             } />
             <div>
               <div className="text-[0.68rem] uppercase tracking-[2px] text-warm-gray mb-2">Servicios</div>

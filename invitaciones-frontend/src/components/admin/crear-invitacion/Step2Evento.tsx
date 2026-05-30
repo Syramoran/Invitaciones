@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Check } from 'lucide-react'
 import type { WizardStep2, UbicacionEvento, TipoUbicacion } from '@/types/crearInvitacion'
 import { TIPOS_UBICACION_OPTIONS as TIPOS_UBICACION, COLORES_PALETA } from '@/types/crearInvitacion'
@@ -31,14 +31,10 @@ const CAMPOS_BODA: FieldDef[] = [
 ]
 
 const CAMPOS_QUINCE: FieldDef[] = [
-  { key: 'nombre',     label: 'Nombre de la quinceañera', type: 'text', placeholder: 'Martina' },
-  { key: 'colorTematico', label: 'Color temático', type: 'color' },
-  { key: 'horaPresentacion', label: 'Hora presentación', type: 'time' },
-  { key: 'valsPareja',  label: 'Vals — Pareja', type: 'text', placeholder: 'Nombre' },
-  { key: 'valsCancion', label: 'Vals — Canción', type: 'text', placeholder: 'Nombre de la canción' },
-  { key: 'padrinos', label: 'Padrinos / Madrinas', type: 'textarea', placeholder: 'Lista de padrinos', fullWidth: true },
-  { key: 'dressCode', label: 'Dress code', type: 'text', placeholder: 'Elegante' },
-  { key: 'tematica',  label: 'Temática', type: 'text', placeholder: 'Ej: Jardín encantado' },
+  { key: 'nombre',        label: 'Nombre de la quinceañera', type: 'text', placeholder: 'Martina' },
+  { key: 'colorTematico', label: 'Color temático',            type: 'color' },
+  { key: 'dressCode',     label: 'Dress code',                type: 'text', placeholder: 'Elegante' },
+  { key: 'tematica',      label: 'Temática',                  type: 'text', placeholder: 'Ej: Jardín encantado' },
 ]
 
 const CAMPOS_CUMPLE: FieldDef[] = [
@@ -52,6 +48,11 @@ const CAMPOS_CUMPLE: FieldDef[] = [
 
 const CAMPOS_MAP: Record<number, FieldDef[]> = { 1: CAMPOS_BODA, 2: CAMPOS_QUINCE, 3: CAMPOS_CUMPLE }
 const TIPO_NOMBRES: Record<number, string> = { 1: 'Boda', 2: 'Quinceañera', 3: 'Cumpleaños' }
+
+// Colores disponibles para la plantilla quince-princesa
+const COLORES_QUINCE_PRINCESA = COLORES_PALETA.filter(c =>
+  (['#894F8E', '#B14B8F', '#DC83AA', '#D16A32', '#BD9848', '#65795A', '#2A63A8'] as string[]).includes(c.hex)
+)
 
 // ─── Shared input classes ─────────────────────────────────────────────────────
 
@@ -221,6 +222,21 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
   // Track the Maps link input value for single mode
   const [mapsLinkInput, setMapsLinkInput] = useState('')
 
+  const esQuince = tipoEventoId === 2
+  // Para quinceañera siempre un solo lugar
+  const efectivamenteMultiple = !esQuince && modoMultiple
+
+  // Quince: sincronizar colorPrimario con colorTematico al montar o cambiar tipo
+  useEffect(() => {
+    if (tipoEventoId === 2) {
+      const ct = state.camposEspecificos.colorTematico || '#DC83AA'
+      if (state.colorPrimario !== ct) {
+        onChange({ colorPrimario: ct })
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipoEventoId])
+
   function setField(key: keyof WizardStep2, value: string | number) {
     onChange({ [key]: value } as Partial<WizardStep2>)
   }
@@ -268,7 +284,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
   const tiposDisponibles = TIPOS_UBICACION.filter(t => !tiposUsados.includes(t))
 
   const canProceed = !!(state.fechaEvento && state.horaEvento) && (
-    modoMultiple
+    efectivamenteMultiple
       ? state.ubicaciones.length >= 1 &&
         state.ubicaciones.every(u => u.nombre.trim() && u.direccion.trim() && u.latitud && u.longitud)
       : !!(state.ubicacion.trim() && state.direccion.trim() && state.latitud && state.longitud)
@@ -292,7 +308,8 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
         </div>
       </div>
 
-      {/* Location mode toggle */}
+      {/* Location mode toggle — solo para eventos con múltiples lugares */}
+      {!esQuince && (
       <div className="mb-4 flex items-center gap-3 p-3 rounded-xl border border-[#e5e7eb] bg-[#f9f9f9]">
         <span className="text-[.82rem] text-[#2d2926] font-medium flex-1">
           {modoMultiple ? 'Modo: múltiples lugares' : 'Modo: un solo lugar'}
@@ -315,9 +332,10 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
           </button>
         )}
       </div>
+      )}
 
-      {/* ── Single location mode ── */}
-      {!modoMultiple && (
+      {/* ── Ubicación ── */}
+      {!efectivamenteMultiple && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <Label text="Tipo de lugar" />
@@ -365,8 +383,8 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
         </div>
       )}
 
-      {/* ── Multiple locations mode ── */}
-      {modoMultiple && (
+      {/* ── Múltiples ubicaciones ── */}
+      {efectivamenteMultiple && (
         <div className="mb-4 flex flex-col gap-3">
           {state.ubicaciones.map((ub, i) => (
             <UbicacionCard
@@ -403,9 +421,27 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
 
       {/* Color, password, max photos — always visible */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        {!esQuince && (
         <div className="sm:col-span-2">
           <Label text="Color primario" />
           <div className="flex flex-wrap gap-2 mt-1">
+            {/* Swatch predeterminado */}
+            <button
+              type="button"
+              title="Predeterminado"
+              onClick={() => setField('colorPrimario', '')}
+              className="relative w-8 h-8 rounded-full border-2 transition-all duration-150 hover:scale-110 bg-white overflow-hidden"
+              style={{
+                borderColor: state.colorPrimario === '' ? '#9ca3af' : 'transparent',
+                boxShadow: state.colorPrimario === '' ? '0 0 0 2px white, 0 0 0 4px #9ca3af' : 'none',
+              }}
+            >
+              {/* Diagonal line to indicate "no color" */}
+              <span className="absolute inset-0" style={{ background: 'linear-gradient(135deg, transparent calc(50% - 1px), #dc2626 calc(50% - 1px), #dc2626 calc(50% + 1px), transparent calc(50% + 1px))' }} />
+              {state.colorPrimario === '' && (
+                <Check className="w-3.5 h-3.5 absolute inset-0 m-auto text-gray-500 drop-shadow" />
+              )}
+            </button>
             {COLORES_PALETA.map(c => (
               <button
                 key={c.hex}
@@ -426,9 +462,10 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
             ))}
           </div>
           <p className="mt-2 text-[.78rem] text-[#6b7280]">
-            {COLORES_PALETA.find(c => c.hex === state.colorPrimario)?.label ?? state.colorPrimario}
+            {state.colorPrimario === '' ? 'Predeterminado (según plantilla)' : COLORES_PALETA.find(c => c.hex === state.colorPrimario)?.label ?? state.colorPrimario}
           </p>
         </div>
+        )}
         <div>
           <Label text="Contraseña lista asistentes" />
           <input type="text" maxLength={255} placeholder="Opcional — para que el anfitrión vea confirmaciones"
@@ -471,6 +508,40 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
                   <Label text={def.label} />
                 </div>
               )
+              if (def.key === 'colorTematico') {
+                const selectedColor = state.camposEspecificos.colorTematico || '#DC83AA'
+                return (
+                  <div key={def.key} className="sm:col-span-2">
+                    <Label text={def.label} />
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {COLORES_QUINCE_PRINCESA.map(c => (
+                        <button
+                          key={c.hex}
+                          type="button"
+                          title={c.label}
+                          onClick={() => {
+                            setCampo('colorTematico', c.hex)
+                            setField('colorPrimario', c.hex)
+                          }}
+                          className="relative w-8 h-8 rounded-full border-2 transition-all duration-150 hover:scale-110"
+                          style={{
+                            backgroundColor: c.hex,
+                            borderColor: selectedColor === c.hex ? c.hex : 'transparent',
+                            boxShadow: selectedColor === c.hex ? `0 0 0 2px white, 0 0 0 4px ${c.hex}` : 'none',
+                          }}
+                        >
+                          {selectedColor === c.hex && (
+                            <Check className="w-3.5 h-3.5 absolute inset-0 m-auto text-white drop-shadow" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-[.78rem] text-[#6b7280]">
+                      {COLORES_QUINCE_PRINCESA.find(c => c.hex === selectedColor)?.label ?? 'Sin selección'}
+                    </p>
+                  </div>
+                )
+              }
               return (
                 <div key={def.key} className={def.fullWidth ? 'sm:col-span-2' : ''}>
                   <Label text={def.label} />
@@ -482,6 +553,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
                 </div>
               )
             })}
+
           </div>
         </div>
       )}

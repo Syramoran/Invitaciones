@@ -47,6 +47,17 @@ export interface CamposEspecificosBoda {
   notas?: string
 }
 
+export interface CamposEspecificosQuince {
+  nombre?: string
+  colorTematico?: string
+  horaPresentacion?: string
+  valsPareja?: string
+  valsCancion?: string
+  padrinos?: string
+  dressCode?: string
+  tematica?: string
+}
+
 export interface InvitacionPublica {
   id: string
   titulo: string
