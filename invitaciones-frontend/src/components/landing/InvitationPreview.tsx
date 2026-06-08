@@ -37,6 +37,14 @@ import { InfoSection as QuincePrincesaInfo } from '@/components/invitations/quin
 import { StorySection as QuincePrincesaStory } from '@/components/invitations/quince-princesa/story-section'
 import { RsvpSection as QuincePrincesaRsvp } from '@/components/invitations/quince-princesa/rsvp-section'
 
+// ─── Quince Elegante sections ────────────────────────────────────────────────
+import { HeroSection as QuinceEleganteHero } from '@/components/invitations/quince-elegante/hero-section'
+import { CountdownSection as QuinceEleganteCountdown } from '@/components/invitations/quince-elegante/countdown-section'
+import { InfoSection as QuinceEleganteInfo } from '@/components/invitations/quince-elegante/info-section'
+import { MapSection as QuinceEleganteMap } from '@/components/invitations/quince-elegante/map-section'
+import { StorySection as QuinceEleganteStory } from '@/components/invitations/quince-elegante/story-section'
+import { RsvpSection as QuinceEleganteRsvp } from '@/components/invitations/quince-elegante/rsvp-section'
+
 // ─── Quince Moderna sections ──────────────────────────────────────────────────
 import { HeroSection as QuinceModernaHero } from '@/components/invitations/quince-moderna/hero-section'
 import { CountdownSection as QuinceModernaCountdown } from '@/components/invitations/quince-moderna/countdown-section'
@@ -44,6 +52,14 @@ import { InfoSection as QuinceModernaInfo } from '@/components/invitations/quinc
 import { MapSection as QuinceModernaMap } from '@/components/invitations/quince-moderna/map-section'
 import { StorySection as QuinceModernaStory } from '@/components/invitations/quince-moderna/story-section'
 import { RsvpSection as QuinceModernaRsvp } from '@/components/invitations/quince-moderna/rsvp-section'
+
+// ─── Cumple Festivo sections ──────────────────────────────────────────────────
+import { HeroSection as CumpleFestivoHero } from '@/components/invitations/cumple-festivo/hero-section'
+import { CountdownSection as CumpleFestivoCountdown } from '@/components/invitations/cumple-festivo/countdown-section'
+import { InfoSection as CumpleFestivoInfo } from '@/components/invitations/cumple-festivo/info-section'
+import { MapSection as CumpleFestivoMap } from '@/components/invitations/cumple-festivo/map-section'
+import { StorySection as CumpleFestivoStory } from '@/components/invitations/cumple-festivo/story-section'
+import { RsvpSection as CumpleFestivoRsvp } from '@/components/invitations/cumple-festivo/rsvp-section'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 // Invitation content design width (px)
@@ -384,6 +400,51 @@ const MOCK_BODA_RUSTICA: InvitacionPublica = {
   mostrarBotonConfirmar: false,
 }
 
+// ─── Quince Elegante mock data ───────────────────────────────────────────────
+const COLOR_QUINCE_ELEGANTE = '#2A63A8'
+const MOCK_QUINCE_ELEGANTE: InvitacionPublica = {
+  id: 'preview-quince-elegante',
+  titulo: 'Mis XV Años',
+  fechaEvento: '2026-08-15T00:00:00.000Z',
+  horaEvento: '21:00',
+  ubicacion: 'Salón Imperial · Recoleta',
+  direccion: 'Av. Quintana 188, Recoleta, Buenos Aires',
+  latitud: -34.5882,
+  longitud: -58.3928,
+  colorPrimario: COLOR_QUINCE_ELEGANTE,
+  camposEspecificos: {
+    nombre: 'Isabella',
+    colorTematico: COLOR_QUINCE_ELEGANTE,
+    horaPresentacion: '22:30',
+    valsPareja: 'Mateo',
+    valsCancion: 'A Thousand Years – Christina Perri',
+    padrinos: 'Familia Rossi & Fernández',
+    dressCode: 'Formal',
+    tematica: 'Elegante',
+  },
+  template: { id: 6, nombre: 'Quince Elegante', slug: 'quince-elegante', thumbnailUrl: null },
+  servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
+  fotosAnfitrion: [{ id: 1, url: 'https://picsum.photos/seed/quince-elegante-portrait/430/560', orden: 1 }],
+  musica: null,
+  historias: [
+    {
+      id: 1,
+      texto: 'Soñé con esta noche desde pequeña. Gracias a mis padres y a todos los que hicieron posible este sueño tan especial.',
+      imagenUrl: 'https://picsum.photos/seed/quince-elegante-story1/430/220',
+      orden: 1,
+    },
+    {
+      id: 2,
+      texto: 'Esta noche marca el comienzo de una nueva etapa. Quiero vivirla con las personas que más amo.',
+      imagenUrl: 'https://picsum.photos/seed/quince-elegante-story2/430/220',
+      orden: 2,
+    },
+  ],
+  saludoPersonalizado: null,
+  tieneConfirmacion: true,
+  mostrarBotonConfirmar: false,
+}
+
 // ─── Quince Moderna mock data ───────────────────────────────────────────────
 const COLOR_QUINCE_MODERNA = '#BD9848'
 const MOCK_QUINCE_MODERNA: InvitacionPublica = {
@@ -461,6 +522,48 @@ const MOCK_QUINCE_PRINCESA: InvitacionPublica = {
       texto: 'Desde pequeña soñé con esta noche. Gracias a mis padres y a todos los que hicieron posible este sueño.',
       imagenUrl: 'https://picsum.photos/seed/quince-story1/430/220',
       orden: 1,
+    },
+  ],
+  saludoPersonalizado: null,
+  tieneConfirmacion: true,
+  mostrarBotonConfirmar: false,
+}
+
+// ─── Cumple Festivo mock data ───────────────────────────────────────────────
+const COLOR_CUMPLE_FESTIVO = '#FF4081'
+const MOCK_CUMPLE_FESTIVO: InvitacionPublica = {
+  id: 'preview-cumple-festivo',
+  titulo: '¡Los 25 de Lucía!',
+  fechaEvento: '2026-09-05T00:00:00.000Z',
+  horaEvento: '22:00',
+  ubicacion: 'La Terraza · Villa Crespo',
+  direccion: 'Av. Corrientes 5201, Villa Crespo, Buenos Aires',
+  latitud: -34.5977,
+  longitud: -58.4401,
+  colorPrimario: COLOR_CUMPLE_FESTIVO,
+  camposEspecificos: {
+    nombre: 'Lucía',
+    edad: '25',
+    dressCode: 'Colorful vibes',
+    actividades: 'DJ en vivo · Photobooth · Barra libre',
+    notas: '¡No faltes que la noche promete!',
+  },
+  template: { id: 7, nombre: 'Cumple Festivo', slug: 'cumple-festivo', thumbnailUrl: null },
+  servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
+  fotosAnfitrion: [{ id: 1, url: 'https://picsum.photos/seed/cumple-festivo-portrait/430/560', orden: 1 }],
+  musica: null,
+  historias: [
+    {
+      id: 1,
+      texto: 'Hace 25 años llegué al mundo dispuesta a disfrutar cada momento. Esta noche quiero celebrarlo a lo grande con todos ustedes.',
+      imagenUrl: 'https://picsum.photos/seed/cumple-festivo-story1/430/220',
+      orden: 1,
+    },
+    {
+      id: 2,
+      texto: '¡Gracias por ser parte de mi historia! Esta noche bailamos hasta el amanecer.',
+      imagenUrl: 'https://picsum.photos/seed/cumple-festivo-story2/430/220',
+      orden: 2,
     },
   ],
   saludoPersonalizado: null,
@@ -590,67 +693,30 @@ function QuincePrincesaPreview() {
 
 function QuinceElegantePreview() {
   return (
-    <ScrollingPreviewWrapper bgColor="#fdf7f0">
-      <div
-        className="w-full flex flex-col items-center px-10 py-16"
-        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", minHeight: '100vh' }}
-      >
-        {/* Ornamento superior */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-px w-16 bg-[#c4a882]" />
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="#c4a882">
-            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
-          </svg>
-          <div className="h-px w-16 bg-[#c4a882]" />
-        </div>
-
-        <p className="text-[0.65rem] tracking-[4px] uppercase text-[#c4a882] mb-3">
-          Quinceañera
-        </p>
-        <h1
-          className="text-[3.5rem] font-normal text-[#3d2c1e] leading-none mb-2"
-          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-        >
-          Isabella
-        </h1>
-        <p className="text-sm font-light text-[#8a7060] mb-8 italic">
-          te invita a celebrar sus XV años
-        </p>
-
-        <div className="h-px w-20 bg-[#c4a882] mb-8" />
-
-        {/* Foto */}
-        <div className="w-[200px] h-[260px] rounded-2xl overflow-hidden mb-8 shadow-md">
-          <img
-            src="https://picsum.photos/seed/quince-elegante/200/260"
-            alt="Isabella"
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
-
-        <div className="flex flex-col items-center gap-3 text-center">
-          <div>
-            <p className="text-[0.55rem] tracking-[3px] uppercase text-[#c4a882] mb-1">Fecha</p>
-            <p className="text-[0.9rem] text-[#3d2c1e]">Sábado 15 de Agosto, 2026</p>
-          </div>
-          <div className="h-px w-12 bg-[#c4a882]" />
-          <div>
-            <p className="text-[0.55rem] tracking-[3px] uppercase text-[#c4a882] mb-1">Lugar</p>
-            <p className="text-[0.9rem] text-[#3d2c1e]">Salón Imperial, Buenos Aires</p>
-            <p className="text-[0.8rem] text-[#8a7060]">21:00 hs</p>
-          </div>
-          <div className="h-px w-12 bg-[#c4a882]" />
-          <div>
-            <p className="text-[0.55rem] tracking-[3px] uppercase text-[#c4a882] mb-1">Dress Code</p>
-            <p className="text-[0.9rem] text-[#3d2c1e]">Formal</p>
-          </div>
-        </div>
-
-        <button className="mt-10 border border-[#3d2c1e] text-[#3d2c1e] text-[0.65rem] tracking-[2px] uppercase px-10 py-3">
-          Confirmar asistencia
-        </button>
-      </div>
+    <ScrollingPreviewWrapper
+      bgColor="#e8f0fb"
+      cssVars={{
+        '--invitation-primary': COLOR_QUINCE_ELEGANTE,
+        '--invitation-bg-soft': hexToRgba(COLOR_QUINCE_ELEGANTE, 0.07),
+        '--invitation-border': hexToRgba(COLOR_QUINCE_ELEGANTE, 0.2),
+      } as React.CSSProperties}
+    >
+      <QuinceEleganteHero invitacion={MOCK_QUINCE_ELEGANTE} colorAccent={COLOR_QUINCE_ELEGANTE} />
+      <QuinceEleganteCountdown
+        fechaEvento={MOCK_QUINCE_ELEGANTE.fechaEvento}
+        horaEvento={MOCK_QUINCE_ELEGANTE.horaEvento}
+        colorAccent={COLOR_QUINCE_ELEGANTE}
+      />
+      <QuinceEleganteInfo invitacion={MOCK_QUINCE_ELEGANTE} colorAccent={COLOR_QUINCE_ELEGANTE} />
+      <QuinceEleganteMap invitacion={MOCK_QUINCE_ELEGANTE} colorAccent={COLOR_QUINCE_ELEGANTE} />
+      <QuinceEleganteStory historias={MOCK_QUINCE_ELEGANTE.historias} colorAccent={COLOR_QUINCE_ELEGANTE} />
+      <QuinceEleganteRsvp
+        invitacionId="preview"
+        invitadoParam={null}
+        mostrarBoton={false}
+        fechaLimite={null}
+        colorAccent={COLOR_QUINCE_ELEGANTE}
+      />
     </ScrollingPreviewWrapper>
   )
 }
@@ -741,65 +807,31 @@ function CumpleElegantePreview() {
 
 function CumpleFestivoPreview() {
   return (
-    <ScrollingPreviewWrapper bgColor="#fffbf0">
-      <div
-        className="w-full flex flex-col items-center px-10 py-14"
-        style={{ fontFamily: "'Outfit', sans-serif", minHeight: '100vh' }}
-      >
-        {/* Decoración superior */}
-        <div className="flex gap-2 mb-8 text-2xl">
-          <span>🎉</span>
-          <span>🎊</span>
-          <span>🎈</span>
-        </div>
-
-        <p
-          className="text-[0.65rem] font-bold tracking-[4px] uppercase mb-2"
-          style={{ color: '#FF4081' }}
-        >
-          ¡FIESTA!
-        </p>
-        <h1
-          className="text-[3rem] font-black leading-none mb-1"
-          style={{ color: '#1a1a2e' }}
-        >
-          Lucía
-        </h1>
-        <p className="text-[0.85rem] font-light text-[#666] mb-6">te invita a festejar</p>
-
-        {/* Número */}
-        <div
-          className="w-28 h-28 rounded-full flex items-center justify-center mb-8"
-          style={{ background: 'linear-gradient(135deg, #FF4081, #FF6D00)' }}
-        >
-          <span className="text-[3.5rem] font-black text-white leading-none">25</span>
-        </div>
-
-        {/* Datos */}
-        <div className="w-full flex flex-col gap-3 mb-8">
-          {[
-            { label: '📅 Cuándo', value: 'Sábado 7 de Febrero, 2026 · 22:00 hs' },
-            { label: '📍 Dónde', value: 'La Terraza · Villa Crespo' },
-            { label: '👗 Dress code', value: 'Colorful vibes' },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="rounded-2xl px-5 py-3"
-              style={{ background: '#fff', border: '1.5px solid #ffe0ec' }}
-            >
-              <p className="text-[0.55rem] font-bold tracking-wider uppercase text-[#FF4081] mb-0.5">{label}</p>
-              <p className="text-[0.8rem] font-medium text-[#1a1a2e]">{value}</p>
-            </div>
-          ))}
-        </div>
-
-        <button
-          className="font-bold text-[0.7rem] tracking-wider px-12 py-3.5 rounded-full text-white"
-          style={{ background: 'linear-gradient(135deg, #FF4081, #FF6D00)' }}
-        >
-          ¡VOY! 🎉
-        </button>
-      </div>
+    <ScrollingPreviewWrapper
+      bgColor="#1a1a1a"
+      cssVars={{
+        '--invitation-primary': COLOR_CUMPLE_FESTIVO,
+      } as React.CSSProperties}
+    >
+      <CumpleFestivoHero invitacion={MOCK_CUMPLE_FESTIVO} colorAccent={COLOR_CUMPLE_FESTIVO} />
+      <CumpleFestivoCountdown
+        fechaEvento={MOCK_CUMPLE_FESTIVO.fechaEvento}
+        horaEvento={MOCK_CUMPLE_FESTIVO.horaEvento}
+      />
+      <CumpleFestivoInfo invitacion={MOCK_CUMPLE_FESTIVO} colorAccent={COLOR_CUMPLE_FESTIVO} />
+      <CumpleFestivoMap
+        ubicacion={MOCK_CUMPLE_FESTIVO.ubicacion}
+        direccion={MOCK_CUMPLE_FESTIVO.direccion}
+        latitud={MOCK_CUMPLE_FESTIVO.latitud}
+        longitud={MOCK_CUMPLE_FESTIVO.longitud}
+        camposEspecificos={MOCK_CUMPLE_FESTIVO.camposEspecificos}
+      />
+      <CumpleFestivoStory historias={MOCK_CUMPLE_FESTIVO.historias} />
+      <CumpleFestivoRsvp
+        invitacionId="preview"
+        invitadoParam={null}
+        mostrarBoton={false}
+      />
     </ScrollingPreviewWrapper>
   )
 }

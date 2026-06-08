@@ -1,16 +1,138 @@
-import type { InvitacionPublica } from '@/types/invitation'
+import { useState, useEffect } from "react"
+import type { InvitacionPublica, CamposEspecificosCumple } from "@/types/invitation"
+import { EnvelopeOverlay } from "./envelope-overlay"
+import { MusicPlayer } from "../invitation-basic/music-player"
+import { HeroSection } from "./hero-section"
+import { CountdownSection } from "./countdown-section"
+import { InfoSection } from "./info-section"
+import { MapSection } from "./map-section"
+import { StorySection } from "./story-section"
+import { RsvpSection } from "./rsvp-section"
+
+const COLOR_DEFAULT = "#B5B5B5"
 
 interface InvitationViewProps {
   invitacion: InvitacionPublica
   invitadoParam?: string
 }
 
-export function InvitationView({ invitacion }: InvitationViewProps) {
+export function InvitationView({ invitacion, invitadoParam }: InvitationViewProps) {
+  const [showOverlay, setShowOverlay] = useState(true)
+  const [autoPlayMusic, setAutoPlayMusic] = useState(false)
+
+  const colorAccent = invitacion?.colorPrimario || COLOR_DEFAULT
+
+  useEffect(() => {
+    document.documentElement.style.setProperty("--invitation-primary", colorAccent)
+    return () => {
+      document.documentElement.style.removeProperty("--invitation-primary")
+    }
+  }, [colorAccent])
+
+  const handleOpenInvitation = () => {
+    setShowOverlay(false)
+    if (invitacion?.musica) setAutoPlayMusic(true)
+  }
+
+  if (!invitacion) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-600" />
+          <p className="text-sm text-gray-500">Cargando invitación...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const tieneCountdown = invitacion.servicios.some(
+    (s) =>
+      s.nombre.toLowerCase().includes("cuenta regresiva") ||
+      s.nombre.toLowerCase().includes("countdown")
+  )
+
+  const campos = (invitacion.camposEspecificos ?? {}) as CamposEspecificosCumple
+  const nombreFestejado = campos.nombre || invitacion.titulo
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-yellow-50">
-      <p className="mb-2 text-sm uppercase tracking-widest text-yellow-600">Plantilla</p>
-      <h1 className="mb-6 text-3xl font-bold text-yellow-800">Cumpleaños Festivo</h1>
-      <p className="text-xl text-yellow-700">{invitacion.titulo}</p>
+    <div
+      className="min-h-screen bg-[#111111]"
+      style={{ "--invitation-primary": colorAccent } as React.CSSProperties}
+    >
+      {/* Overlay de apertura */}
+      {showOverlay && (
+        <EnvelopeOverlay
+          nombre={nombreFestejado}
+          tituloEvento={invitacion.titulo}
+          edad={campos.edad}
+          onOpen={handleOpenInvitation}
+          tieneMusica={!!invitacion.musica}
+          colorAccent={colorAccent}
+        />
+      )}
+
+      {/* Reproductor de música */}
+      {invitacion.musica && !showOverlay && (
+        <MusicPlayer musica={invitacion.musica} autoPlay={autoPlayMusic} />
+      )}
+
+      {/* Contenedor principal */}
+      <div className="mx-auto min-h-screen w-full max-w-[430px] bg-[#1a1a1a]">
+        {/* 1. Hero */}
+        <HeroSection
+          invitacion={invitacion}
+          invitadoParam={invitadoParam}
+          colorAccent={colorAccent}
+        />
+
+        {/* 2. Cuenta regresiva */}
+        {tieneCountdown && (
+          <CountdownSection
+            fechaEvento={invitacion.fechaEvento}
+            horaEvento={invitacion.horaEvento}
+          />
+        )}
+
+        {/* 3. Información del evento */}
+        <InfoSection invitacion={invitacion} colorAccent={colorAccent} />
+
+        {/* 4. Mapa */}
+        <MapSection
+          ubicacion={invitacion.ubicacion}
+          direccion={invitacion.direccion}
+          latitud={invitacion.latitud}
+          longitud={invitacion.longitud}
+          camposEspecificos={invitacion.camposEspecificos}
+        />
+
+        {/* 5. Historia */}
+        {invitacion.historias.length > 0 && (
+          <StorySection historias={invitacion.historias} />
+        )}
+
+        {/* 6. RSVP */}
+        {invitacion.tieneConfirmacion && (
+          <RsvpSection
+            invitacionId={invitacion.id}
+            invitadoParam={invitadoParam ?? null}
+            mostrarBoton={invitacion.mostrarBotonConfirmar}
+          />
+        )}
+
+        {/* Footer */}
+        <footer className="px-7 pb-10 pt-4 text-center text-[10px] text-[#aaa]">
+          <span>Hecho con ♥ · </span>
+          <a
+            href="https://festeja.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+            style={{ color: colorAccent }}
+          >
+            festeja.app
+          </a>
+        </footer>
+      </div>
     </div>
   )
 }

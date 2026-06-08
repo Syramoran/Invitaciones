@@ -257,6 +257,7 @@ export function CrearInvitacionWizard() {
           <Step2Evento
             state={formState.step2}
             tipoEventoId={formState.step1.tipoEventoId}
+            templateSlug={templates.find(t => t.id === formState.step1.templateId)?.slug ?? null}
             onChange={updateStep2}
             onNext={() => goTo(3)}
             onPrev={() => goTo(1)}

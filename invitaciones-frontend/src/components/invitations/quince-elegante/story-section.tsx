@@ -49,7 +49,7 @@ export function StorySection({ historias, colorAccent }: StorySectionProps) {
                 className="self-stretch text-left text-[15px] leading-relaxed"
                 style={{
                   fontFamily: "'Nunito Sans', sans-serif",
-                  color: "#3a3a3a",
+                  color: "#fff",
                 }}
               >
                 {historia.texto}

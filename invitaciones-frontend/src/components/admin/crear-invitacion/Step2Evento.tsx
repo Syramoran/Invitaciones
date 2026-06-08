@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Check } from 'lucide-react'
 import type { WizardStep2, UbicacionEvento, TipoUbicacion } from '@/types/crearInvitacion'
 import { TIPOS_UBICACION_OPTIONS as TIPOS_UBICACION, COLORES_PALETA } from '@/types/crearInvitacion'
@@ -54,6 +54,17 @@ const COLORES_QUINCE_PRINCESA = COLORES_PALETA.filter(c =>
   (['#894F8E', '#B14B8F', '#DC83AA', '#D16A32', '#BD9848', '#65795A', '#2A63A8'] as string[]).includes(c.hex)
 )
 
+// Colores de fondo disponibles para cumple-elegante (el acento se deriva automáticamente)
+const COLORES_CUMPLE_ELEGANTE = [
+  { hex: '#EDE2D4', label: 'Beige dorado'  },
+  { hex: '#F1F1F1', label: 'Gris perla'    },
+  { hex: '#DAE4F1', label: 'Azul hielo'    },
+  { hex: '#E2DAF1', label: 'Lila'          },
+  { hex: '#F4E1E1', label: 'Rosa pálido'   },
+] as const
+
+const COLOR_DEFAULT_CUMPLE_ELEGANTE = '#EDE2D4'
+
 // ─── Shared input classes ─────────────────────────────────────────────────────
 
 const INPUT_CLS = 'w-full px-3 py-2.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.88rem] focus:border-[#c5a572] focus:outline-none bg-white transition-colors'
@@ -64,6 +75,7 @@ interface Props {
   state: WizardStep2
   onChange: (updates: Partial<WizardStep2>) => void
   tipoEventoId: number | null
+  templateSlug?: string | null
   onNext: () => void
   onPrev: () => void
 }
@@ -213,7 +225,7 @@ function UbicacionCard({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: Props) {
+export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNext, onPrev }: Props) {
   const camposFields = tipoEventoId ? (CAMPOS_MAP[tipoEventoId] ?? []) : []
 
   // Local flag — initialised from saved data so navigating back keeps the mode
@@ -223,6 +235,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
   const [mapsLinkInput, setMapsLinkInput] = useState('')
 
   const esQuince = tipoEventoId === 2
+  const esCumpleElegante = templateSlug === 'cumple-elegante'
   // Para quinceañera siempre un solo lugar
   const efectivamenteMultiple = !esQuince && modoMultiple
 
@@ -236,6 +249,17 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tipoEventoId])
+
+  // Cumple elegante: establecer color predeterminado al seleccionar esta plantilla
+  const prevSlugRef = useRef(templateSlug)
+  useEffect(() => {
+    if (esCumpleElegante && prevSlugRef.current !== 'cumple-elegante') {
+      const valido = COLORES_CUMPLE_ELEGANTE.some(c => c.hex.toLowerCase() === state.colorPrimario?.toLowerCase())
+      if (!valido) onChange({ colorPrimario: COLOR_DEFAULT_CUMPLE_ELEGANTE })
+    }
+    prevSlugRef.current = templateSlug ?? null
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateSlug])
 
   function setField(key: keyof WizardStep2, value: string | number) {
     onChange({ [key]: value } as Partial<WizardStep2>)
@@ -421,51 +445,56 @@ export function Step2Evento({ state, onChange, tipoEventoId, onNext, onPrev }: P
 
       {/* Color, password, max photos — always visible */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        {!esQuince && (
-        <div className="sm:col-span-2">
-          <Label text="Color primario" />
-          <div className="flex flex-wrap gap-2 mt-1">
-            {/* Swatch predeterminado */}
-            <button
-              type="button"
-              title="Predeterminado"
-              onClick={() => setField('colorPrimario', '')}
-              className="relative w-8 h-8 rounded-full border-2 transition-all duration-150 hover:scale-110 bg-white overflow-hidden"
-              style={{
-                borderColor: state.colorPrimario === '' ? '#9ca3af' : 'transparent',
-                boxShadow: state.colorPrimario === '' ? '0 0 0 2px white, 0 0 0 4px #9ca3af' : 'none',
-              }}
-            >
-              {/* Diagonal line to indicate "no color" */}
-              <span className="absolute inset-0" style={{ background: 'linear-gradient(135deg, transparent calc(50% - 1px), #dc2626 calc(50% - 1px), #dc2626 calc(50% + 1px), transparent calc(50% + 1px))' }} />
-              {state.colorPrimario === '' && (
-                <Check className="w-3.5 h-3.5 absolute inset-0 m-auto text-gray-500 drop-shadow" />
+        {!esQuince && (() => {
+          const paleta = esCumpleElegante ? COLORES_CUMPLE_ELEGANTE : COLORES_PALETA
+          const etiqueta = [...COLORES_PALETA, ...COLORES_CUMPLE_ELEGANTE].find(c => c.hex.toLowerCase() === state.colorPrimario?.toLowerCase())?.label ?? state.colorPrimario
+          return (
+          <div className="sm:col-span-2">
+            <Label text="Color primario" />
+            <div className="flex flex-wrap gap-2 mt-1">
+              {/* Swatch predeterminado — solo para plantillas sin paleta fija */}
+              {!esCumpleElegante && (
+                <button
+                  type="button"
+                  title="Predeterminado"
+                  onClick={() => setField('colorPrimario', '')}
+                  className="relative w-8 h-8 rounded-full border-2 transition-all duration-150 hover:scale-110 bg-white overflow-hidden"
+                  style={{
+                    borderColor: state.colorPrimario === '' ? '#9ca3af' : 'transparent',
+                    boxShadow: state.colorPrimario === '' ? '0 0 0 2px white, 0 0 0 4px #9ca3af' : 'none',
+                  }}
+                >
+                  <span className="absolute inset-0" style={{ background: 'linear-gradient(135deg, transparent calc(50% - 1px), #dc2626 calc(50% - 1px), #dc2626 calc(50% + 1px), transparent calc(50% + 1px))' }} />
+                  {state.colorPrimario === '' && (
+                    <Check className="w-3.5 h-3.5 absolute inset-0 m-auto text-gray-500 drop-shadow" />
+                  )}
+                </button>
               )}
-            </button>
-            {COLORES_PALETA.map(c => (
-              <button
-                key={c.hex}
-                type="button"
-                title={c.label}
-                onClick={() => setField('colorPrimario', c.hex)}
-                className="relative w-8 h-8 rounded-full border-2 transition-all duration-150 hover:scale-110"
-                style={{
-                  backgroundColor: c.hex,
-                  borderColor: state.colorPrimario === c.hex ? c.hex : 'transparent',
-                  boxShadow: state.colorPrimario === c.hex ? `0 0 0 2px white, 0 0 0 4px ${c.hex}` : 'none',
-                }}
-              >
-                {state.colorPrimario === c.hex && (
-                  <Check className="w-3.5 h-3.5 absolute inset-0 m-auto text-white drop-shadow" />
-                )}
-              </button>
-            ))}
+              {paleta.map(c => (
+                <button
+                  key={c.hex}
+                  type="button"
+                  title={c.label}
+                  onClick={() => setField('colorPrimario', c.hex)}
+                  className="relative w-8 h-8 rounded-full border-2 transition-all duration-150 hover:scale-110"
+                  style={{
+                    backgroundColor: c.hex,
+                    borderColor: state.colorPrimario?.toLowerCase() === c.hex.toLowerCase() ? c.hex : 'transparent',
+                    boxShadow: state.colorPrimario?.toLowerCase() === c.hex.toLowerCase() ? `0 0 0 2px white, 0 0 0 4px ${c.hex}` : 'none',
+                  }}
+                >
+                  {state.colorPrimario?.toLowerCase() === c.hex.toLowerCase() && (
+                    <Check className="w-3.5 h-3.5 absolute inset-0 m-auto drop-shadow" style={{ color: esCumpleElegante ? '#555' : 'white' }} />
+                  )}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-[.78rem] text-[#6b7280]">
+              {state.colorPrimario === '' ? 'Predeterminado (según plantilla)' : etiqueta}
+            </p>
           </div>
-          <p className="mt-2 text-[.78rem] text-[#6b7280]">
-            {state.colorPrimario === '' ? 'Predeterminado (según plantilla)' : COLORES_PALETA.find(c => c.hex === state.colorPrimario)?.label ?? state.colorPrimario}
-          </p>
-        </div>
-        )}
+        )})()
+        }
         <div>
           <Label text="Contraseña lista asistentes" />
           <input type="text" maxLength={255} placeholder="Opcional — para que el anfitrión vea confirmaciones"

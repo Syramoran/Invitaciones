@@ -58,6 +58,15 @@ export interface CamposEspecificosQuince {
   tematica?: string
 }
 
+export interface CamposEspecificosCumple {
+  nombre?: string
+  edad?: string
+  tipo?: string
+  actividades?: string
+  dressCode?: string
+  notas?: string
+}
+
 export interface InvitacionPublica {
   id: string
   titulo: string
