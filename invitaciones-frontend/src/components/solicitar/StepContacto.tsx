@@ -19,7 +19,7 @@ const FIELD_ERRORS: Record<keyof FormState, string> = {
   email: 'Ingresá un email válido',
 }
 
-const BASE_CLS = 'w-full px-4 py-3.5 rounded-xl border text-sm bg-white outline-none transition-all'
+const BASE_CLS = 'w-full px-4 py-3.5 rounded-xl border text-sm bg-white dark:bg-charcoal dark:text-cream outline-none transition-all'
 
 interface Props {
   form: FormState
@@ -70,16 +70,16 @@ export function StepContacto({
 
   return (
     <>
-      <h2 className="font-display text-4xl font-semibold text-center mb-2">Últimos datos para confirmar</h2>
+      <h2 className="font-display text-4xl font-semibold text-center mb-2 dark:text-cream">Últimos datos para confirmar</h2>
       <p className="text-warm-gray text-center font-light mb-12">Completá el formulario y enviá tu solicitud</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10 items-start max-w-4xl mx-auto">
         {/* Form */}
         <div>
-          <h4 className="font-display text-xl font-semibold mb-6">Tus datos de contacto</h4>
+          <h4 className="font-display text-xl font-semibold mb-6 dark:text-cream">Tus datos de contacto</h4>
 
           <div className="mb-5">
-            <label className="block text-sm font-medium mb-1.5">Nombre completo <span className="text-[#c0392b]">*</span></label>
+            <label className="block text-sm font-medium mb-1.5 dark:text-cream">Nombre completo <span className="text-[#c0392b]">*</span></label>
             <input
               type="text" maxLength={200} placeholder="Ej: María García"
               value={form.name}
@@ -91,7 +91,7 @@ export function StepContacto({
           </div>
 
           <div className="mb-5">
-            <label className="block text-sm font-medium mb-1.5">Teléfono <span className="text-[#c0392b]">*</span></label>
+            <label className="block text-sm font-medium mb-1.5 dark:text-cream">Teléfono <span className="text-[#c0392b]">*</span></label>
             <input
               type="tel" maxLength={30} placeholder="Ej: +54 11 1234-5678"
               value={form.phone}
@@ -103,7 +103,7 @@ export function StepContacto({
           </div>
 
           <div className="mb-5">
-            <label className="block text-sm font-medium mb-1.5">Email <span className="text-[#c0392b]">*</span></label>
+            <label className="block text-sm font-medium mb-1.5 dark:text-cream">Email <span className="text-[#c0392b]">*</span></label>
             <input
               type="email" maxLength={255} placeholder="Ej: maria@email.com"
               value={form.email}
@@ -116,8 +116,8 @@ export function StepContacto({
         </div>
 
         {/* Order summary */}
-        <div className="bg-white rounded-2xl border border-black/[0.06] p-7">
-          <h4 className="font-display text-xl font-semibold mb-5">Resumen del pedido</h4>
+        <div className="bg-white dark:bg-charcoal rounded-2xl border border-black/[0.06] dark:border-white/5 p-7">
+          <h4 className="font-display text-xl font-semibold mb-5 dark:text-cream">Resumen del pedido</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between"><span className="text-warm-gray font-light">Invitación base</span><span className="font-medium">{fmtPrice(basePrice)}</span></div>
             {addonsData.map(a => !a.incluidoEnBase && addons[a.id] ? (
@@ -125,13 +125,13 @@ export function StepContacto({
             ) : null)}
             {secondVersion && <div className="flex justify-between"><span className="text-warm-gray font-light">2da versión (50%)</span><span>+{fmtPrice(secondCost)}</span></div>}
           </div>
-          {subtotal !== basePrice && <div className="h-px bg-ivory my-3" />}
-          <div className="h-px bg-ivory my-4" />
+          {subtotal !== basePrice && <div className="h-px bg-ivory dark:bg-white/10 my-3" />}
+          <div className="h-px bg-ivory dark:bg-white/10 my-4" />
           <div className="flex justify-between items-center mb-4">
             <span className="font-display text-lg font-semibold">Total</span>
             <span className="font-display text-3xl font-bold">{fmtPrice(total)}</span>
           </div>
-          <div className="border-t border-ivory pt-4 space-y-1 text-sm">
+          <div className="border-t border-ivory dark:border-white/10 pt-4 space-y-1 text-sm">
             <div><span className="text-warm-gray font-light">Evento: </span>{EVENT_LABELS[eventType]}</div>
             <div><span className="text-warm-gray font-light">Template: </span>{templateName || '-'}</div>
           </div>
@@ -162,7 +162,7 @@ export function StepContacto({
               )}
             </div>
           </div>
-          <span className="text-sm font-light text-charcoal-soft leading-relaxed">
+          <span className="text-sm font-light text-charcoal-soft dark:text-cream/90 leading-relaxed">
             Leí y acepto los{' '}
             <Link to="/terminos" target="_blank" className="text-gold hover:underline font-medium">
               Términos de Servicio

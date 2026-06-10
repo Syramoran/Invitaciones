@@ -158,7 +158,7 @@ function SingleLocationCard({ invitacion }: { invitacion: InvitacionPublica }) {
         className="mt-2 text-base font-light text-white/80 tracking-wider"
         style={{ fontFamily: FONT_BODY }}
       >
-        {invitacion.horaEvento} hs · {invitacion.ubicacion}
+        {invitacion.horaEvento.slice(0, 5)} hs · {invitacion.ubicacion}
       </p>
       {invitacion.direccion && (
         <p

@@ -21,105 +21,21 @@ const tabs: { id: TabType; label: string }[] = [
   { id: 'cumple', label: 'Cumpleaños' },
 ]
 
-// Small decorative thumbnails per template
-const Thumb = {
-  BodaClasica: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-[3px] px-2" style={{ background: '#faf7f2' }}>
-      <div style={{ height: 1, width: 28, background: '#BD9848', opacity: 0.7, borderRadius: 1 }} />
-      <div style={{ height: 7, width: 38, borderRadius: 2, background: 'rgba(189,152,72,0.15)' }} />
-      <div style={{ height: 1, width: 22, background: '#BD9848', opacity: 0.4, borderRadius: 1 }} />
-      <div style={{ height: 18, width: 34, borderRadius: 2, marginTop: 2, background: 'rgba(189,152,72,0.1)' }} />
-    </div>
-  ),
-  BodaModerna: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-[4px] px-2" style={{ background: '#111' }}>
-      <div style={{ height: 1, width: 36, background: 'rgba(255,255,255,0.7)', borderRadius: 1 }} />
-      <div style={{ height: 6, width: 28, borderRadius: 1, background: 'rgba(255,255,255,0.08)' }} />
-      <div style={{ height: 1, width: 22, background: 'rgba(255,255,255,0.3)', borderRadius: 1 }} />
-      <div style={{ height: 14, width: 32, borderRadius: 2, marginTop: 2, background: 'rgba(255,255,255,0.05)' }} />
-    </div>
-  ),
-  BodaRustica: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-[4px] px-2" style={{ background: '#f3ede3' }}>
-      <div style={{ height: 1, width: 20, background: '#8B5E3C', opacity: 0.6, borderRadius: 1 }} />
-      <div style={{ height: 7, width: 36, borderRadius: 2, background: 'rgba(139,94,60,0.15)' }} />
-      <div style={{ height: 1, width: 28, background: '#8B5E3C', opacity: 0.35, borderRadius: 1 }} />
-      <div style={{ height: 16, width: 30, borderRadius: 2, marginTop: 2, background: 'rgba(139,94,60,0.08)' }} />
-    </div>
-  ),
-  QuincePrincesa: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-[3px] px-2" style={{ background: '#fdf6fa' }}>
-      <div style={{ height: 1, width: 18, background: '#9B4B6D', opacity: 0.7, borderRadius: 1 }} />
-      <div style={{ height: 8, width: 30, borderRadius: '50%', background: 'rgba(155,75,109,0.12)', marginBottom: 1 }} />
-      <div style={{ height: 6, width: 36, borderRadius: 2, background: 'rgba(155,75,109,0.1)' }} />
-      <div style={{ height: 1, width: 24, background: '#9B4B6D', opacity: 0.35, borderRadius: 1 }} />
-    </div>
-  ),
-  QuinceElegante: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-[4px] px-2" style={{ background: '#fdf7f0' }}>
-      <div style={{ height: 1, width: 32, background: '#c4a882', opacity: 0.7, borderRadius: 1 }} />
-      <div style={{ height: 7, width: 26, borderRadius: 2, background: 'rgba(196,168,130,0.18)' }} />
-      <div style={{ height: 1, width: 20, background: '#c4a882', opacity: 0.4, borderRadius: 1 }} />
-      <div style={{ height: 15, width: 28, borderRadius: 2, marginTop: 2, background: 'rgba(196,168,130,0.1)' }} />
-    </div>
-  ),
-  QuinceModerna: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-[4px] px-2" style={{ background: '#120c1a' }}>
-      <div style={{ height: 9, width: 18, borderRadius: 1, background: 'rgba(233,30,140,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontSize: 5, fontWeight: 900, color: '#fff', lineHeight: 1 }}>XV</span>
-      </div>
-      <div style={{ height: 5, width: 30, borderRadius: 1, background: 'rgba(233,30,140,0.15)' }} />
-      <div style={{ height: 1, width: 24, background: '#E91E8C', opacity: 0.5, borderRadius: 1 }} />
-      <div style={{ height: 12, width: 28, borderRadius: 2, marginTop: 2, background: 'rgba(233,30,140,0.08)' }} />
-    </div>
-  ),
-  CumpleElegante: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-[4px] px-2" style={{ background: '#080808' }}>
-      <div style={{ height: 1, width: 30, background: 'rgba(255,255,255,0.5)', borderRadius: 1 }} />
-      <div style={{ height: 10, width: 16, borderRadius: 1, color: 'rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontSize: 8, fontWeight: 200, lineHeight: 1, color: 'rgba(255,255,255,0.6)' }}>30</span>
-      </div>
-      <div style={{ height: 1, width: 20, background: 'rgba(255,255,255,0.2)', borderRadius: 1 }} />
-      <div style={{ height: 12, width: 32, borderRadius: 2, background: 'rgba(255,255,255,0.04)' }} />
-    </div>
-  ),
-  CumpleFestivo: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-[4px] px-2" style={{ background: '#fffbf0' }}>
-      <div style={{ height: 6, width: 6, borderRadius: '50%', background: 'linear-gradient(135deg,#FF4081,#FF6D00)' }} />
-      <div style={{ height: 6, width: 30, borderRadius: 2, background: 'rgba(255,64,129,0.15)' }} />
-      <div style={{ height: 1, width: 22, background: '#FF4081', opacity: 0.4, borderRadius: 1 }} />
-      <div style={{ height: 14, width: 32, borderRadius: 2, background: 'rgba(255,64,129,0.07)' }} />
-    </div>
-  ),
-  CumpleInfantil: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-[4px] px-2" style={{ background: '#e0f4ff' }}>
-      <div style={{ display: 'flex', gap: 3, marginBottom: 2 }}>
-        {[6, 8, 6].map((s, i) => (
-          <div key={i} style={{ width: s, height: s * 0.6, borderRadius: 99, background: 'rgba(255,255,255,0.8)' }} />
-        ))}
-      </div>
-      <div style={{ height: 7, width: 26, borderRadius: 2, background: 'rgba(2,136,209,0.2)' }} />
-      <div style={{ height: 1, width: 20, background: '#0288d1', opacity: 0.5, borderRadius: 1 }} />
-      <div style={{ height: 12, width: 30, borderRadius: 2, background: 'rgba(2,136,209,0.1)' }} />
-    </div>
-  ),
-}
-
 const TEMPLATES_BY_EVENT: Record<TabType, TemplateOption[]> = {
   boda: [
-    { slug: 'boda-clasica',  label: 'Clásica',  description: 'Romántica y atemporal', bg: '#faf7f2', accent: '#BD9848', thumbnail: <Thumb.BodaClasica /> },
-    { slug: 'boda-moderna',  label: 'Moderna',  description: 'Minimalista y elegante', bg: '#111',    accent: '#c8a97e', thumbnail: <Thumb.BodaModerna /> },
-    { slug: 'boda-rustica',  label: 'Rústica',  description: 'Natural y cálida',       bg: '#f3ede3', accent: '#8B5E3C', thumbnail: <Thumb.BodaRustica /> },
+    { slug: 'boda-clasica',  label: 'Clásica',  description: 'Romántica y atemporal', bg: '#faf7f2', accent: '#BD9848', thumbnail: <img src="/fotos-stock/boda-clasica/preview.png" alt="Clásica" className="w-full h-full object-cover" /> },
+    { slug: 'boda-moderna',  label: 'Moderna',  description: 'Minimalista y elegante', bg: '#111',    accent: '#c8a97e', thumbnail: <img src="/fotos-stock/boda-moderna/preview.png" alt="Moderna" className="w-full h-full object-cover" /> },
+    { slug: 'boda-rustica',  label: 'Rústica',  description: 'Natural y cálida',       bg: '#f3ede3', accent: '#8B5E3C', thumbnail: <img src="/fotos-stock/boda-rustica/preview.png" alt="Rústica" className="w-full h-full object-cover" /> },
   ],
   quince: [
-    { slug: 'quince-princesa',  label: 'Princesa', description: 'Romántica y femenina', bg: '#fdf6fa', accent: '#9B4B6D', thumbnail: <Thumb.QuincePrincesa /> },
-    { slug: 'quince-elegante',  label: 'Elegante', description: 'Clásica y refinada',   bg: '#fdf7f0', accent: '#c4a882', thumbnail: <Thumb.QuinceElegante /> },
-    { slug: 'quince-moderna',   label: 'Moderna',  description: 'Vibrante y joven',     bg: '#120c1a', accent: '#E91E8C', thumbnail: <Thumb.QuinceModerna /> },
+    { slug: 'quince-princesa',  label: 'Princesa', description: 'Romántica y femenina', bg: '#fdf6fa', accent: '#9B4B6D', thumbnail: <img src="/fotos-stock/quince-princesa/preview.png" alt="Princesa" className="w-full h-full object-cover" /> },
+    { slug: 'quince-elegante',  label: 'Elegante', description: 'Clásica y refinada',   bg: '#fdf7f0', accent: '#c4a882', thumbnail: <img src="/fotos-stock/quince-elegante/preview.png" alt="Elegante" className="w-full h-full object-cover" /> },
+    { slug: 'quince-moderna',   label: 'Moderna',  description: 'Vibrante y joven',     bg: '#120c1a', accent: '#E91E8C', thumbnail: <img src="/fotos-stock/quince-moderna/preview.png" alt="Moderna" className="w-full h-full object-cover" /> },
   ],
   cumple: [
-    { slug: 'cumple-elegante', label: 'Elegante', description: 'Sofisticada',         bg: '#080808', accent: '#ffffff', thumbnail: <Thumb.CumpleElegante /> },
-    { slug: 'cumple-festivo',  label: 'Festivo',  description: 'Colorida y divertida', bg: '#fffbf0', accent: '#FF4081', thumbnail: <Thumb.CumpleFestivo /> },
-    { slug: 'cumple-infantil', label: 'Infantil', description: 'Alegre y juguetona',  bg: '#e0f4ff', accent: '#0288d1', thumbnail: <Thumb.CumpleInfantil /> },
+    { slug: 'cumple-elegante', label: 'Elegante', description: 'Sofisticada',         bg: '#080808', accent: '#ffffff', thumbnail: <img src="/fotos-stock/cumple-elegante/preview.png" alt="Elegante" className="w-full h-full object-cover" /> },
+    { slug: 'cumple-festivo',  label: 'Festivo',  description: 'Colorida y divertida', bg: '#fffbf0', accent: '#FF4081', thumbnail: <img src="/fotos-stock/cumple-festivo/preview.png" alt="Festivo" className="w-full h-full object-cover" /> },
+    { slug: 'cumple-infantil', label: 'Infantil', description: 'Alegre y juguetona',  bg: '#e0f4ff', accent: '#0288d1', thumbnail: <img src="/fotos-stock/cumple-infantil/preview.png" alt="Infantil" className="w-full h-full object-cover" /> },
   ],
 }
 
@@ -155,7 +71,7 @@ export function Showcase() {
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             Vista previa
           </span>
-          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal mb-4">
+          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal dark:text-cream mb-4">
             Mirá como se ve
           </h2>
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
@@ -171,8 +87,8 @@ export function Showcase() {
               onClick={() => handleTabChange(tab.id)}
               className={`px-6 py-2.5 rounded-full border-[1.5px] text-sm font-normal transition-all ${
                 activeTab === tab.id
-                  ? 'bg-charcoal text-champagne-light border-charcoal'
-                  : 'bg-transparent text-charcoal-soft border-champagne-dark hover:bg-charcoal hover:text-champagne-light hover:border-charcoal'
+                  ? 'bg-charcoal text-champagne-light border-charcoal dark:bg-champagne-light dark:text-charcoal dark:border-champagne-light'
+                  : 'bg-transparent text-charcoal-soft dark:text-warm-gray border-champagne-dark dark:border-warm-gray hover:bg-charcoal hover:text-champagne-light hover:border-charcoal dark:hover:bg-champagne-light dark:hover:text-charcoal dark:hover:border-champagne-light'
               }`}
             >
               {tab.label}
@@ -196,8 +112,8 @@ export function Showcase() {
                   onClick={() => setActiveSlug(t.slug)}
                   className={`group flex flex-col items-center lg:flex-row lg:items-center gap-2 lg:gap-3 transition-all rounded-xl p-1.5 lg:p-2 ${
                     isActive
-                      ? 'bg-champagne/30 ring-1 ring-champagne-dark'
-                      : 'hover:bg-black/[0.04]'
+                      ? 'bg-champagne/30 ring-1 ring-champagne-dark dark:ring-champagne'
+                      : 'hover:bg-black/[0.04] dark:hover:bg-white/[0.04]'
                   }`}
                 >
                   {/* Thumbnail */}
@@ -210,7 +126,7 @@ export function Showcase() {
                   </div>
                   {/* Label — hidden on mobile, shown on desktop */}
                   <div className="hidden lg:flex flex-col text-left">
-                    <span className={`text-xs font-medium leading-tight ${isActive ? 'text-charcoal' : 'text-charcoal-soft'}`}>
+                    <span className={`text-xs font-medium leading-tight ${isActive ? 'text-charcoal dark:text-cream' : 'text-charcoal-soft dark:text-warm-gray'}`}>
                       {t.label}
                     </span>
                     <span className="text-[0.65rem] text-warm-gray font-light leading-tight">
@@ -218,7 +134,7 @@ export function Showcase() {
                     </span>
                   </div>
                   {/* Label — visible only on mobile, below thumbnail */}
-                  <span className={`lg:hidden text-[0.65rem] font-medium ${isActive ? 'text-charcoal' : 'text-warm-gray'}`}>
+                  <span className={`lg:hidden text-[0.65rem] font-medium ${isActive ? 'text-charcoal dark:text-cream' : 'text-warm-gray'}`}>
                     {t.label}
                   </span>
                 </button>
@@ -240,10 +156,10 @@ export function Showcase() {
         </div>
 
         {/* Custom design CTA */}
-        <div className="mt-14 mx-auto max-w-xl rounded-2xl border border-champagne-dark bg-champagne/20 px-8 py-7 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+        <div className="mt-14 mx-auto max-w-xl rounded-2xl border border-champagne-dark dark:border-white/10 bg-champagne/20 dark:bg-charcoal-soft/50 px-8 py-7 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
           <div className="text-4xl select-none">✨</div>
           <div className="flex-1">
-            <p className="text-base font-semibold text-charcoal leading-snug mb-1">
+            <p className="text-base font-semibold text-charcoal dark:text-cream leading-snug mb-1">
               ¿No encontrás el diseño ideal?
             </p>
             <p className="text-sm text-warm-gray font-light leading-relaxed">

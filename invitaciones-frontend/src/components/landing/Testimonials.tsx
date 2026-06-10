@@ -38,7 +38,7 @@ export function Testimonials() {
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             Testimonios
           </span>
-          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal mb-4">
+          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal dark:text-cream mb-4">
             Lo que dicen nuestros clientes
           </h2>
         </motion.div>
@@ -51,9 +51,9 @@ export function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white rounded-3xl p-9 px-8 border border-charcoal/5 transition-all hover:shadow-md hover:-translate-y-1 flex flex-col"
+              className="bg-white dark:bg-charcoal rounded-3xl p-9 px-8 border border-charcoal/5 dark:border-white/5 transition-all hover:shadow-md dark:hover:shadow-white/5 hover:-translate-y-1 flex flex-col"
             >
-              <p className="text-sm text-charcoal-soft font-light leading-relaxed mb-5 italic relative pl-4 flex-1">
+              <p className="text-sm text-charcoal-soft dark:text-cream/90 font-light leading-relaxed mb-5 italic relative pl-4 flex-1">
                 <span className="absolute -left-1 -top-4 font-display text-5xl text-gold-light leading-none">
                   {'"'}
                 </span>
@@ -65,7 +65,7 @@ export function Testimonials() {
                     <Star key={i} className="w-4 h-4 fill-gold" />
                   ))}
                 </div>
-                <div className="text-sm font-medium text-charcoal">{testimonial.author}</div>
+                <div className="text-sm font-medium text-charcoal dark:text-cream">{testimonial.author}</div>
                 <div className="text-xs text-warm-gray font-light mt-0.5">{testimonial.event}</div>
               </div>
             </motion.div>

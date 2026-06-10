@@ -32,7 +32,7 @@ const events = [
 
 export function Events() {
   return (
-    <section id="eventos" className="py-16 relative bg-ivory">
+    <section id="eventos" className="py-16 relative bg-ivory dark:bg-charcoal">
       <div className="max-w-[1200px] mx-auto px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -45,7 +45,7 @@ export function Events() {
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             Tipos de evento
           </span>
-          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal mb-4">
+          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal dark:text-cream mb-4">
             ¿Qué estás celebrando?
           </h2>
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
@@ -61,17 +61,17 @@ export function Events() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white rounded-3xl overflow-hidden border border-charcoal/5 transition-all hover:-translate-y-1.5 hover:shadow-lg cursor-pointer"
+              className="bg-white dark:bg-charcoal-soft rounded-3xl overflow-hidden border border-charcoal/5 dark:border-white/5 transition-all hover:-translate-y-1.5 hover:shadow-lg dark:hover:shadow-white/5 cursor-pointer"
             >
               <div className="h-[200px] overflow-hidden">
                 <img src={event.image} alt={event.imageAlt} className="w-full h-full object-cover" />
               </div>
               <div className="p-7">
-                <h3 className="font-display text-2xl font-semibold mb-2">{event.title}</h3>
+                <h3 className="font-display text-2xl font-semibold mb-2 dark:text-cream">{event.title}</h3>
                 <p className="text-sm text-warm-gray font-light mb-4">{event.description}</p>
                 <Link
                   to={event.link}
-                  className="inline-flex items-center gap-2 text-rose-deep font-medium hover:text-charcoal transition-colors"
+                  className="inline-flex items-center gap-2 text-rose-deep font-medium hover:text-charcoal dark:hover:text-cream transition-colors"
                 >
                   Ver diseños
                   <ArrowRight className="w-4 h-4" />

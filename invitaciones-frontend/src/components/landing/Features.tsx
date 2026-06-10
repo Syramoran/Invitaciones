@@ -46,7 +46,7 @@ export function Features() {
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             ¿Por qué elegirnos?
           </span>
-          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal mb-4">
+          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal dark:text-cream mb-4">
             Rápido, única y hermosa
           </h2>
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
@@ -62,14 +62,14 @@ export function Features() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="text-center p-10 px-6 rounded-2xl bg-white border border-charcoal/5 transition-all hover:-translate-y-1 hover:shadow-md"
+              className="text-center p-10 px-6 rounded-2xl bg-white dark:bg-charcoal border border-charcoal/5 dark:border-white/5 transition-all hover:-translate-y-1 hover:shadow-md dark:shadow-white/5"
             >
               <div
                 className={`w-14 h-14 mx-auto mb-5 rounded-2xl flex items-center justify-center ${feature.bgColor}`}
               >
                 <feature.icon className="w-6 h-6 text-charcoal-soft" />
               </div>
-              <h3 className="font-display text-xl font-semibold mb-2">{feature.title}</h3>
+              <h3 className="font-display text-xl font-semibold mb-2 dark:text-cream">{feature.title}</h3>
               <p className="text-sm text-warm-gray font-light leading-relaxed">
                 {feature.description}
               </p>

@@ -17,15 +17,15 @@ const EVENTS = [
 export function StepEvento({ eventType, setEventType, onNext }: Props) {
   return (
     <>
-      <h2 className="font-display text-4xl font-semibold text-center pb-4 mb-4">¿Qué estás celebrando?</h2>
+      <h2 className="font-display text-4xl font-semibold text-center pb-4 mb-4 dark:text-cream">¿Qué estás celebrando?</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
         {EVENTS.map(e => (
           <button
             key={e.type}
             onClick={() => setEventType(e.type)}
-            className={`relative bg-white rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
-              eventType === e.type ? 'border-2 border-gold shadow-[0_0_0_4px_rgba(197,165,114,0.15)]' : 'border-2 border-transparent shadow-md'
+            className={`relative bg-white dark:bg-charcoal rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-white/5 ${
+              eventType === e.type ? 'border-2 border-gold shadow-[0_0_0_4px_rgba(197,165,114,0.15)] dark:shadow-[0_0_0_4px_rgba(197,165,114,0.3)]' : 'border-2 border-transparent dark:border-white/5 shadow-md dark:shadow-none'
             }`}
           >
             {eventType === e.type && (
@@ -36,7 +36,7 @@ export function StepEvento({ eventType, setEventType, onNext }: Props) {
             <div className={`w-20 h-20 rounded-full flex items-center justify-center text-4xl mx-auto mb-5 ${e.bg}`}>
               {e.emoji}
             </div>
-            <h3 className="font-display text-2xl font-semibold mb-2">{e.title}</h3>
+            <h3 className="font-display text-2xl font-semibold mb-2 dark:text-cream">{e.title}</h3>
             <p className="text-sm text-warm-gray font-light leading-relaxed">{e.desc}</p>
           </button>
         ))}

@@ -38,7 +38,7 @@ export function StepDiseno({
 
   return (
     <>
-      <h2 className="font-display text-4xl font-semibold text-center mb-4 pb-4">Elegí el diseño que más te guste</h2>
+      <h2 className="font-display text-4xl font-semibold text-center mb-4 pb-4 dark:text-cream">Elegí el diseño que más te guste</h2>
 
       {/* Grid de templates */}
       {templatesLoading ? (
@@ -62,10 +62,10 @@ export function StepDiseno({
                 }
                 setTemplateId(t.id)
               }}
-              className={`relative bg-white rounded-2xl overflow-hidden text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+              className={`relative bg-white dark:bg-charcoal rounded-2xl overflow-hidden text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-white/5 ${
                 templateId === t.id
-                  ? 'border-2 border-gold shadow-[0_0_0_4px_rgba(197,165,114,0.15)]'
-                  : 'border-2 border-transparent shadow-md'
+                  ? 'border-2 border-gold shadow-[0_0_0_4px_rgba(197,165,114,0.15)] dark:shadow-[0_0_0_4px_rgba(197,165,114,0.3)]'
+                  : 'border-2 border-transparent shadow-md dark:shadow-none dark:border-white/5'
               }`}
             >
               {templateId === t.id && (
@@ -119,7 +119,7 @@ export function StepDiseno({
               </div>
 
               <div className="p-5">
-                <h4 className="font-display text-lg font-semibold">{t.nombre}</h4>
+                <h4 className="font-display text-lg font-semibold dark:text-cream">{t.nombre}</h4>
                 {t.descripcion && (
                   <p className="text-sm text-warm-gray mt-1 font-light">{t.descripcion}</p>
                 )}
@@ -131,8 +131,8 @@ export function StepDiseno({
 
       {/* Color selector */}
       {templateId && (
-        <div className="max-w-3xl mx-auto bg-white rounded-2xl p-6 shadow-sm border border-black/[0.06] mb-2 animate-step-in">
-          <h4 className="font-display text-lg font-semibold mb-1">Color favorito</h4>
+        <div className="max-w-3xl mx-auto bg-white dark:bg-charcoal rounded-2xl p-6 shadow-sm border border-black/[0.06] dark:border-white/5 mb-2 animate-step-in">
+          <h4 className="font-display text-lg font-semibold mb-1 dark:text-cream">Color favorito</h4>
           <p className="text-sm text-warm-gray font-light mb-5">Elegí el color que preferirías para tu invitación, o dejá el predeterminado de la plantilla</p>
           <div className="flex flex-wrap items-center gap-3">
             {/* Swatch predeterminado */}

@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 @import 'leaflet/dist/leaflet.css';
 
-@custom-variant dark (&:is(.dark *));
+@variant dark (&:where(.dark, .dark *));
 
 /* ─────────────────────────────────────────────
    CUSTOM PROPERTIES — Brand Design System

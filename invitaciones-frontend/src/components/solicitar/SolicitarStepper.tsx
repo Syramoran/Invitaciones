@@ -8,7 +8,7 @@ interface Props {
 
 export function SolicitarStepper({ step, goToStep }: Props) {
   return (
-    <div className="bg-white border-b border-black/[0.05] py-5 sticky top-[57px] z-40">
+    <div className="bg-white dark:bg-charcoal border-b border-black/[0.05] dark:border-white/5 py-5 sticky top-[57px] z-40 transition-colors duration-300">
       <div className="max-w-3xl mx-auto px-6">
         <div className="flex items-center justify-between relative">
           <div className="absolute top-[18px] left-[18px] right-[18px] h-[2px] bg-champagne-dark" />
@@ -30,12 +30,12 @@ export function SolicitarStepper({ step, goToStep }: Props) {
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-all duration-300 ${
                   isDone   ? 'bg-[#6a9e6a] border-[#6a9e6a] text-white' :
                   isActive ? 'bg-gold border-gold text-white' :
-                             'bg-white border-champagne-dark text-warm-gray-light'
+                               'bg-white dark:bg-charcoal border-champagne-dark dark:border-warm-gray text-warm-gray-light dark:text-warm-gray'
                 }`}>
                   {isDone ? <Check className="w-4 h-4" /> : n}
                 </div>
                 <span className={`text-[0.65rem] hidden sm:block transition-colors ${
-                  isActive ? 'text-charcoal font-medium' : isDone ? 'text-[#6a9e6a]' : 'text-warm-gray-light'
+                  isActive ? 'text-charcoal dark:text-cream font-medium' : isDone ? 'text-[#6a9e6a]' : 'text-warm-gray-light dark:text-warm-gray'
                 }`}>{label}</span>
               </button>
             )

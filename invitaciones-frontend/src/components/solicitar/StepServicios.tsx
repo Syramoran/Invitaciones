@@ -20,19 +20,19 @@ export function StepServicios({ addons, toggleAddon, secondVersion, setSecondVer
 
   return (
     <>
-      <h2 className="font-display text-4xl font-semibold text-center mb-2">Personalizá tu invitación</h2>
+      <h2 className="font-display text-4xl font-semibold text-center mb-2 dark:text-cream">Personalizá tu invitación</h2>
       <p className="text-warm-gray text-center font-light mb-12">Agregá o quitá servicios según lo que necesites</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
         {/* Left */}
         <div>
-          <h4 className="font-display text-lg font-semibold mb-4">Servicios</h4>
+          <h4 className="font-display text-lg font-semibold mb-4 dark:text-cream">Servicios</h4>
           <div className="space-y-3">
             {addonsData.map(a => {
               const isBase = a.incluidoEnBase
               const active = isBase || !!addons[a.id]
               return (
-                <div key={a.id} className={`flex items-center gap-4 bg-white rounded-2xl p-5 border transition-all ${active ? 'border-gold bg-[rgba(197,165,114,0.04)]' : 'border-black/[0.06] hover:border-champagne-dark'}`}>
+                <div key={a.id} className={`flex items-center gap-4 bg-white dark:bg-charcoal rounded-2xl p-5 border transition-all ${active ? 'border-gold bg-[rgba(197,165,114,0.04)] dark:bg-[rgba(197,165,114,0.1)]' : 'border-black/[0.06] dark:border-white/5 hover:border-champagne-dark dark:hover:border-warm-gray'}`}>
                   <button
                     role="switch" aria-checked={active}
                     onClick={() => { if (!isBase) toggleAddon(a.id) }}
@@ -56,7 +56,7 @@ export function StepServicios({ addons, toggleAddon, secondVersion, setSecondVer
             })}
 
             {/* 2da versión */}
-            <div className={`flex items-center gap-4 bg-champagne-light rounded-2xl p-5 border-[1.5px] border-dashed transition-all ${secondVersion ? 'border-gold' : 'border-gold-light'}`}>
+            <div className={`flex items-center gap-4 bg-champagne-light dark:bg-charcoal rounded-2xl p-5 border-[1.5px] border-dashed transition-all ${secondVersion ? 'border-gold' : 'border-gold-light dark:border-warm-gray'}`}>
               <button
                 role="switch" aria-checked={secondVersion}
                 onClick={() => setSecondVersion(v => !v)}
@@ -75,8 +75,8 @@ export function StepServicios({ addons, toggleAddon, secondVersion, setSecondVer
 
         {/* Right: price panel desktop */}
         <div className="hidden lg:block">
-          <div className="sticky top-[140px] bg-white rounded-2xl border border-black/[0.06] p-7">
-            <h4 className="font-display text-xl font-semibold mb-5 pb-4 border-b border-ivory">Tu presupuesto</h4>
+          <div className="sticky top-[140px] bg-white dark:bg-charcoal rounded-2xl border border-black/[0.06] dark:border-white/5 p-7">
+            <h4 className="font-display text-xl font-semibold mb-5 pb-4 border-b border-ivory dark:border-white/10 dark:text-cream">Tu presupuesto</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-warm-gray font-light">Invitación base</span><span className="font-medium">{fmtPrice(basePrice)}</span></div>
               {addonsData.filter(a => !a.incluidoEnBase && addons[a.id]).map(a => (
@@ -85,14 +85,14 @@ export function StepServicios({ addons, toggleAddon, secondVersion, setSecondVer
             </div>
             {(addonsTotal > 0 || secondVersion) && (
               <>
-                <div className="h-px bg-ivory my-3" />
+                <div className="h-px bg-ivory dark:bg-white/10 my-3" />
                 <div className="flex justify-between text-sm"><span className="text-warm-gray font-light">Subtotal</span><span className="font-medium">{fmtPrice(subtotal)}</span></div>
               </>
             )}
             {secondVersion && (
               <div className="flex justify-between text-sm mt-2"><span className="text-warm-gray font-light">2da versión (50% desc.)</span><span>+{fmtPrice(secondCost)}</span></div>
             )}
-            <div className="h-px bg-ivory my-4" />
+            <div className="h-px bg-ivory dark:bg-white/10 my-4" />
             <div className="flex justify-between items-center">
               <span className="font-display text-lg font-semibold">Total</span>
               <span className="font-display text-3xl font-bold">{fmtPrice(total)}</span>

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Sun, Moon } from 'lucide-react'
+import { useTheme } from '@/hooks/useTheme'
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,7 +31,7 @@ export function Header() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-cream/85 backdrop-blur-xl shadow-[0_1px_0_rgba(45,41,38,0.06)] py-3'
+            ? 'bg-cream/85 dark:bg-charcoal/85 backdrop-blur-xl shadow-[0_1px_0_rgba(45,41,38,0.06)] dark:shadow-[0_1px_0_rgba(255,255,255,0.06)] py-3'
             : 'py-4'
         }`}
       >
@@ -37,7 +39,7 @@ export function Header() {
           <Link
             to="/"
             className={`font-display text-2xl font-semibold tracking-tight transition-colors duration-300 ${
-              isScrolled ? 'text-charcoal' : 'text-white'
+              isScrolled ? 'text-charcoal dark:text-cream' : 'text-white'
             }`}
           >
             festejá
@@ -50,7 +52,7 @@ export function Header() {
                 onClick={() => scrollToSection(id)}
                 className={`text-sm transition-colors duration-300 relative group ${
                   isScrolled
-                    ? 'text-charcoal-soft hover:text-charcoal'
+                    ? 'text-charcoal-soft hover:text-charcoal dark:text-warm-gray-light dark:hover:text-cream'
                     : 'text-white/80 hover:text-white'
                 }`}
               >
@@ -60,17 +62,28 @@ export function Header() {
             ))}
           </nav>
 
-          <Link
-            to="/crear"
-            className={`hidden md:inline-flex items-center gap-2 text-sm font-medium px-6 py-2.5 rounded-full hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 ${
-              isScrolled
-                ? 'bg-charcoal text-champagne-light hover:bg-charcoal-soft'
-                : 'bg-white/15 border border-white/40 text-white backdrop-blur-sm hover:bg-white/25'
-            }`}
-          >
-            Crea tu invitacion
-            <span className="text-xs">→</span>
-          </Link>
+          <div className="hidden md:flex items-center gap-4">
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className={`p-2 rounded-full transition-colors duration-300 ${
+                isScrolled ? 'text-charcoal hover:bg-black/5 dark:text-cream dark:hover:bg-white/10' : 'text-white hover:bg-white/10'
+              }`}
+              title="Cambiar tema"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <Link
+              to="/crear"
+              className={`inline-flex items-center gap-2 text-sm font-medium px-6 py-2.5 rounded-full hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 ${
+                isScrolled
+                  ? 'bg-charcoal text-champagne-light hover:bg-charcoal-soft dark:bg-champagne-light dark:text-charcoal dark:hover:bg-champagne'
+                  : 'bg-white/15 border border-white/40 text-white backdrop-blur-sm hover:bg-white/25'
+              }`}
+            >
+              Crea tu invitacion
+              <span className="text-xs">→</span>
+            </Link>
+          </div>
 
           <button
             className="md:hidden flex flex-col gap-1.5 p-2"
@@ -84,12 +97,12 @@ export function Header() {
 
       {/* Mobile Navigation */}
       <div
-        className={`fixed inset-0 bg-cream/97 backdrop-blur-xl z-50 flex flex-col items-center justify-center gap-8 transition-opacity duration-400 ${
+        className={`fixed inset-0 bg-cream/97 dark:bg-charcoal/97 backdrop-blur-xl z-50 flex flex-col items-center justify-center gap-8 transition-opacity duration-400 ${
           isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
         <button
-          className="absolute top-6 right-6 text-charcoal"
+          className="absolute top-6 right-6 text-charcoal dark:text-cream"
           onClick={() => setIsMobileMenuOpen(false)}
           aria-label="Cerrar menu"
         >
@@ -98,25 +111,25 @@ export function Header() {
 
         <button
           onClick={() => scrollToSection('eventos')}
-          className="font-display text-3xl font-medium text-charcoal"
+          className="font-display text-3xl font-medium text-charcoal dark:text-cream"
         >
           Eventos
         </button>
         <button
           onClick={() => scrollToSection('features')}
-          className="font-display text-3xl font-medium text-charcoal"
+          className="font-display text-3xl font-medium text-charcoal dark:text-cream"
         >
           Como Funciona
         </button>
         {/* <button
           onClick={() => scrollToSection('precios')}
-          className="font-display text-3xl font-medium text-charcoal"
+          className="font-display text-3xl font-medium text-charcoal dark:text-cream"
         >
           Precios
         </button> */}
         <button
           onClick={() => scrollToSection('contacto')}
-          className="font-display text-3xl font-medium text-charcoal"
+          className="font-display text-3xl font-medium text-charcoal dark:text-cream"
         >
           Contacto
         </button>

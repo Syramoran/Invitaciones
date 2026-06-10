@@ -230,6 +230,7 @@ function ScrollingPreviewWrapper({
           transformOrigin: 'top left',
           transform: `scale(${scale})`,
           background: bgColor,
+          color: '#2d2926',
         }}
       >
         {children}

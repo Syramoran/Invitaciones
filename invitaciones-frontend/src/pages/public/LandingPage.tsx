@@ -12,7 +12,7 @@ import { CookieBanner } from '@/components/landing/CookieBanner'
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-cream text-charcoal font-body">
+    <div className="min-h-screen bg-cream dark:bg-charcoal text-charcoal dark:text-cream font-body transition-colors duration-300">
       <Header />
       <Hero />
       <Events />
