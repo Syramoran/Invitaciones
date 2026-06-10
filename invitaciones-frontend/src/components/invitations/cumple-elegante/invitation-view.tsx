@@ -63,6 +63,20 @@ export function InvitationView({ invitacion, invitadoParam }: InvitationViewProp
             accentColor={accentColor}
           />
         )}
+        
+        {/* Footer */}
+        <footer className="px-7 pb-10 pt-4 text-center text-[10px] text-[#aaa]">
+          <span>Hecho con ♥ · </span>
+          <a
+            href="https://festeja.com.ar"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+            style={{ color: accentColor }}
+          >
+            festeja.com.ar
+          </a>
+        </footer>
       </div>
     </div>
   )

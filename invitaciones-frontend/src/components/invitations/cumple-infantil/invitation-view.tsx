@@ -138,12 +138,12 @@ export function InvitationView({ invitacion, invitadoParam }: InvitationViewProp
         <footer className="px-7 pb-10 pt-6 text-center text-[10px] tracking-[0.1em] text-[#777777]">
           Hecho con ♥ ·{" "}
           <a
-            href="https://invitaciones.app"
+            href="https://festeja.com.ar"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[var(--invitation-primary)] hover:underline"
           >
-            invitaciones.app
+            festeja.com.ar
           </a>
         </footer>
       </div>

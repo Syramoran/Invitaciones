@@ -159,7 +159,7 @@ function ScrollingPreviewWrapper({
       if (lastTime === null) lastTime = now
       const dt = Math.min(now - lastTime, 50)
       lastTime = now
-      
+
       if (!pausedRef.current && now >= s.resumeAutoAt) {
         const maxY = getMaxY()
         s.targetY += SPEED * dt
@@ -171,7 +171,7 @@ function ScrollingPreviewWrapper({
 
       s.y += (s.targetY - s.y) * 0.15
       applyTransform()
-      
+
       animId = requestAnimationFrame(loop)
     }
 
@@ -561,7 +561,7 @@ const MOCK_QUINCE_PRINCESA: InvitacionPublica = {
 const COLOR_CUMPLE_ELEGANTE_BG = '#ede2d4'
 const MOCK_CUMPLE_ELEGANTE: InvitacionPublica = {
   id: 'preview-cumple-elegante',
-  titulo: 'Los 30 de Alejandro',
+  titulo: 'Los 30 de Alejandra',
   fechaEvento: '2026-11-20T00:00:00.000Z',
   horaEvento: '21:30',
   ubicacion: 'Le Bar · Recoleta',
@@ -570,7 +570,7 @@ const MOCK_CUMPLE_ELEGANTE: InvitacionPublica = {
   longitud: -58.3928,
   colorPrimario: COLOR_CUMPLE_ELEGANTE_BG,
   camposEspecificos: {
-    nombre: 'Alejandro',
+    nombre: 'Alejandra',
     edad: '30',
     dressCode: 'All Black',
     notas: 'Los espero para celebrar una noche inolvidable',
@@ -654,7 +654,7 @@ const MOCK_CUMPLE_INFANTIL: InvitacionPublica = {
   colorPrimario: COLOR_CUMPLE_INFANTIL,
   camposEspecificos: {
     nombre: 'Emilio',
-    edad: '6',
+    edad: '3',
     notas: '¡No te olvides de traer medias para los juegos inflables!',
   },
   template: { id: 8, nombre: 'Cumple Infantil', slug: 'cumple-infantil', thumbnailUrl: null },
@@ -664,7 +664,7 @@ const MOCK_CUMPLE_INFANTIL: InvitacionPublica = {
   historias: [
     {
       id: 1,
-      texto: '¡Ya cumplo 6 añitos! Vení a celebrar conmigo una tarde llena de juegos y diversión.',
+      texto: '¡Ya cumplo 3 añitos! Vení a celebrar conmigo una tarde llena de juegos y diversión.',
       imagenUrl: '/fotos-stock/cumple-infantil/story1.jpg',
       orden: 1,
     },
@@ -958,20 +958,20 @@ function CumpleInfantilPreview({ customColor }: { customColor?: string }) {
 // ─── Registry ─────────────────────────────────────────────────────────────────
 
 const PREVIEW_REGISTRY: Record<string, (props: { customColor?: string }) => React.JSX.Element> = {
-  'boda-clasica':    BodaClasicaPreview,
-  'boda-moderna':    BodaModernaPreview,
-  'boda-rustica':    BodaRusticaPreview,
+  'boda-clasica': BodaClasicaPreview,
+  'boda-moderna': BodaModernaPreview,
+  'boda-rustica': BodaRusticaPreview,
   'quince-princesa': QuincePrincesaPreview,
   'quince-elegante': QuinceElegantePreview,
-  'quince-moderna':  QuinceModernaPreview,
+  'quince-moderna': QuinceModernaPreview,
   'cumple-elegante': CumpleElegantePreview,
-  'cumple-festivo':  CumpleFestivoPreview,
+  'cumple-festivo': CumpleFestivoPreview,
   'cumple-infantil': CumpleInfantilPreview,
 }
 
 /** Default preview slug per event type. Useful when only the event type is known. */
 export const SLUG_BY_EVENT_TYPE: Record<'boda' | 'quince' | 'cumple', string> = {
-  boda:   'boda-clasica',
+  boda: 'boda-clasica',
   quince: 'quince-princesa',
   cumple: 'cumple-festivo',
 }
@@ -992,14 +992,56 @@ export interface InvitationPreviewProps {
  * <InvitationPreview slug="boda-clasica" />
  * <InvitationPreview slug={SLUG_BY_EVENT_TYPE[eventType]} />
  */
+const loadedSlugs = new Set<string>()
+
 export function InvitationPreview({ slug, color, interactive = true, paused = false }: InvitationPreviewProps) {
+  const isAlreadyLoaded = loadedSlugs.has(slug)
+  const [loading, setLoading] = useState(!isAlreadyLoaded)
+  const [showOverlay, setShowOverlay] = useState(!isAlreadyLoaded)
+
+  useEffect(() => {
+    if (loadedSlugs.has(slug)) {
+      setLoading(false)
+      setShowOverlay(false)
+      return
+    }
+
+    setLoading(true)
+    setShowOverlay(true)
+
+    const timer1 = setTimeout(() => {
+      setLoading(false)
+      loadedSlugs.add(slug)
+    }, 200)
+
+    const timer2 = setTimeout(() => {
+      setShowOverlay(false)
+    }, 1000)
+
+    return () => {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+    }
+  }, [slug])
+
   const Preview = PREVIEW_REGISTRY[slug] ?? null
   if (!Preview) return null
+
   return (
-    <div className={`w-full h-full ${interactive ? '' : 'pointer-events-none'}`}>
-      <PreviewContext.Provider value={{ paused }}>
-        <Preview customColor={color} />
-      </PreviewContext.Provider>
+    <div className={`w-full h-full relative overflow-hidden bg-[#faf7f2] ${interactive ? '' : 'pointer-events-none'}`}>
+      <div className={`w-full h-full transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`}>
+        <PreviewContext.Provider value={{ paused }}>
+          <Preview customColor={color} />
+        </PreviewContext.Provider>
+      </div>
+
+      {showOverlay && (
+        <div
+          className={`absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#faf7f2] transition-opacity duration-500 ${loading ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-black/10 border-t-black/60" />
+        </div>
+      )}
     </div>
   )
 }

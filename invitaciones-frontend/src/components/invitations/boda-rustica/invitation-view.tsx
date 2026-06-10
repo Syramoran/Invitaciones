@@ -186,12 +186,12 @@ export function InvitationView({ invitacion, invitadoParam }: InvitationViewProp
         >
           <span>Hecho con ♥ · </span>
           <a
-            href="https://festeja.app"
+            href="https://festeja.com.ar"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#555] hover:underline"
           >
-            festeja.app
+            festeja.com.ar
           </a>
         </footer>
       </div>

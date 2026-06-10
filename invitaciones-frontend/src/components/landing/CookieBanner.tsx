@@ -30,7 +30,7 @@ export function CookieBanner() {
   if (accepted || dismissed || !scrolled) return null
 
   return (
-    <div className="fixed bottom-4 left-4 z-50 w-full max-w-sm">
+    <div className="fixed bottom-4 left-4 z-50 w-[calc(100%-2rem)] max-w-sm">
       <div className="bg-charcoal/80 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl px-5 py-4 flex flex-col gap-3">
         <p className="text-warm-gray text-sm leading-relaxed">
           Usamos cookies técnicas estrictamente necesarias para el funcionamiento de la plataforma.{' '}
