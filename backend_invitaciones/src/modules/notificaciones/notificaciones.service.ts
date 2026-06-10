@@ -38,7 +38,8 @@ export class NotificacionesService implements OnModuleInit {
 
   onModuleInit() {
     const host = this.configService.get<string>('SMTP_HOST');
-    const port = this.configService.get<number>('SMTP_PORT', 587);
+    const portRaw = this.configService.get<string | number>('SMTP_PORT', 587);
+    const port = typeof portRaw === 'string' ? parseInt(portRaw, 10) : portRaw;
     const user = this.configService.get<string>('SMTP_USER');
     const pass = this.configService.get<string>('SMTP_PASS');
 

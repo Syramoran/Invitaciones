@@ -108,7 +108,7 @@ function ScrollingPreviewWrapper({
 
   const outerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
-  const stateRef = useRef({ y: 0, resumeAutoAt: 0, lastTouchY: 0 })
+  const stateRef = useRef({ y: 0, targetY: 0, resumeAutoAt: 0, lastTouchY: 0 })
   const scaleRef = useRef(256 / CONTENT_W)
   const [, forceUpdate] = useState(0)
 
@@ -162,18 +162,23 @@ function ScrollingPreviewWrapper({
       
       if (!pausedRef.current && now >= s.resumeAutoAt) {
         const maxY = getMaxY()
-        s.y += SPEED * dt
-        if (s.y > maxY + 200) s.y = 0
-        applyTransform()
+        s.targetY += SPEED * dt
+        if (s.targetY > maxY + 200) {
+          s.targetY = 0
+          s.y = 0
+        }
       }
+
+      s.y += (s.targetY - s.y) * 0.15
+      applyTransform()
+      
       animId = requestAnimationFrame(loop)
     }
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
-      s.y = Math.max(0, Math.min(s.y + e.deltaY / getScale(), getMaxY()))
+      s.targetY = Math.max(0, Math.min(s.targetY + e.deltaY / getScale(), getMaxY()))
       s.resumeAutoAt = performance.now() + PAUSE_MS
-      applyTransform()
     }
 
     const onTouchStart = (e: TouchEvent) => {
@@ -184,9 +189,8 @@ function ScrollingPreviewWrapper({
       e.preventDefault()
       const dy = s.lastTouchY - e.touches[0].clientY
       s.lastTouchY = e.touches[0].clientY
-      s.y = Math.max(0, Math.min(s.y + dy / getScale(), getMaxY()))
+      s.targetY = Math.max(0, Math.min(s.targetY + dy / getScale(), getMaxY()))
       s.resumeAutoAt = performance.now() + PAUSE_MS
-      applyTransform()
     }
 
     const outer = outerRef.current

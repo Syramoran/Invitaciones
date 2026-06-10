@@ -44,7 +44,7 @@ export function Header() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
-            {(['eventos', 'como-funciona', 'contacto'] as const).map((id) => (
+            {(['eventos', 'features', 'contacto'] as const).map((id) => (
               <button
                 key={id}
                 onClick={() => scrollToSection(id)}
@@ -54,7 +54,7 @@ export function Header() {
                     : 'text-white/80 hover:text-white'
                 }`}
               >
-                {id === 'eventos' ? 'Eventos' : id === 'como-funciona' ? '¿Cómo funciona?' : 'Contacto'}
+                {id === 'eventos' ? 'Eventos' : id === 'features' ? '¿Cómo funciona?' : 'Contacto'}
                 <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-gold transition-all group-hover:w-full" />
               </button>
             ))}
@@ -103,7 +103,7 @@ export function Header() {
           Eventos
         </button>
         <button
-          onClick={() => scrollToSection('como-funciona')}
+          onClick={() => scrollToSection('features')}
           className="font-display text-3xl font-medium text-charcoal"
         >
           Como Funciona
