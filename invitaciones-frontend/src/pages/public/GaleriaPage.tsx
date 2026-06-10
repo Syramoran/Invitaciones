@@ -58,27 +58,29 @@ interface FotoCardProps {
 
 function FotoCard({ foto, adminMode, deleting, onDelete, onOpen }: FotoCardProps) {
   return (
-    <div className="relative group overflow-hidden rounded-xl bg-[#f0f0f0] aspect-square">
-      <img
-        src={foto.url}
-        alt=""
-        className="w-full h-full object-cover cursor-pointer transition-transform duration-200 group-hover:scale-105"
-        loading="lazy"
-        onClick={() => onOpen(foto.url)}
-      />
-      {adminMode && (
-        <button
-          onClick={() => onDelete(foto.id)}
-          disabled={deleting}
-          className="absolute top-2 right-2 flex items-center justify-center w-8 h-8 rounded-full bg-black/60 text-white hover:bg-red-600 transition-colors disabled:opacity-50"
-          title="Eliminar foto"
-        >
-          {deleting
-            ? <Loader2 className="w-4 h-4 animate-spin" />
-            : <Trash2 className="w-4 h-4" />
-          }
-        </button>
-      )}
+    <div className="relative group bg-white p-3 pb-12 sm:p-4 sm:pb-14 shadow-sm hover:shadow-md transition-all duration-300 rounded-sm">
+      <div className="relative w-full aspect-square overflow-hidden bg-ivory">
+        <img
+          src={foto.url}
+          alt=""
+          className="w-full h-full object-cover cursor-pointer transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          onClick={() => onOpen(foto.url)}
+        />
+        {adminMode && (
+          <button
+            onClick={() => onDelete(foto.id)}
+            disabled={deleting}
+            className="absolute top-2 right-2 flex items-center justify-center w-8 h-8 rounded-full bg-black/60 text-white hover:bg-red-600 transition-colors disabled:opacity-50"
+            title="Eliminar foto"
+          >
+            {deleting
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <Trash2 className="w-4 h-4" />
+            }
+          </button>
+        )}
+      </div>
     </div>
   )
 }
@@ -197,40 +199,40 @@ export default function GaleriaPage() {
   // ── render ─────────────────────────────────────────────────────────────────
 
   if (loading) return (
-    <div className="flex min-h-screen items-center justify-center bg-[#e8e8e8]">
-      <Loader2 className="w-6 h-6 animate-spin text-[#555]" />
+    <div className="flex min-h-screen items-center justify-center bg-cream">
+      <Loader2 className="w-6 h-6 animate-spin text-charcoal" />
     </div>
   )
 
   if (loadError) return (
-    <div className="flex min-h-screen items-center justify-center bg-[#e8e8e8] px-4">
-      <div className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-sm text-[#dc2626] max-w-sm w-full">
+    <div className="flex min-h-screen items-center justify-center bg-cream px-4">
+      <div className="flex items-center gap-3 p-4 bg-white rounded-2xl shadow-sm text-red-600 max-w-sm w-full">
         <AlertCircle className="w-5 h-5 shrink-0" />
-        <span className="text-sm">No se pudo cargar la galería. Intentá de nuevo.</span>
+        <span className="text-sm font-medium">No se pudo cargar la galería. Intentá de nuevo.</span>
       </div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-[#e8e8e8] px-4 py-10">
-      <div className="mx-auto max-w-2xl">
+    <div className="min-h-screen bg-cream text-charcoal px-4 py-12">
+      <div className="mx-auto max-w-4xl">
 
         {/* Header */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
-            <Images className="h-6 w-6 text-[#555555]" />
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm border border-champagne-dark">
+            <Images className="h-7 w-7 text-rose-deep" />
           </div>
-          <h1 className="text-xl font-semibold text-[#1a1a1a]">Galería del evento</h1>
+          <h1 className="text-3xl sm:text-4xl font-display font-semibold text-charcoal mb-2">Galería del evento</h1>
           {titulo && (
-            <p className="mt-1 text-sm text-[#777777]">{titulo}</p>
+            <p className="text-base text-charcoal-soft">{titulo}</p>
           )}
-          <p className="mt-1 text-sm text-[#999]">
+          <p className="mt-1 text-sm font-medium text-warm-gray">
             {fotos.length} {fotos.length === 1 ? 'foto' : 'fotos'}
           </p>
         </div>
 
         {/* Upload */}
-        <div className="mb-6 bg-white rounded-2xl p-4 shadow-sm">
+        <div className="mb-10 bg-white rounded-2xl p-5 shadow-sm border border-champagne-light max-w-2xl mx-auto">
           <input
             ref={fileInputRef}
             type="file"
@@ -240,7 +242,7 @@ export default function GaleriaPage() {
           />
 
           {uploadState === 'success' ? (
-            <div className="flex items-center justify-center gap-2 py-2 text-[#16a34a] text-sm font-medium">
+            <div className="flex items-center justify-center gap-2 py-3 text-green-600 text-sm font-medium">
               <CheckCircle2 className="w-5 h-5" />
               ¡Foto subida exitosamente!
             </div>
@@ -248,7 +250,7 @@ export default function GaleriaPage() {
             <button
               disabled={uploadState === 'uploading'}
               onClick={() => fileInputRef.current?.click()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#d1d5db] py-4 text-sm font-medium text-[#6b7280] transition-colors hover:border-[#555] hover:text-[#1a1a1a] disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-champagne-dark py-5 text-sm font-medium text-warm-gray transition-colors hover:border-rose-deep hover:text-charcoal disabled:opacity-50 hover:bg-champagne-light"
             >
               {uploadState === 'uploading'
                 ? <><Loader2 className="w-4 h-4 animate-spin" /> Subiendo foto...</>
@@ -258,19 +260,19 @@ export default function GaleriaPage() {
           )}
 
           {uploadState === 'error' && uploadError && (
-            <p className="mt-2 text-center text-xs text-red-500">{uploadError}</p>
+            <p className="mt-3 text-center text-xs font-medium text-red-500">{uploadError}</p>
           )}
         </div>
 
         {/* Photo grid */}
         {fotos.length === 0 ? (
-          <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
-            <Images className="mx-auto mb-3 h-10 w-10 text-[#d1d5db]" />
-            <p className="text-sm text-[#9ca3af]">Todavía no hay fotos.</p>
-            <p className="mt-1 text-xs text-[#c4c4c4]">¡Sé el primero en subir una!</p>
+          <div className="rounded-2xl bg-white py-20 text-center shadow-sm border border-champagne-light max-w-2xl mx-auto">
+            <Images className="mx-auto mb-4 h-12 w-12 text-warm-gray-light" />
+            <p className="text-sm font-medium text-warm-gray">Todavía no hay fotos.</p>
+            <p className="mt-1 text-sm text-warm-gray-light">¡Sé el primero en subir una!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-10">
             {fotos.map(foto => (
               <FotoCard
                 key={foto.id}
@@ -292,12 +294,12 @@ export default function GaleriaPage() {
         )}
 
         {/* Admin section */}
-        <div className="mt-8">
+        <div className="mt-10 max-w-2xl mx-auto">
           {!showAdminPanel && (
             <div className="text-center">
               <button
                 onClick={() => setShowAdminPanel(true)}
-                className="inline-flex items-center gap-1.5 text-xs text-[#aaaaaa] hover:text-[#555] transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs text-warm-gray hover:text-charcoal transition-colors font-medium"
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
                 Acceso del anfitrión
@@ -306,31 +308,31 @@ export default function GaleriaPage() {
           )}
 
           {showAdminPanel && !adminMode && (
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-6 shadow-sm border border-champagne-light">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-[#1a1a1a] flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-[#555]" />
+                <h2 className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-warm-gray" />
                   Panel del anfitrión
                 </h2>
                 <button
                   onClick={() => setShowAdminPanel(false)}
-                  className="text-[#aaa] hover:text-[#555] transition-colors"
+                  className="text-warm-gray hover:text-charcoal transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-widest text-[#777777]">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-widest text-warm-gray">
                 Contraseña del evento
               </label>
               <div className="relative mt-1">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#aaaaaa]" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-warm-gray-light" />
                 <input
                   type="password"
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
                   placeholder="Contraseña del evento"
-                  className="w-full rounded-lg border border-[#e0e0e0] py-3 pl-9 pr-4 text-sm text-[#1a1a1a] outline-none focus:border-[#555555] focus:ring-0"
+                  className="w-full rounded-lg border border-champagne-dark py-3 pl-9 pr-4 text-sm text-charcoal outline-none focus:border-rose-deep focus:ring-0 bg-transparent"
                   autoComplete="off"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && adminPassword.trim()) {
@@ -343,7 +345,7 @@ export default function GaleriaPage() {
               <button
                 disabled={!adminPassword.trim()}
                 onClick={() => setAdminMode(true)}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#1a1a1a] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-80 disabled:opacity-40"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-charcoal py-3 text-sm font-semibold text-cream transition-opacity hover:opacity-90 disabled:opacity-40"
               >
                 Acceder
               </button>
@@ -351,28 +353,28 @@ export default function GaleriaPage() {
           )}
 
           {showAdminPanel && adminMode && (
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-6 shadow-sm border border-champagne-light">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-[#1a1a1a] flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-[#16a34a]" />
+                <h2 className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-green-600" />
                   Panel del anfitrión activo
                 </h2>
                 <button
                   onClick={() => { setAdminMode(false); setAdminPassword(''); setShowAdminPanel(false) }}
-                  className="text-[#aaa] hover:text-[#555] transition-colors"
+                  className="text-warm-gray hover:text-charcoal transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <p className="text-xs text-[#6b7280] mb-4">
+              <p className="text-xs text-warm-gray mb-5">
                 Las fotos muestran el botón de eliminar. Para descargar todas las fotos en un ZIP usá el botón de abajo.
               </p>
 
               <button
                 disabled={fotos.length === 0}
                 onClick={handleDownloadZip}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#d1d5db] py-3 text-sm font-medium text-[#1a1a1a] transition-colors hover:border-[#555] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-champagne-dark py-3 text-sm font-medium text-charcoal transition-colors hover:border-charcoal hover:bg-champagne-light disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Download className="w-4 h-4" />
                 Descargar todas las fotos ({fotos.length})
