@@ -45,7 +45,7 @@ export function Events() {
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             Tipos de evento
           </span>
-          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal dark:text-cream mb-4">
+          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal dark:text-champagne-light mb-4">
             ¿Qué estás celebrando?
           </h2>
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
@@ -67,11 +67,11 @@ export function Events() {
                 <img src={event.image} alt={event.imageAlt} className="w-full h-full object-cover" />
               </div>
               <div className="p-7">
-                <h3 className="font-display text-2xl font-semibold mb-2 dark:text-cream">{event.title}</h3>
+                <h3 className="font-display text-2xl font-semibold mb-2 dark:text-champagne-light">{event.title}</h3>
                 <p className="text-sm text-warm-gray font-light mb-4">{event.description}</p>
                 <Link
                   to={event.link}
-                  className="inline-flex items-center gap-2 text-rose-deep font-medium hover:text-charcoal dark:hover:text-cream transition-colors"
+                  className="inline-flex items-center gap-2 text-rose-deep font-medium hover:text-charcoal dark:hover:text-champagne-light transition-colors"
                 >
                   Ver diseños
                   <ArrowRight className="w-4 h-4" />

@@ -17,7 +17,7 @@ const EVENTS = [
 export function StepEvento({ eventType, setEventType, onNext }: Props) {
   return (
     <>
-      <h2 className="font-display text-4xl font-semibold text-center pb-4 mb-4 dark:text-cream">¿Qué estás celebrando?</h2>
+      <h2 className="font-display text-4xl font-semibold text-center pb-4 mb-4 dark:text-champagne-light">¿Qué estás celebrando?</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
         {EVENTS.map(e => (
@@ -36,7 +36,7 @@ export function StepEvento({ eventType, setEventType, onNext }: Props) {
             <div className={`w-20 h-20 rounded-full flex items-center justify-center text-4xl mx-auto mb-5 ${e.bg}`}>
               {e.emoji}
             </div>
-            <h3 className="font-display text-2xl font-semibold mb-2 dark:text-cream">{e.title}</h3>
+            <h3 className="font-display text-2xl font-semibold mb-2 dark:text-champagne-light">{e.title}</h3>
             <p className="text-sm text-warm-gray font-light leading-relaxed">{e.desc}</p>
           </button>
         ))}

@@ -47,10 +47,10 @@ export function RegaloSection({ invitacion }: RegaloSectionProps) {
         </h2>
 
         {/* Subtítulos */}
-        <div className="flex flex-col gap-2 text-base text-[#787878]">
+        <div className="flex flex-col items-center gap-2 text-base text-[#787878]">
           <p>Tu presencia es nuestro más valioso regalo</p>
           {(alias || cbu) && (
-            <p className="w-[18.5rem]">
+            <p className="w-[18.5rem] text-center mx-auto">
               Si además quisieras hacernos otro regalo te dejamos estas maneras de hacerlo
             </p>
           )}

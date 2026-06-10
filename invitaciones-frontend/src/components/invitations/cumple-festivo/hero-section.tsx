@@ -70,14 +70,6 @@ export function HeroSection({ invitacion, invitadoParam, colorAccent }: HeroSect
           {nombre}
         </h1>
 
-        {edad && (
-          <div
-            className="mt-3 inline-block rounded-full px-5 py-1.5 text-sm font-semibold text-white"
-            style={{ backgroundColor: colorAccent, fontFamily: "'Rubik', sans-serif" }}
-          >
-            {edad} años
-          </div>
-        )}
 
         <p
           className="mt-4 text-sm text-white/75"

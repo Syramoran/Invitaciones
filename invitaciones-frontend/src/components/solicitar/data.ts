@@ -31,5 +31,5 @@ export const EVENT_LABELS: Record<EventType, string> = { boda: 'Boda', quince: '
 
 export const STEP_LABELS = ['Evento', 'Diseño', 'Servicios', 'Preview', 'Pedido', 'Listo']
 
-export const btnBack = 'inline-flex items-center gap-2 text-sm font-medium text-charcoal dark:text-cream border border-champagne-dark dark:border-warm-gray px-7 py-3.5 rounded-full hover:border-charcoal dark:hover:border-cream transition-colors'
+export const btnBack = 'inline-flex items-center gap-2 text-sm font-medium text-charcoal dark:text-champagne-light border border-champagne-dark dark:border-warm-gray px-7 py-3.5 rounded-full hover:border-charcoal dark:hover:border-cream transition-colors'
 export const btnNext = 'inline-flex items-center gap-2 text-sm font-medium bg-charcoal text-champagne-light dark:bg-champagne-light dark:text-charcoal px-8 py-3.5 rounded-full hover:bg-charcoal-soft dark:hover:bg-champagne hover:-translate-y-0.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0'

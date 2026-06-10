@@ -39,7 +39,7 @@ export function Header() {
           <Link
             to="/"
             className={`font-display text-2xl font-semibold tracking-tight transition-colors duration-300 ${
-              isScrolled ? 'text-charcoal dark:text-cream' : 'text-white'
+              isScrolled ? 'text-charcoal dark:text-champagne-light' : 'text-white'
             }`}
           >
             festejá
@@ -50,9 +50,9 @@ export function Header() {
               <button
                 key={id}
                 onClick={() => scrollToSection(id)}
-                className={`text-sm transition-colors duration-300 relative group ${
+                className={`text-sm cursor-pointer transition-colors duration-300 relative group ${
                   isScrolled
-                    ? 'text-charcoal-soft hover:text-charcoal dark:text-warm-gray-light dark:hover:text-cream'
+                    ? 'text-charcoal-soft hover:text-charcoal dark:text-warm-gray-light dark:hover:text-champagne-light'
                     : 'text-white/80 hover:text-white'
                 }`}
               >
@@ -66,7 +66,7 @@ export function Header() {
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className={`p-2 rounded-full transition-colors duration-300 ${
-                isScrolled ? 'text-charcoal hover:bg-black/5 dark:text-cream dark:hover:bg-white/10' : 'text-white hover:bg-white/10'
+                isScrolled ? 'text-charcoal hover:bg-black/5 dark:text-champagne-light dark:hover:bg-white/10' : 'text-white hover:bg-white/10'
               }`}
               title="Cambiar tema"
             >
@@ -102,7 +102,7 @@ export function Header() {
         }`}
       >
         <button
-          className="absolute top-6 right-6 text-charcoal dark:text-cream"
+          className="absolute top-6 right-6 text-charcoal dark:text-champagne-light"
           onClick={() => setIsMobileMenuOpen(false)}
           aria-label="Cerrar menu"
         >
@@ -111,25 +111,25 @@ export function Header() {
 
         <button
           onClick={() => scrollToSection('eventos')}
-          className="font-display text-3xl font-medium text-charcoal dark:text-cream"
+          className="font-display text-3xl font-medium text-charcoal dark:text-champagne-light cursor-pointer"
         >
           Eventos
         </button>
         <button
           onClick={() => scrollToSection('features')}
-          className="font-display text-3xl font-medium text-charcoal dark:text-cream"
+          className="font-display text-3xl font-medium text-charcoal dark:text-champagne-light cursor-pointer"
         >
           Como Funciona
         </button>
         {/* <button
           onClick={() => scrollToSection('precios')}
-          className="font-display text-3xl font-medium text-charcoal dark:text-cream"
+          className="font-display text-3xl font-medium text-charcoal dark:text-champagne-light cursor-pointer"
         >
           Precios
         </button> */}
         <button
           onClick={() => scrollToSection('contacto')}
-          className="font-display text-3xl font-medium text-charcoal dark:text-cream"
+          className="font-display text-3xl font-medium text-charcoal dark:text-champagne-light cursor-pointer"
         >
           Contacto
         </button>

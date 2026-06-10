@@ -22,7 +22,7 @@ export function HeroSection({ invitacion }: HeroSectionProps) {
 
   // Texto del banner: "CUMPLE X AÑITOS" o "CUMPLE AÑOS"
   const bannerTexto = campos?.edad
-    ? `CUMPLE ${campos.edad} AÑITOS`
+    ? `CUMPLE ${campos.edad} ${String(campos.edad) === "1" ? "AÑITO" : "AÑITOS"}`
     : "CUMPLE AÑOS"
 
   // Primera foto ordenada por el campo orden

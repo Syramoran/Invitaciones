@@ -20,13 +20,13 @@ export function StepServicios({ addons, toggleAddon, secondVersion, setSecondVer
 
   return (
     <>
-      <h2 className="font-display text-4xl font-semibold text-center mb-2 dark:text-cream">Personalizá tu invitación</h2>
+      <h2 className="font-display text-4xl font-semibold text-center mb-2 dark:text-champagne-light">Personalizá tu invitación</h2>
       <p className="text-warm-gray text-center font-light mb-12">Agregá o quitá servicios según lo que necesites</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
         {/* Left */}
         <div>
-          <h4 className="font-display text-lg font-semibold mb-4 dark:text-cream">Servicios</h4>
+          <h4 className="font-display text-lg font-semibold mb-4 dark:text-champagne-light">Servicios</h4>
           <div className="space-y-3">
             {addonsData.map(a => {
               const isBase = a.incluidoEnBase
@@ -76,7 +76,7 @@ export function StepServicios({ addons, toggleAddon, secondVersion, setSecondVer
         {/* Right: price panel desktop */}
         <div className="hidden lg:block">
           <div className="sticky top-[140px] bg-white dark:bg-charcoal rounded-2xl border border-black/[0.06] dark:border-white/5 p-7">
-            <h4 className="font-display text-xl font-semibold mb-5 pb-4 border-b border-ivory dark:border-white/10 dark:text-cream">Tu presupuesto</h4>
+            <h4 className="font-display text-xl font-semibold mb-5 pb-4 border-b border-ivory dark:border-white/10 dark:text-champagne-light">Tu presupuesto</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-warm-gray font-light">Invitación base</span><span className="font-medium">{fmtPrice(basePrice)}</span></div>
               {addonsData.filter(a => !a.incluidoEnBase && addons[a.id]).map(a => (

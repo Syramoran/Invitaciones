@@ -32,7 +32,7 @@ export function StepPreview({ eventType, templateName, templateSlug, templateThu
 
   return (
     <>
-      <h2 className="font-display text-4xl font-semibold text-center mb-2 dark:text-cream">Así se vería tu invitación</h2>
+      <h2 className="font-display text-4xl font-semibold text-center mb-2 dark:text-champagne-light">Así se vería tu invitación</h2>
       <p className="text-warm-gray text-center font-light mb-12">Vista previa aproximada de tu diseño</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-12 items-start max-w-4xl mx-auto">
@@ -54,7 +54,7 @@ export function StepPreview({ eventType, templateName, templateSlug, templateThu
 
         {/* Summary */}
         <div className="bg-white dark:bg-charcoal rounded-2xl border border-black/[0.06] dark:border-white/5 p-7">
-          <h4 className="font-display text-xl font-semibold mb-6 dark:text-cream">Resumen de tu pedido</h4>
+          <h4 className="font-display text-xl font-semibold mb-6 dark:text-champagne-light">Resumen de tu pedido</h4>
           <div className="space-y-4">
             <SummaryItem label="Tipo de evento" value={EVENT_LABELS[eventType]} />
             <SummaryItem label="Template"       value={templateName || '-'} />

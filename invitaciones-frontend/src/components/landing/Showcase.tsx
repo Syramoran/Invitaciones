@@ -71,7 +71,7 @@ export function Showcase() {
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             Vista previa
           </span>
-          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal dark:text-cream mb-4">
+          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal dark:text-champagne-light mb-4">
             Mirá como se ve
           </h2>
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
@@ -126,7 +126,7 @@ export function Showcase() {
                   </div>
                   {/* Label — hidden on mobile, shown on desktop */}
                   <div className="hidden lg:flex flex-col text-left">
-                    <span className={`text-xs font-medium leading-tight ${isActive ? 'text-charcoal dark:text-cream' : 'text-charcoal-soft dark:text-warm-gray'}`}>
+                    <span className={`text-xs font-medium leading-tight ${isActive ? 'text-charcoal dark:text-champagne-light' : 'text-charcoal-soft dark:text-warm-gray'}`}>
                       {t.label}
                     </span>
                     <span className="text-[0.65rem] text-warm-gray font-light leading-tight">
@@ -134,7 +134,7 @@ export function Showcase() {
                     </span>
                   </div>
                   {/* Label — visible only on mobile, below thumbnail */}
-                  <span className={`lg:hidden text-[0.65rem] font-medium ${isActive ? 'text-charcoal dark:text-cream' : 'text-warm-gray'}`}>
+                  <span className={`lg:hidden text-[0.65rem] font-medium ${isActive ? 'text-charcoal dark:text-champagne-light' : 'text-warm-gray'}`}>
                     {t.label}
                   </span>
                 </button>
@@ -159,7 +159,7 @@ export function Showcase() {
         <div className="mt-14 mx-auto max-w-xl rounded-2xl border border-champagne-dark dark:border-white/10 bg-champagne/20 dark:bg-charcoal-soft/50 px-8 py-7 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
           <div className="text-4xl select-none">✨</div>
           <div className="flex-1">
-            <p className="text-base font-semibold text-charcoal dark:text-cream leading-snug mb-1">
+            <p className="text-base font-semibold text-charcoal dark:text-champagne-light leading-snug mb-1">
               ¿No encontrás el diseño ideal?
             </p>
             <p className="text-sm text-warm-gray font-light leading-relaxed">

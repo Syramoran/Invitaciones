@@ -35,7 +35,7 @@ export function SolicitarStepper({ step, goToStep }: Props) {
                   {isDone ? <Check className="w-4 h-4" /> : n}
                 </div>
                 <span className={`text-[0.65rem] hidden sm:block transition-colors ${
-                  isActive ? 'text-charcoal dark:text-cream font-medium' : isDone ? 'text-[#6a9e6a]' : 'text-warm-gray-light dark:text-warm-gray'
+                  isActive ? 'text-charcoal dark:text-champagne-light font-medium' : isDone ? 'text-[#6a9e6a]' : 'text-warm-gray-light dark:text-warm-gray'
                 }`}>{label}</span>
               </button>
             )

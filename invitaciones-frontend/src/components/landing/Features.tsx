@@ -46,7 +46,7 @@ export function Features() {
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             ¿Por qué elegirnos?
           </span>
-          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal dark:text-cream mb-4">
+          <h2 className="font-display text-3xl md:text-4xl font-semibold leading-tight text-charcoal dark:text-champagne-light mb-4">
             Rápido, única y hermosa
           </h2>
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
@@ -69,7 +69,7 @@ export function Features() {
               >
                 <feature.icon className="w-6 h-6 text-charcoal-soft" />
               </div>
-              <h3 className="font-display text-xl font-semibold mb-2 dark:text-cream">{feature.title}</h3>
+              <h3 className="font-display text-xl font-semibold mb-2 dark:text-champagne-light">{feature.title}</h3>
               <p className="text-sm text-warm-gray font-light leading-relaxed">
                 {feature.description}
               </p>
