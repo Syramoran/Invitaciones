@@ -140,7 +140,10 @@ export default function SolicitarPage() {
 
   // ── Derived values ─────────────────────────────────────────────────────────
   const prices         = calcPrices(addons, secondVersion, addonsData, basePrice)
-  const templateName   = apiTemplates.find(t => t.id === templateId)?.nombre ?? null
+  const selectedTemplate = apiTemplates.find(t => t.id === templateId)
+  const templateName   = selectedTemplate?.nombre ?? null
+  const templateSlug   = selectedTemplate?.slug ?? null
+  const templateThumbnailUrl = selectedTemplate?.thumbnailUrl ?? null
   const stepTemplates  = eventType
     ? apiTemplates.filter(t => t.tipoEventoId === TIPO_EVENTO_IDS[eventType] && t.activo)
     : []
@@ -203,6 +206,8 @@ export default function SolicitarPage() {
             <StepPreview
               eventType={eventType}
               templateName={templateName}
+              templateSlug={templateSlug}
+              templateThumbnailUrl={templateThumbnailUrl}
               color={color}
               addons={addons}
               addonsData={addonsData}

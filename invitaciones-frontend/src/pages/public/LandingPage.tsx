@@ -16,9 +16,9 @@ export default function LandingPage() {
       <Header />
       <Hero />
       <Events />
-      <Features />
-      <HowItWorks />
       <Showcase />
+      <Features />
+      {/* <HowItWorks /> */}
       {/* <Pricing /> */}
       <Testimonials />
       <FinalCTA />

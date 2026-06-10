@@ -140,7 +140,13 @@ export function HeroSection({ invitacion, invitadoParam }: HeroSectionProps) {
           </div>
 
           {/* Info block – bottom-right corner */}
-          <div className="flex flex-col self-end ml-auto pb-8 pl-4 pr-5">
+          <div 
+            className="flex flex-col self-end ml-auto pb-8 pl-4 pr-5"
+            style={{ 
+              width: "calc(100% - 150px)",
+              containerType: "inline-size"
+            }}
+          >
 
             {/* Greeting */}
             {saludo && (
@@ -163,18 +169,31 @@ export function HeroSection({ invitacion, invitadoParam }: HeroSectionProps) {
             )}
 
             {/* Name */}
-            <h1
-              className="mb-5 break-words leading-none tracking-wider"
-              style={{
-                fontFamily: "'Libre Baskerville', Georgia, serif",
-                fontWeight: 400,
-                fontSize: "clamp(2.3rem, 11vw, 3rem)",
-                color: accentColor,
-                textTransform: "uppercase",
-              }}
-            >
-              {nombre}
-            </h1>
+            {(() => {
+              const words = nombre.split(" ")
+              const maxWordLength = Math.max(...words.map(w => w.length))
+              
+              // Libre Baskerville is a wide serif font, so we use a conservative factor (125) 
+              // to ensure even the widest letters fit.
+              // We floor the value and cap the minimum divisor to 5.
+              const cqiValue = Math.floor(125 / Math.max(maxWordLength, 5))
+              const sizeClass = `clamp(1rem, ${cqiValue}cqi, 3rem)`
+
+              return (
+                <h1
+                  className="mb-5 break-words leading-none tracking-wider"
+                  style={{
+                    fontFamily: "'Libre Baskerville', Georgia, serif",
+                    fontWeight: 400,
+                    fontSize: sizeClass,
+                    color: accentColor,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {nombre}
+                </h1>
+              )
+            })()}
 
             {/* Date: [day] | [day-name / day+month / year] */}
             <div className="flex items-start gap-3">

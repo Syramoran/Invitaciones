@@ -68,7 +68,7 @@ export function Hero() {
 
         <div className="flex justify-center items-center animate-hero-phone-in lg:mt-0 mt-10">
           <PhoneMockup>
-            <InvitationPreview slug="boda-clasica" />
+            <InvitationPreview slug="cumple-festivo" />
           </PhoneMockup>
         </div>
       </div>

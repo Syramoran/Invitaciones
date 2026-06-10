@@ -10,6 +10,23 @@ import { StorySection } from "./story-section"
 import { RsvpSection } from "./rsvp-section"
 
 const COLOR_DEFAULT = "#B5B5B5"
+const DEFAULT_ACCENT = "#555555"
+
+const ACCENT_MAP: Record<string, string> = {
+  "#b5b5b5": "#555555",
+  "#ffa366": "#cc7033",
+  "#edc25e": "#bf930d",
+  "#c2d65c": "#618a0f",
+  "#5c99d6": "#1466b8",
+  "#a285e0": "#5e39ac",
+  "#e599bf": "#b72e73",
+  "#fb6a6c": "#a3292b",
+}
+
+function resolveAccent(bgColor: string | null): string {
+  if (!bgColor) return DEFAULT_ACCENT
+  return ACCENT_MAP[bgColor.toLowerCase()] ?? DEFAULT_ACCENT
+}
 
 interface InvitationViewProps {
   invitacion: InvitacionPublica
@@ -20,14 +37,15 @@ export function InvitationView({ invitacion, invitadoParam }: InvitationViewProp
   const [showOverlay, setShowOverlay] = useState(true)
   const [autoPlayMusic, setAutoPlayMusic] = useState(false)
 
-  const colorAccent = invitacion?.colorPrimario || COLOR_DEFAULT
+  const colorBase = invitacion?.colorPrimario || COLOR_DEFAULT
+  const colorAccent = resolveAccent(invitacion?.colorPrimario)
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--invitation-primary", colorAccent)
+    document.documentElement.style.setProperty("--invitation-primary", colorBase)
     return () => {
       document.documentElement.style.removeProperty("--invitation-primary")
     }
-  }, [colorAccent])
+  }, [colorBase])
 
   const handleOpenInvitation = () => {
     setShowOverlay(false)
@@ -57,7 +75,7 @@ export function InvitationView({ invitacion, invitadoParam }: InvitationViewProp
   return (
     <div
       className="min-h-screen bg-[#111111]"
-      style={{ "--invitation-primary": colorAccent } as React.CSSProperties}
+      style={{ "--invitation-primary": colorBase } as React.CSSProperties}
     >
       {/* Overlay de apertura */}
       {showOverlay && (

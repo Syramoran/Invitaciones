@@ -14,8 +14,9 @@ async function bootstrap() {
     origin: [
       /\.vercel\.app$/,            // Permite cualquier subdominio de Vercel
       'https://tu-app.vercel.app',
-      'http://localhost:5173'  // Tu dominio específico de producción
-    ],
+      'http://localhost:5173',
+      process.env.FRONTEND_URL,    // Permite el dominio configurado en las variables de entorno
+    ].filter(Boolean) as (string | RegExp)[],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

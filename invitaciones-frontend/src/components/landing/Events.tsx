@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { Ornament } from './Ornament'
 
 const events = [
@@ -31,9 +32,15 @@ const events = [
 
 export function Events() {
   return (
-    <section id="eventos" className="py-24 relative bg-ivory">
+    <section id="eventos" className="py-16 relative bg-ivory">
       <div className="max-w-[1200px] mx-auto px-6">
-        <div className="text-center mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
           <Ornament />
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             Tipos de evento
@@ -44,12 +51,16 @@ export function Events() {
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
             Diseños exclusivos para cada ocasión
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
           {events.map((event, index) => (
-            <div
+            <motion.div
               key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
               className="bg-white rounded-3xl overflow-hidden border border-charcoal/5 transition-all hover:-translate-y-1.5 hover:shadow-lg cursor-pointer"
             >
               <div className="h-[200px] overflow-hidden">
@@ -66,7 +77,7 @@ export function Events() {
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

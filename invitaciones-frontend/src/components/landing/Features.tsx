@@ -1,4 +1,5 @@
 import { Zap, Link2, Palette, User } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { Ornament } from './Ornament'
 
 const features = [
@@ -30,11 +31,17 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="py-24 relative">
+    <section id="features" className="py-16 relative">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-champagne-dark to-transparent" />
 
       <div className="max-w-[1200px] mx-auto px-6">
-        <div className="text-center mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
           <Ornament />
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             ¿Por qué elegirnos?
@@ -45,12 +52,16 @@ export function Features() {
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
             Todo lo que necesitás para una invitacion perfecta, sin complicaciones.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
-            <div
+            <motion.div
               key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
               className="text-center p-10 px-6 rounded-2xl bg-white border border-charcoal/5 transition-all hover:-translate-y-1 hover:shadow-md"
             >
               <div
@@ -62,7 +73,7 @@ export function Features() {
               <p className="text-sm text-warm-gray font-light leading-relaxed">
                 {feature.description}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

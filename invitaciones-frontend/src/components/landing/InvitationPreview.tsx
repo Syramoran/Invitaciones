@@ -1,4 +1,4 @@
-import { useRef, useEffect, useLayoutEffect, useState, type ReactNode } from 'react'
+import { useRef, useEffect, useLayoutEffect, useState, createContext, useContext, type ReactNode } from 'react'
 import type { InvitacionPublica } from '@/types/invitation'
 
 // ─── Boda Clásica sections ────────────────────────────────────────────────────
@@ -61,6 +61,22 @@ import { MapSection as CumpleFestivoMap } from '@/components/invitations/cumple-
 import { StorySection as CumpleFestivoStory } from '@/components/invitations/cumple-festivo/story-section'
 import { RsvpSection as CumpleFestivoRsvp } from '@/components/invitations/cumple-festivo/rsvp-section'
 
+// ─── Cumple Infantil sections ────────────────────────────────────────────────
+import { HeroSection as CumpleInfantilHero } from '@/components/invitations/cumple-infantil/hero-section'
+import { CountdownSection as CumpleInfantilCountdown } from '@/components/invitations/cumple-infantil/countdown-section'
+import { InfoSection as CumpleInfantilInfo } from '@/components/invitations/cumple-infantil/info-section'
+import { MapSection as CumpleInfantilMap } from '@/components/invitations/cumple-infantil/map-section'
+import { StorySection as CumpleInfantilStory } from '@/components/invitations/cumple-infantil/story-section'
+import { RsvpSection as CumpleInfantilRsvp } from '@/components/invitations/cumple-infantil/rsvp-section'
+
+// ─── Cumple Elegante sections ────────────────────────────────────────────────
+import { HeroSection as CumpleEleganteHero } from '@/components/invitations/cumple-elegante/hero-section'
+import { CountdownSection as CumpleEleganteCountdown } from '@/components/invitations/cumple-elegante/countdown-section'
+import { InfoSection as CumpleEleganteInfo } from '@/components/invitations/cumple-elegante/info-section'
+import { MapSection as CumpleEleganteMap } from '@/components/invitations/cumple-elegante/map-section'
+import { StorySection as CumpleEleganteStory } from '@/components/invitations/cumple-elegante/story-section'
+import { RsvpSection as CumpleEleganteRsvp } from '@/components/invitations/cumple-elegante/rsvp-section'
+
 // ─── Constants ───────────────────────────────────────────────────────────────
 // Invitation content design width (px)
 const CONTENT_W = 430
@@ -73,6 +89,8 @@ function hexToRgba(hex: string, alpha: number): string {
 }
 
 // ─── Reusable scroll wrapper ──────────────────────────────────────────────────
+export const PreviewContext = createContext({ paused: false })
+
 interface ScrollingPreviewWrapperProps {
   children: ReactNode
   bgColor?: string
@@ -84,6 +102,10 @@ function ScrollingPreviewWrapper({
   bgColor = '#faf7f2',
   cssVars = {},
 }: ScrollingPreviewWrapperProps) {
+  const { paused } = useContext(PreviewContext)
+  const pausedRef = useRef(paused)
+  useEffect(() => { pausedRef.current = paused }, [paused])
+
   const outerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
   const stateRef = useRef({ y: 0, resumeAutoAt: 0, lastTouchY: 0 })
@@ -137,7 +159,8 @@ function ScrollingPreviewWrapper({
       if (lastTime === null) lastTime = now
       const dt = Math.min(now - lastTime, 50)
       lastTime = now
-      if (now >= s.resumeAutoAt) {
+      
+      if (!pausedRef.current && now >= s.resumeAutoAt) {
         const maxY = getMaxY()
         s.y += SPEED * dt
         if (s.y > maxY + 200) s.y = 0
@@ -255,19 +278,19 @@ const MOCK_BODA_CLASICA: InvitacionPublica = {
   },
   template: { id: 1, nombre: 'Boda Clásica', slug: 'boda-clasica', thumbnailUrl: null },
   servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
-  fotosAnfitrion: [{ id: 1, url: 'https://picsum.photos/seed/wedding-portrait/430/680', orden: 1 }],
+  fotosAnfitrion: [{ id: 1, url: '/fotos-stock/boda-clasica/portada.jpg', orden: 1 }],
   musica: null,
   historias: [
     {
       id: 1,
       texto: 'Nos conocimos en el verano de 2020, en una tarde de lluvia inesperada que cambió nuestras vidas para siempre.',
-      imagenUrl: 'https://picsum.photos/seed/wedding-story1/430/220',
+      imagenUrl: '/fotos-stock/boda-clasica/story1.jpg',
       orden: 1,
     },
     {
       id: 2,
       texto: 'Después de tres años juntos, Mateo le pidió a Camila que se casara con él frente al mar, al atardecer.',
-      imagenUrl: 'https://picsum.photos/seed/wedding-story2/430/220',
+      imagenUrl: '/fotos-stock/boda-clasica/story2.jpg',
       orden: 2,
     },
   ],
@@ -317,19 +340,19 @@ const MOCK_BODA_MODERNA: InvitacionPublica = {
   },
   template: { id: 2, nombre: 'Boda Moderna', slug: 'boda-moderna', thumbnailUrl: null },
   servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
-  fotosAnfitrion: [{ id: 1, url: 'https://picsum.photos/seed/moderna-portrait/430/680', orden: 1 }],
+  fotosAnfitrion: [{ id: 1, url: '/fotos-stock/boda-moderna/portada.jpg', orden: 1 }],
   musica: null,
   historias: [
     {
       id: 1,
       texto: 'Todo comenzó en una noche de jazz en San Telmo. Una mirada, una sonrisa, y el resto es historia.',
-      imagenUrl: 'https://picsum.photos/seed/moderna-story1/430/220',
+      imagenUrl: '/fotos-stock/boda-moderna/story1.jpg',
       orden: 1,
     },
     {
       id: 2,
       texto: 'Dos años de aventuras compartidas nos llevaron a este momento. Ahora queremos celebrarlo con todos ustedes.',
-      imagenUrl: 'https://picsum.photos/seed/moderna-story2/430/220',
+      imagenUrl: '/fotos-stock/boda-moderna/story2.jpg',
       orden: 2,
     },
   ],
@@ -343,7 +366,7 @@ const COLOR_RUSTICA = '#465E38'
 const MOCK_BODA_RUSTICA: InvitacionPublica = {
   id: 'preview-rustica',
   titulo: 'Florencia & Ignacio',
-  fechaEvento: '2026-05-09T00:00:00.000Z',
+  fechaEvento: '2026-12-09T00:00:00.000Z',
   horaEvento: '18:30',
   ubicacion: 'multiple',
   direccion: 'Mendoza',
@@ -379,19 +402,19 @@ const MOCK_BODA_RUSTICA: InvitacionPublica = {
   },
   template: { id: 3, nombre: 'Boda Rústica', slug: 'boda-rustica', thumbnailUrl: null },
   servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
-  fotosAnfitrion: [{ id: 1, url: 'https://picsum.photos/seed/rustica-portrait/430/680', orden: 1 }],
+  fotosAnfitrion: [{ id: 1, url: '/fotos-stock/boda-rustica/portada.jpg', orden: 1 }],
   musica: null,
   historias: [
     {
       id: 1,
       texto: 'Nos conocimos entre viñedos y paisajes de montaña. La naturaleza siempre fue testigo de nuestra historia.',
-      imagenUrl: 'https://picsum.photos/seed/rustica-story1/430/220',
+      imagenUrl: '/fotos-stock/boda-rustica/story1.jpg',
       orden: 1,
     },
     {
       id: 2,
       texto: 'Un atardecer entre los cerros y una propuesta que nunca olvidaremos. Hoy queremos compartirlo con quienes amamos.',
-      imagenUrl: 'https://picsum.photos/seed/rustica-story2/430/220',
+      imagenUrl: '/fotos-stock/boda-rustica/story2.jpg',
       orden: 2,
     },
   ],
@@ -424,19 +447,19 @@ const MOCK_QUINCE_ELEGANTE: InvitacionPublica = {
   },
   template: { id: 6, nombre: 'Quince Elegante', slug: 'quince-elegante', thumbnailUrl: null },
   servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
-  fotosAnfitrion: [{ id: 1, url: 'https://picsum.photos/seed/quince-elegante-portrait/430/560', orden: 1 }],
+  fotosAnfitrion: [{ id: 1, url: '/fotos-stock/quince-elegante/portada.jpg', orden: 1 }],
   musica: null,
   historias: [
     {
       id: 1,
       texto: 'Soñé con esta noche desde pequeña. Gracias a mis padres y a todos los que hicieron posible este sueño tan especial.',
-      imagenUrl: 'https://picsum.photos/seed/quince-elegante-story1/430/220',
+      imagenUrl: '/fotos-stock/quince-elegante/story1.jpg',
       orden: 1,
     },
     {
       id: 2,
       texto: 'Esta noche marca el comienzo de una nueva etapa. Quiero vivirla con las personas que más amo.',
-      imagenUrl: 'https://picsum.photos/seed/quince-elegante-story2/430/220',
+      imagenUrl: '/fotos-stock/quince-elegante/story2.jpg',
       orden: 2,
     },
   ],
@@ -469,19 +492,19 @@ const MOCK_QUINCE_MODERNA: InvitacionPublica = {
   },
   template: { id: 5, nombre: 'Quince Moderna', slug: 'quince-moderna', thumbnailUrl: null },
   servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
-  fotosAnfitrion: [{ id: 1, url: 'https://picsum.photos/seed/quince-moderna-portrait/430/560', orden: 1 }],
+  fotosAnfitrion: [{ id: 1, url: '/fotos-stock/quince-moderna/portada.jpg', orden: 1 }],
   musica: null,
   historias: [
     {
       id: 1,
       texto: 'Soñé con esta noche desde que era chica. Gracias a mis papás y a todos los que hicieron este sueño posible.',
-      imagenUrl: 'https://picsum.photos/seed/quince-moderna-story1/430/220',
+      imagenUrl: '/fotos-stock/quince-moderna/story1.jpg',
       orden: 1,
     },
     {
       id: 2,
       texto: 'Esta noche quiero bailar, reír y celebrar con las personas que más amo. ¡Los espero!',
-      imagenUrl: 'https://picsum.photos/seed/quince-moderna-story2/430/220',
+      imagenUrl: '/fotos-stock/quince-moderna/story2.jpg',
       orden: 2,
     },
   ],
@@ -514,14 +537,55 @@ const MOCK_QUINCE_PRINCESA: InvitacionPublica = {
   },
   template: { id: 4, nombre: 'Quince Princesa', slug: 'quince-princesa', thumbnailUrl: null },
   servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
-  fotosAnfitrion: [{ id: 1, url: 'https://picsum.photos/seed/quince-portrait/430/560', orden: 1 }],
+  fotosAnfitrion: [{ id: 1, url: '/fotos-stock/quince-princesa/portada.jpg', orden: 1 }],
   musica: null,
   historias: [
     {
       id: 1,
       texto: 'Desde pequeña soñé con esta noche. Gracias a mis padres y a todos los que hicieron posible este sueño.',
-      imagenUrl: 'https://picsum.photos/seed/quince-story1/430/220',
+      imagenUrl: '/fotos-stock/quince-princesa/story1.jpg',
       orden: 1,
+    },
+  ],
+  saludoPersonalizado: null,
+  tieneConfirmacion: true,
+  mostrarBotonConfirmar: false,
+}
+
+// ─── Cumple Elegante mock data ───────────────────────────────────────────────
+const COLOR_CUMPLE_ELEGANTE_BG = '#ede2d4'
+const MOCK_CUMPLE_ELEGANTE: InvitacionPublica = {
+  id: 'preview-cumple-elegante',
+  titulo: 'Los 30 de Alejandro',
+  fechaEvento: '2026-11-20T00:00:00.000Z',
+  horaEvento: '21:30',
+  ubicacion: 'Le Bar · Recoleta',
+  direccion: 'Vicente López 1234, Recoleta, Buenos Aires',
+  latitud: -34.5882,
+  longitud: -58.3928,
+  colorPrimario: COLOR_CUMPLE_ELEGANTE_BG,
+  camposEspecificos: {
+    nombre: 'Alejandro',
+    edad: '30',
+    dressCode: 'All Black',
+    notas: 'Los espero para celebrar una noche inolvidable',
+  },
+  template: { id: 9, nombre: 'Cumple Elegante', slug: 'cumple-elegante', thumbnailUrl: null },
+  servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
+  fotosAnfitrion: [{ id: 1, url: '/fotos-stock/cumple-elegante/portada.jpg', orden: 1 }],
+  musica: null,
+  historias: [
+    {
+      id: 1,
+      texto: 'Una velada especial rodeado de amigos y buena música para festejar mis 30 años.',
+      imagenUrl: '/fotos-stock/cumple-elegante/story1.jpg',
+      orden: 1,
+    },
+    {
+      id: 2,
+      texto: 'Espero que puedan acompañarme en este momento tan importante.',
+      imagenUrl: '/fotos-stock/cumple-elegante/story2.jpg',
+      orden: 2,
     },
   ],
   saludoPersonalizado: null,
@@ -550,20 +614,54 @@ const MOCK_CUMPLE_FESTIVO: InvitacionPublica = {
   },
   template: { id: 7, nombre: 'Cumple Festivo', slug: 'cumple-festivo', thumbnailUrl: null },
   servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
-  fotosAnfitrion: [{ id: 1, url: 'https://picsum.photos/seed/cumple-festivo-portrait/430/560', orden: 1 }],
+  fotosAnfitrion: [{ id: 1, url: '/fotos-stock/cumple-festivo/portada.jpg', orden: 1 }],
   musica: null,
   historias: [
     {
       id: 1,
       texto: 'Hace 25 años llegué al mundo dispuesta a disfrutar cada momento. Esta noche quiero celebrarlo a lo grande con todos ustedes.',
-      imagenUrl: 'https://picsum.photos/seed/cumple-festivo-story1/430/220',
+      imagenUrl: '/fotos-stock/cumple-festivo/story1.jpg',
       orden: 1,
     },
     {
       id: 2,
       texto: '¡Gracias por ser parte de mi historia! Esta noche bailamos hasta el amanecer.',
-      imagenUrl: 'https://picsum.photos/seed/cumple-festivo-story2/430/220',
+      imagenUrl: '/fotos-stock/cumple-festivo/story2.jpg',
       orden: 2,
+    },
+  ],
+  saludoPersonalizado: null,
+  tieneConfirmacion: true,
+  mostrarBotonConfirmar: false,
+}
+
+// ─── Cumple Infantil mock data ───────────────────────────────────────────────
+const COLOR_CUMPLE_INFANTIL = '#DA8F0B'
+const MOCK_CUMPLE_INFANTIL: InvitacionPublica = {
+  id: 'preview-cumple-infantil',
+  titulo: 'Emilio',
+  fechaEvento: '2026-10-12T00:00:00.000Z',
+  horaEvento: '16:00',
+  ubicacion: 'Club Infantil Alegría',
+  direccion: 'Av. Sarmiento 345, Palermo',
+  latitud: -34.577,
+  longitud: -58.412,
+  colorPrimario: COLOR_CUMPLE_INFANTIL,
+  camposEspecificos: {
+    nombre: 'Emilio',
+    edad: '6',
+    notas: '¡No te olvides de traer medias para los juegos inflables!',
+  },
+  template: { id: 8, nombre: 'Cumple Infantil', slug: 'cumple-infantil', thumbnailUrl: null },
+  servicios: [{ id: 1, nombre: 'Cuenta regresiva' }],
+  fotosAnfitrion: [{ id: 1, url: '/fotos-stock/cumple-infantil/portada.jpg', orden: 1 }],
+  musica: null,
+  historias: [
+    {
+      id: 1,
+      texto: '¡Ya cumplo 6 añitos! Vení a celebrar conmigo una tarde llena de juegos y diversión.',
+      imagenUrl: '/fotos-stock/cumple-infantil/story1.jpg',
+      orden: 1,
     },
   ],
   saludoPersonalizado: null,
@@ -573,14 +671,16 @@ const MOCK_CUMPLE_FESTIVO: InvitacionPublica = {
 
 // ─── Template preview components ─────────────────────────────────────────────
 
-function BodaClasicaPreview() {
-  const colorBgLocaciones = hexToRgba(COLOR_CLASICA_ACCENT, 0.2)
+function BodaClasicaPreview({ customColor }: { customColor?: string }) {
+  const primary = customColor || COLOR_CLASICA_DORADO
+  const accent = customColor || COLOR_CLASICA_ACCENT
+  const colorBgLocaciones = hexToRgba(customColor || COLOR_CLASICA_ACCENT, 0.2)
   return (
     <ScrollingPreviewWrapper
       bgColor="#faf7f2"
       cssVars={{
-        '--invitation-primary': COLOR_CLASICA_DORADO,
-        '--invitation-accent': COLOR_CLASICA_ACCENT,
+        '--invitation-primary': primary,
+        '--invitation-accent': accent,
       } as React.CSSProperties}
     >
       <BodaClasicaHero invitacion={MOCK_BODA_CLASICA} />
@@ -603,13 +703,14 @@ function BodaClasicaPreview() {
   )
 }
 
-function BodaModernaPreview() {
+function BodaModernaPreview({ customColor }: { customColor?: string }) {
+  const primary = customColor || COLOR_MODERNA
   return (
     <ScrollingPreviewWrapper
       bgColor="#fff"
       cssVars={{
-        '--invitation-primary': COLOR_MODERNA,
-        '--invitation-accent': COLOR_MODERNA,
+        '--invitation-primary': primary,
+        '--invitation-accent': primary,
       } as React.CSSProperties}
     >
       <BodaModernaHero invitacion={MOCK_BODA_MODERNA} />
@@ -631,13 +732,14 @@ function BodaModernaPreview() {
   )
 }
 
-function BodaRusticaPreview() {
+function BodaRusticaPreview({ customColor }: { customColor?: string }) {
+  const primary = customColor || COLOR_RUSTICA
   return (
     <ScrollingPreviewWrapper
       bgColor="#f3f3f3"
       cssVars={{
-        '--invitation-primary': COLOR_RUSTICA,
-        '--invitation-accent': COLOR_RUSTICA,
+        '--invitation-primary': primary,
+        '--invitation-accent': primary,
       } as React.CSSProperties}
     >
       <BodaRusticaHero invitacion={MOCK_BODA_RUSTICA} />
@@ -660,15 +762,16 @@ function BodaRusticaPreview() {
   )
 }
 
-function QuincePrincesaPreview() {
+function QuincePrincesaPreview({ customColor }: { customColor?: string }) {
+  const primary = customColor || COLOR_PRINCESA
   return (
     <ScrollingPreviewWrapper
       bgColor="#fff"
       cssVars={{
-        '--invitation-primary': COLOR_PRINCESA,
-        '--invitation-accent': COLOR_PRINCESA,
-        '--invitation-bg-soft': hexToRgba(COLOR_PRINCESA, 0.08),
-        '--invitation-border': hexToRgba(COLOR_PRINCESA, 0.25),
+        '--invitation-primary': primary,
+        '--invitation-accent': primary,
+        '--invitation-bg-soft': hexToRgba(primary, 0.08),
+        '--invitation-border': hexToRgba(primary, 0.25),
         '--invitation-bg': '#9B4B6D',
       } as React.CSSProperties}
     >
@@ -691,47 +794,49 @@ function QuincePrincesaPreview() {
 
 // ─── Styled placeholder previews (stub templates) ─────────────────────────────
 
-function QuinceElegantePreview() {
+function QuinceElegantePreview({ customColor }: { customColor?: string }) {
+  const primary = customColor || COLOR_QUINCE_ELEGANTE
   return (
     <ScrollingPreviewWrapper
       bgColor="#e8f0fb"
       cssVars={{
-        '--invitation-primary': COLOR_QUINCE_ELEGANTE,
-        '--invitation-bg-soft': hexToRgba(COLOR_QUINCE_ELEGANTE, 0.07),
-        '--invitation-border': hexToRgba(COLOR_QUINCE_ELEGANTE, 0.2),
+        '--invitation-primary': primary,
+        '--invitation-bg-soft': hexToRgba(primary, 0.07),
+        '--invitation-border': hexToRgba(primary, 0.2),
       } as React.CSSProperties}
     >
-      <QuinceEleganteHero invitacion={MOCK_QUINCE_ELEGANTE} colorAccent={COLOR_QUINCE_ELEGANTE} />
+      <QuinceEleganteHero invitacion={MOCK_QUINCE_ELEGANTE} colorAccent={primary} />
       <QuinceEleganteCountdown
         fechaEvento={MOCK_QUINCE_ELEGANTE.fechaEvento}
         horaEvento={MOCK_QUINCE_ELEGANTE.horaEvento}
-        colorAccent={COLOR_QUINCE_ELEGANTE}
+        colorAccent={primary}
       />
-      <QuinceEleganteInfo invitacion={MOCK_QUINCE_ELEGANTE} colorAccent={COLOR_QUINCE_ELEGANTE} />
-      <QuinceEleganteMap invitacion={MOCK_QUINCE_ELEGANTE} colorAccent={COLOR_QUINCE_ELEGANTE} />
-      <QuinceEleganteStory historias={MOCK_QUINCE_ELEGANTE.historias} colorAccent={COLOR_QUINCE_ELEGANTE} />
+      <QuinceEleganteInfo invitacion={MOCK_QUINCE_ELEGANTE} colorAccent={primary} />
+      <QuinceEleganteMap invitacion={MOCK_QUINCE_ELEGANTE} colorAccent={primary} />
+      <QuinceEleganteStory historias={MOCK_QUINCE_ELEGANTE.historias} colorAccent={primary} />
       <QuinceEleganteRsvp
         invitacionId="preview"
         invitadoParam={null}
         mostrarBoton={false}
         fechaLimite={null}
-        colorAccent={COLOR_QUINCE_ELEGANTE}
+        colorAccent={primary}
       />
     </ScrollingPreviewWrapper>
   )
 }
 
-function QuinceModernaPreview() {
+function QuinceModernaPreview({ customColor }: { customColor?: string }) {
+  const primary = customColor || COLOR_QUINCE_MODERNA
   return (
     <ScrollingPreviewWrapper
       bgColor="#090819"
       cssVars={{
-        '--invitation-primary': COLOR_QUINCE_MODERNA,
-        '--invitation-accent': COLOR_QUINCE_MODERNA,
-        '--invitation-border': hexToRgba(COLOR_QUINCE_MODERNA, 0.22),
+        '--invitation-primary': primary,
+        '--invitation-accent': primary,
+        '--invitation-border': hexToRgba(primary, 0.22),
       } as React.CSSProperties}
     >
-      <QuinceModernaHero invitacion={MOCK_QUINCE_MODERNA} colorAccent={COLOR_QUINCE_MODERNA} />
+      <QuinceModernaHero invitacion={MOCK_QUINCE_MODERNA} colorAccent={primary} />
       <QuinceModernaCountdown
         fechaEvento={MOCK_QUINCE_MODERNA.fechaEvento}
         horaEvento={MOCK_QUINCE_MODERNA.horaEvento}
@@ -749,76 +854,52 @@ function QuinceModernaPreview() {
   )
 }
 
-function CumpleElegantePreview() {
+function CumpleElegantePreview({ customColor }: { customColor?: string }) {
+  const accentColor = customColor || "#BD9848" // DEFAULT_ACCENT for #ede2d4 in cumple-elegante
   return (
-    <ScrollingPreviewWrapper bgColor="#080808">
-      <div
-        className="w-full flex flex-col items-center px-10 py-20"
-        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", minHeight: '100vh' }}
-      >
-        <p className="text-[0.55rem] tracking-[5px] uppercase text-white/30 mb-10">
-          Una velada especial
-        </p>
-
-        {/* Nombre */}
-        <h1
-          className="text-[2.8rem] font-light text-white leading-none mb-1"
-          style={{ letterSpacing: '6px' }}
-        >
-          Alejandro
-        </h1>
-        <div className="h-px w-24 bg-white/20 my-8" />
-
-        {/* Número grande */}
-        <p
-          className="text-[9rem] font-extralight text-white/90 leading-none"
-          style={{ letterSpacing: '-8px' }}
-        >
-          30
-        </p>
-
-        <p className="text-[0.6rem] tracking-[6px] uppercase text-white/40 mb-12">AÑOS</p>
-
-        <div className="flex flex-col items-center gap-4 text-center">
-          <div>
-            <p className="text-[0.55rem] tracking-[3px] uppercase text-white/30 mb-1">Cuándo</p>
-            <p className="text-[0.9rem] font-light text-white/80">Viernes 20 de Marzo, 2026</p>
-            <p className="text-[0.75rem] text-white/40">21:30 hs</p>
-          </div>
-          <div className="h-px w-10 bg-white/15" />
-          <div>
-            <p className="text-[0.55rem] tracking-[3px] uppercase text-white/30 mb-1">Dónde</p>
-            <p className="text-[0.9rem] font-light text-white/80">Le Bar · Recoleta</p>
-          </div>
-          <div className="h-px w-10 bg-white/15" />
-          <div>
-            <p className="text-[0.55rem] tracking-[3px] uppercase text-white/30 mb-1">Dress Code</p>
-            <p className="text-[0.9rem] font-light text-white/80">All Black</p>
-          </div>
-        </div>
-
-        <button className="mt-14 border border-white/20 text-white/70 text-[0.6rem] tracking-[3px] uppercase px-12 py-3 hover:border-white/50 transition-colors">
-          Confirmar asistencia
-        </button>
+    <ScrollingPreviewWrapper
+      bgColor="#ede2d4"
+      cssVars={{
+        '--invitation-primary': COLOR_CUMPLE_ELEGANTE_BG,
+        '--invitation-accent': accentColor,
+      } as React.CSSProperties}
+    >
+      <div className="bg-[#e4e4e4] min-h-screen">
+        <CumpleEleganteHero invitacion={MOCK_CUMPLE_ELEGANTE} />
+        <CumpleEleganteCountdown
+          fechaEvento={MOCK_CUMPLE_ELEGANTE.fechaEvento}
+          horaEvento={MOCK_CUMPLE_ELEGANTE.horaEvento}
+          accentColor={accentColor}
+        />
+        <CumpleEleganteInfo invitacion={MOCK_CUMPLE_ELEGANTE} accentColor={accentColor} />
+        <CumpleEleganteMap invitacion={MOCK_CUMPLE_ELEGANTE} accentColor={accentColor} />
+        <CumpleEleganteStory historias={MOCK_CUMPLE_ELEGANTE.historias} />
+        <CumpleEleganteRsvp
+          invitacionId="preview"
+          invitadoParam={null}
+          mostrarBoton={false}
+          accentColor={accentColor}
+        />
       </div>
     </ScrollingPreviewWrapper>
   )
 }
 
-function CumpleFestivoPreview() {
+function CumpleFestivoPreview({ customColor }: { customColor?: string }) {
+  const primary = customColor || COLOR_CUMPLE_FESTIVO
   return (
     <ScrollingPreviewWrapper
       bgColor="#1a1a1a"
       cssVars={{
-        '--invitation-primary': COLOR_CUMPLE_FESTIVO,
+        '--invitation-primary': primary,
       } as React.CSSProperties}
     >
-      <CumpleFestivoHero invitacion={MOCK_CUMPLE_FESTIVO} colorAccent={COLOR_CUMPLE_FESTIVO} />
+      <CumpleFestivoHero invitacion={MOCK_CUMPLE_FESTIVO} colorAccent={primary} />
       <CumpleFestivoCountdown
         fechaEvento={MOCK_CUMPLE_FESTIVO.fechaEvento}
         horaEvento={MOCK_CUMPLE_FESTIVO.horaEvento}
       />
-      <CumpleFestivoInfo invitacion={MOCK_CUMPLE_FESTIVO} colorAccent={COLOR_CUMPLE_FESTIVO} />
+      <CumpleFestivoInfo invitacion={MOCK_CUMPLE_FESTIVO} colorAccent={primary} />
       <CumpleFestivoMap
         ubicacion={MOCK_CUMPLE_FESTIVO.ubicacion}
         direccion={MOCK_CUMPLE_FESTIVO.direccion}
@@ -836,77 +917,34 @@ function CumpleFestivoPreview() {
   )
 }
 
-function CumpleInfantilPreview() {
+function CumpleInfantilPreview({ customColor }: { customColor?: string }) {
+  const primary = customColor || COLOR_CUMPLE_INFANTIL
+  const colorAcento = customColor || "#F7A921"
   return (
-    <ScrollingPreviewWrapper bgColor="#e0f4ff">
-      <div
-        className="w-full flex flex-col items-center px-8 py-14"
-        style={{ fontFamily: "'Outfit', sans-serif", minHeight: '100vh' }}
-      >
-        {/* Nubes decorativas */}
-        <div className="flex gap-4 mb-6 opacity-60">
-          {[40, 55, 40].map((w, i) => (
-            <div
-              key={i}
-              className="rounded-full bg-white"
-              style={{ width: w, height: w * 0.6, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
-            />
-          ))}
-        </div>
-
-        <p className="text-[0.65rem] font-bold tracking-[3px] uppercase text-[#0288d1] mb-3">
-          ¡Gran Fiesta!
-        </p>
-        <h1
-          className="text-[3.2rem] font-black text-[#01579b] leading-none mb-1"
-        >
-          Emilio
-        </h1>
-
-        {/* Número con globos */}
-        <div className="flex items-end gap-1 my-6">
-          <span className="text-3xl">🎈</span>
-          <div
-            className="w-24 h-24 rounded-full flex items-center justify-center"
-            style={{ background: '#0288d1' }}
-          >
-            <span className="text-[3rem] font-black text-white leading-none">6</span>
-          </div>
-          <span className="text-3xl">🎈</span>
-        </div>
-
-        <p className="text-[0.8rem] font-medium text-[#0277bd] mb-8">¡Cumple 6 añitos!</p>
-
-        {/* Datos */}
-        <div
-          className="w-full rounded-3xl px-6 py-6 flex flex-col gap-4 mb-8"
-          style={{ background: 'rgba(255,255,255,0.7)', border: '2px solid rgba(2,136,209,0.2)' }}
-        >
-          {[
-            { emoji: '🗓️', label: 'Cuándo', value: 'Domingo 12 de Abril, 2026', sub: '16:00 hs' },
-            { emoji: '📍', label: 'Dónde', value: 'Club Infantil Alegría, Palermo' },
-          ].map(({ emoji, label, value, sub }) => (
-            <div key={label} className="flex items-start gap-3">
-              <span className="text-xl">{emoji}</span>
-              <div>
-                <p className="text-[0.55rem] font-bold tracking-wider uppercase text-[#0288d1] mb-0.5">{label}</p>
-                <p className="text-[0.85rem] font-semibold text-[#01579b]">{value}</p>
-                {sub && <p className="text-[0.7rem] text-[#0288d1]/70">{sub}</p>}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex gap-3 text-2xl mb-8">
-          <span>⭐</span><span>🎂</span><span>🎁</span><span>🌟</span>
-        </div>
-
-        <button
-          className="font-bold text-[0.7rem] tracking-wider px-12 py-3.5 rounded-full text-white"
-          style={{ background: '#0288d1' }}
-        >
-          ¡Voy a la fiesta! 🎉
-        </button>
+    <ScrollingPreviewWrapper
+      bgColor={colorAcento}
+      cssVars={{
+        '--invitation-primary': primary,
+        '--invitation-accent': colorAcento,
+        '--font-infantil-display': "'Baloo 2', sans-serif",
+        '--font-infantil-body': "'Nunito', sans-serif",
+      } as React.CSSProperties}
+    >
+      <div className="bg-white min-h-screen">
+        <CumpleInfantilHero invitacion={MOCK_CUMPLE_INFANTIL} />
+        <CumpleInfantilCountdown
+          fechaEvento={MOCK_CUMPLE_INFANTIL.fechaEvento}
+          horaEvento={MOCK_CUMPLE_INFANTIL.horaEvento}
+        />
+        <CumpleInfantilInfo invitacion={MOCK_CUMPLE_INFANTIL} accentColor={primary} />
+        <CumpleInfantilMap invitacion={MOCK_CUMPLE_INFANTIL} accentColor={primary} />
+        <CumpleInfantilStory historias={MOCK_CUMPLE_INFANTIL.historias} />
+        <CumpleInfantilRsvp
+          invitacionId="preview"
+          invitadoParam={null}
+          mostrarBoton={false}
+          accentColor={primary}
+        />
       </div>
     </ScrollingPreviewWrapper>
   )
@@ -914,7 +952,7 @@ function CumpleInfantilPreview() {
 
 // ─── Registry ─────────────────────────────────────────────────────────────────
 
-const PREVIEW_REGISTRY: Record<string, () => React.JSX.Element> = {
+const PREVIEW_REGISTRY: Record<string, (props: { customColor?: string }) => React.JSX.Element> = {
   'boda-clasica':    BodaClasicaPreview,
   'boda-moderna':    BodaModernaPreview,
   'boda-rustica':    BodaRusticaPreview,
@@ -936,6 +974,9 @@ export const SLUG_BY_EVENT_TYPE: Record<'boda' | 'quince' | 'cumple', string> = 
 export interface InvitationPreviewProps {
   /** Template slug, e.g. 'boda-clasica', 'quince-princesa', 'cumple-festivo'. */
   slug: string
+  color?: string
+  interactive?: boolean
+  paused?: boolean
 }
 
 /**
@@ -946,9 +987,15 @@ export interface InvitationPreviewProps {
  * <InvitationPreview slug="boda-clasica" />
  * <InvitationPreview slug={SLUG_BY_EVENT_TYPE[eventType]} />
  */
-export function InvitationPreview({ slug }: InvitationPreviewProps) {
+export function InvitationPreview({ slug, color, interactive = true, paused = false }: InvitationPreviewProps) {
   const Preview = PREVIEW_REGISTRY[slug] ?? null
   if (!Preview) return null
-  return <Preview />
+  return (
+    <div className={`w-full h-full ${interactive ? '' : 'pointer-events-none'}`}>
+      <PreviewContext.Provider value={{ paused }}>
+        <Preview customColor={color} />
+      </PreviewContext.Provider>
+    </div>
+  )
 }
 

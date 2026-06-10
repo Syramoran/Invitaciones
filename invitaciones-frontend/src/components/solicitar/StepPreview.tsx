@@ -9,6 +9,8 @@ import type { AddonState, AddonData, EventType, PriceBreakdown } from './types'
 interface Props {
   eventType: EventType
   templateName: string | null
+  templateSlug?: string | null
+  templateThumbnailUrl?: string | null
   color: string
   addons: AddonState
   addonsData: AddonData[]
@@ -18,7 +20,7 @@ interface Props {
   onPrev: () => void
 }
 
-export function StepPreview({ eventType, templateName, color, addons, addonsData, secondVersion, prices, onNext, onPrev }: Props) {
+export function StepPreview({ eventType, templateName, templateSlug, templateThumbnailUrl, color, addons, addonsData, secondVersion, prices, onNext, onPrev }: Props) {
   const { total } = prices
 
   const activeAddonLabels = addonsData
@@ -37,7 +39,13 @@ export function StepPreview({ eventType, templateName, color, addons, addonsData
         {/* Phone mockup */}
         <div className="flex flex-col items-center gap-5">
           <PhoneMockup size="md">
-            <InvitationPreview slug={SLUG_BY_EVENT_TYPE[eventType]} />
+            {templateSlug ? (
+              <InvitationPreview slug={templateSlug} color={color || undefined} />
+            ) : templateThumbnailUrl ? (
+              <img src={templateThumbnailUrl} alt={templateName || 'Template'} className="w-full h-full object-cover" />
+            ) : (
+              <InvitationPreview slug={SLUG_BY_EVENT_TYPE[eventType]} color={color || undefined} />
+            )}
           </PhoneMockup>
           <p className="text-sm text-warm-gray font-light text-center max-w-xs italic leading-relaxed">
            La invitación final será creada por nuestro equipo con los datos reales de tu evento.

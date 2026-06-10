@@ -1,14 +1,21 @@
 import { Link } from 'react-router-dom'
 import { MessageCircle, Star } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 export function FinalCTA() {
   return (
-    <section id="contacto" className="py-24 bg-charcoal text-champagne-light text-center relative overflow-hidden">
+    <section id="contacto" className="py-16 bg-charcoal text-champagne-light text-center relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute -top-1/2 -left-[20%] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(197,165,114,0.08)_0%,transparent_70%)]" />
       <div className="absolute -bottom-1/2 -right-[20%] w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(197,165,114,0.06)_0%,transparent_70%)]" />
 
-      <div className="max-w-[1200px] mx-auto px-6 relative z-10">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.7 }}
+        className="max-w-[1200px] mx-auto px-6 relative z-10"
+      >
         <div className="flex items-center justify-center gap-4 mb-6 text-gold-light">
           <span className="w-[60px] h-px bg-gradient-to-r from-transparent via-gold-light to-transparent" />
           <Star className="w-5 h-5 fill-gold-light" />
@@ -41,7 +48,7 @@ export function FinalCTA() {
             <span>→</span>
           </a>
         </div>
-      </div>
+      </motion.div>
     </section>
   )
 }

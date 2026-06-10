@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Monitor, ClipboardList, MessageCircle, Link2 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { Ornament } from './Ornament'
 
 const steps = [
@@ -31,7 +32,13 @@ export function HowItWorks() {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-champagne-dark to-transparent" />
 
       <div className="max-w-[1200px] mx-auto px-6">
-        <div className="text-center mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
           <Ornament />
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             El proceso
@@ -42,7 +49,7 @@ export function HowItWorks() {
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
             En 4 pasos tenes tu invitación lista para compartir
           </p>
-        </div>
+        </motion.div>
 
         <div className="max-w-[700px] mx-auto relative">
           {/* Vertical line */}
@@ -50,7 +57,14 @@ export function HowItWorks() {
 
           <div className="space-y-12">
             {steps.map((step, index) => (
-              <div key={index} className="flex gap-7 relative">
+              <motion.div 
+                key={index} 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: index * 0.15 }}
+                className="flex gap-7 relative"
+              >
                 <div className="w-[58px] h-[58px] min-w-[58px] rounded-full bg-white border-2 border-gold-light flex items-center justify-center font-display text-xl font-semibold text-gold-dark z-10">
                   {index + 1}
                 </div>
@@ -63,7 +77,7 @@ export function HowItWorks() {
                     {step.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

@@ -55,12 +55,14 @@ export function InvitationView({ invitacion, invitadoParam }: InvitationViewProp
         <InfoSection invitacion={invitacion} accentColor={accentColor} />
         <MapSection invitacion={invitacion} accentColor={accentColor} />
         <StorySection historias={invitacion.historias} />
-        <RsvpSection
-          invitacionId={invitacion.id}
-          invitadoParam={invitadoParam ?? null}
-          mostrarBoton={invitacion.mostrarBotonConfirmar}
-          accentColor={accentColor}
-        />
+        {invitacion.tieneConfirmacion && (
+          <RsvpSection
+            invitacionId={invitacion.id}
+            invitadoParam={invitadoParam ?? null}
+            mostrarBoton={invitacion.mostrarBotonConfirmar}
+            accentColor={accentColor}
+          />
+        )}
       </div>
     </div>
   )

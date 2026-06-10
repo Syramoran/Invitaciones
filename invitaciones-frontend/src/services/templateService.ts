@@ -4,6 +4,7 @@ export interface Template {
   id: number
   tipoEventoId: number
   nombre: string
+  slug: string
   thumbnailUrl: string | null
   descripcion: string | null
   activo: boolean

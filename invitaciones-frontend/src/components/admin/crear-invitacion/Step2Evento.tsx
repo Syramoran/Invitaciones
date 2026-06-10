@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Check } from 'lucide-react'
 import type { WizardStep2, UbicacionEvento, TipoUbicacion } from '@/types/crearInvitacion'
-import { TIPOS_UBICACION_OPTIONS as TIPOS_UBICACION, COLORES_PALETA } from '@/types/crearInvitacion'
+import { TIPOS_UBICACION_OPTIONS as TIPOS_UBICACION, COLORES_PALETA, TEMPLATE_COLORS } from '@/types/crearInvitacion'
 
 // ─── Dynamic field definitions per tipoEventoId ───────────────────────────────
 
@@ -48,22 +48,6 @@ const CAMPOS_CUMPLE: FieldDef[] = [
 
 const CAMPOS_MAP: Record<number, FieldDef[]> = { 1: CAMPOS_BODA, 2: CAMPOS_QUINCE, 3: CAMPOS_CUMPLE }
 const TIPO_NOMBRES: Record<number, string> = { 1: 'Boda', 2: 'Quinceañera', 3: 'Cumpleaños' }
-
-// Colores disponibles para la plantilla quince-princesa
-const COLORES_QUINCE_PRINCESA = COLORES_PALETA.filter(c =>
-  (['#894F8E', '#B14B8F', '#DC83AA', '#D16A32', '#BD9848', '#65795A', '#2A63A8'] as string[]).includes(c.hex)
-)
-
-// Colores de fondo disponibles para cumple-elegante (el acento se deriva automáticamente)
-const COLORES_CUMPLE_ELEGANTE = [
-  { hex: '#EDE2D4', label: 'Beige dorado'  },
-  { hex: '#F1F1F1', label: 'Gris perla'    },
-  { hex: '#DAE4F1', label: 'Azul hielo'    },
-  { hex: '#E2DAF1', label: 'Lila'          },
-  { hex: '#F4E1E1', label: 'Rosa pálido'   },
-] as const
-
-const COLOR_DEFAULT_CUMPLE_ELEGANTE = '#EDE2D4'
 
 // ─── Shared input classes ─────────────────────────────────────────────────────
 
@@ -236,6 +220,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
 
   const esQuince = tipoEventoId === 2
   const esCumpleElegante = templateSlug === 'cumple-elegante'
+  const esCumpleInfantil = templateSlug === 'cumple-infantil'
   // Para quinceañera siempre un solo lugar
   const efectivamenteMultiple = !esQuince && modoMultiple
 
@@ -250,12 +235,15 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tipoEventoId])
 
-  // Cumple elegante: establecer color predeterminado al seleccionar esta plantilla
+  // Establecer color predeterminado al seleccionar o cambiar de plantilla
   const prevSlugRef = useRef(templateSlug)
   useEffect(() => {
-    if (esCumpleElegante && prevSlugRef.current !== 'cumple-elegante') {
-      const valido = COLORES_CUMPLE_ELEGANTE.some(c => c.hex.toLowerCase() === state.colorPrimario?.toLowerCase())
-      if (!valido) onChange({ colorPrimario: COLOR_DEFAULT_CUMPLE_ELEGANTE })
+    if (templateSlug && templateSlug !== prevSlugRef.current) {
+      const paleta = TEMPLATE_COLORS[templateSlug] || COLORES_PALETA
+      const valido = paleta.some(c => c.hex.toLowerCase() === state.colorPrimario?.toLowerCase())
+      if (!valido && paleta.length > 0) {
+        onChange({ colorPrimario: paleta[0].hex })
+      }
     }
     prevSlugRef.current = templateSlug ?? null
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -446,14 +434,14 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
       {/* Color, password, max photos — always visible */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         {!esQuince && (() => {
-          const paleta = esCumpleElegante ? COLORES_CUMPLE_ELEGANTE : COLORES_PALETA
-          const etiqueta = [...COLORES_PALETA, ...COLORES_CUMPLE_ELEGANTE].find(c => c.hex.toLowerCase() === state.colorPrimario?.toLowerCase())?.label ?? state.colorPrimario
+          const paleta = templateSlug ? (TEMPLATE_COLORS[templateSlug] || COLORES_PALETA) : COLORES_PALETA
+          const etiqueta = paleta.find(c => c.hex.toLowerCase() === state.colorPrimario?.toLowerCase())?.label ?? state.colorPrimario
           return (
           <div className="sm:col-span-2">
             <Label text="Color primario" />
             <div className="flex flex-wrap gap-2 mt-1">
               {/* Swatch predeterminado — solo para plantillas sin paleta fija */}
-              {!esCumpleElegante && (
+              {(!templateSlug || !TEMPLATE_COLORS[templateSlug]) && (
                 <button
                   type="button"
                   title="Predeterminado"
@@ -484,7 +472,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
                   }}
                 >
                   {state.colorPrimario?.toLowerCase() === c.hex.toLowerCase() && (
-                    <Check className="w-3.5 h-3.5 absolute inset-0 m-auto drop-shadow" style={{ color: esCumpleElegante ? '#555' : 'white' }} />
+                    <Check className="w-3.5 h-3.5 absolute inset-0 m-auto drop-shadow" style={{ color: templateSlug === 'cumple-elegante' ? '#555' : 'white' }} />
                   )}
                 </button>
               ))}
@@ -538,12 +526,13 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
                 </div>
               )
               if (def.key === 'colorTematico') {
-                const selectedColor = state.camposEspecificos.colorTematico || '#DC83AA'
+                const paletaQuince = templateSlug ? (TEMPLATE_COLORS[templateSlug] || COLORES_PALETA) : COLORES_PALETA
+                const selectedColor = state.camposEspecificos.colorTematico || (paletaQuince[0]?.hex ?? '#DC83AA')
                 return (
                   <div key={def.key} className="sm:col-span-2">
                     <Label text={def.label} />
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {COLORES_QUINCE_PRINCESA.map(c => (
+                      {paletaQuince.map(c => (
                         <button
                           key={c.hex}
                           type="button"
@@ -566,7 +555,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
                       ))}
                     </div>
                     <p className="mt-2 text-[.78rem] text-[#6b7280]">
-                      {COLORES_QUINCE_PRINCESA.find(c => c.hex === selectedColor)?.label ?? 'Sin selección'}
+                      {paletaQuince.find(c => c.hex === selectedColor)?.label ?? 'Sin selección'}
                     </p>
                   </div>
                 )

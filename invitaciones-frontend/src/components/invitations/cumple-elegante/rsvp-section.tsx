@@ -29,6 +29,20 @@ export function RsvpSection({ invitacionId, invitadoParam, mostrarBoton, accentC
     }
   }
 
+  // Sin invitado en la URL → mostrar "Te espero"
+  if (!invitadoParam) {
+    return (
+      <section className="px-7 py-12 text-center">
+        <h2
+          className="text-[32px] italic"
+          style={{ fontFamily: "'Libre Baskerville', Georgia, serif", color: accentColor }}
+        >
+          ¡Te espero!
+        </h2>
+      </section>
+    )
+  }
+
   if (!mostrarBoton) return null
 
   return (

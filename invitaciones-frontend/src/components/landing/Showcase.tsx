@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Ornament } from './Ornament'
 import { PhoneMockup } from './PhoneMockup'
 import { InvitationPreview } from './InvitationPreview'
@@ -140,10 +141,16 @@ export function Showcase() {
   const templates = TEMPLATES_BY_EVENT[activeTab]
 
   return (
-    <section id="showcase" className="py-24 relative">
+    <section id="showcase" className="py-16 relative">
       <div className="max-w-[1200px] mx-auto px-6">
         {/* Header */}
-        <div className="text-center mb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8"
+        >
           <Ornament />
           <span className="text-xs tracking-[3px] uppercase text-rose-deep font-medium block mb-3">
             Vista previa
@@ -154,7 +161,7 @@ export function Showcase() {
           <p className="text-base text-warm-gray font-light leading-relaxed max-w-[560px] mx-auto">
             Cada tipo de evento tiene su propio estilo visual
           </p>
-        </div>
+        </motion.div>
 
         {/* Event type tabs */}
         <div className="flex justify-center gap-2 mb-10">
