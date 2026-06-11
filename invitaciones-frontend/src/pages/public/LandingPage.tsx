@@ -2,6 +2,7 @@ import { Header } from '@/components/landing/Header'
 import { Hero } from '@/components/landing/Hero'
 import { Features } from '@/components/landing/Features'
 import { GalleryFeature } from '@/components/landing/GalleryFeature'
+import { Services } from '@/components/landing/Services'
 import { Events } from '@/components/landing/Events'
 import { HowItWorks } from '@/components/landing/HowItWorks'
 import { Showcase } from '@/components/landing/Showcase'
@@ -19,6 +20,7 @@ export default function LandingPage() {
       <Events />
       <Showcase />
       <GalleryFeature />
+      <Services />
       <Features />
       {/* <HowItWorks /> */}
       {/* <Pricing /> */}

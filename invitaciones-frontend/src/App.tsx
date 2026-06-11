@@ -11,6 +11,8 @@ const InvitacionPage       = lazy(() => import('@/pages/public/InvitacionPage'))
 const GaleriaPage          = lazy(() => import('@/pages/public/GaleriaPage'))
 const AsistentesPage       = lazy(() => import('@/pages/public/AsistentesPage'))
 const PedidoEnviadoPage    = lazy(() => import('@/pages/public/PedidoEnviadoPage'))
+const EmprendePage         = lazy(() => import('@/pages/public/EmprendePage'))
+const TemplatesShowcasePage= lazy(() => import('@/pages/public/TemplatesShowcasePage'))
 const TerminosServicio     = lazy(() => import('@/pages/legal/TerminosServicio'))
 const PoliticaPrivacidad   = lazy(() => import('@/pages/legal/PoliticaPrivacidad'))
 const AvisoCookies         = lazy(() => import('@/pages/legal/AvisoCookies'))
@@ -47,6 +49,8 @@ export default function App() {
             <Route path="/"                        element={<LandingPage />} />
             <Route path="/crear"                   element={<SolicitarPage />} />
             <Route path="/pedido-enviado"          element={<PedidoEnviadoPage />} />
+            <Route path="/emprende"                element={<EmprendePage />} />
+            <Route path="/templates"               element={<TemplatesShowcasePage />} />
             <Route path="/:eventoId"               element={<InvitacionPage />} />
             <Route path="/:eventoId/galeria"       element={<GaleriaPage />} />
             <Route path="/:eventoId/asistentes"   element={<AsistentesPage />} />
