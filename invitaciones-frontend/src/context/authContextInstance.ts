@@ -13,6 +13,8 @@ export interface AuthContextValue {
   isAuthenticated: boolean
   login(username: string, password: string): Promise<void>
   logout(): Promise<void>
+  register(username: string, email: string, password: string, name?: string): Promise<void>
+  verifyEmail(token: string): Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

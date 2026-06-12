@@ -15,6 +15,7 @@ import {
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // ═══════════════════════════════════════════
 // REQUEST DTOs
@@ -26,18 +27,23 @@ import { PartialType } from '@nestjs/mapped-types';
  * Los archivos (fotos, música) se envían como multipart/form-data.
  */
 export class CreateInvitacionDto {
+  @ApiPropertyOptional({ example: 1 })
+  @IsOptional()
   @IsInt()
   @Type(() => Number)
-  pedidoId!: number;
+  pedidoId?: number;
 
+  @ApiProperty({ example: 2 })
   @IsInt()
   @Type(() => Number)
   templateId!: number;
 
+  @ApiProperty({ example: 1 })
   @IsInt()
   @Type(() => Number)
   tipoEventoId!: number;
 
+  @ApiProperty({ example: 'Boda de Juan y Ana' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
@@ -129,21 +135,25 @@ export class UpdateInvitacionDto extends PartialType(CreateInvitacionDto) {
  * Query params para listar invitaciones con filtro y paginación (admin).
  */
 export class InvitacionQueryDto {
+  @ApiPropertyOptional({ example: 1 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   page?: number = 1;
 
+  @ApiPropertyOptional({ example: 20 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   limit?: number = 20;
 
+  @ApiPropertyOptional({ example: true })
   @IsOptional()
   @Type(() => Boolean)
   @IsBoolean()
   activa?: boolean;
 
+  @ApiPropertyOptional({ example: 1 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -160,7 +170,7 @@ export class InvitacionQueryDto {
  */
 export class InvitacionResponseDto {
   id!: string;
-  pedidoId!: number;
+  pedidoId!: number | null;
   templateId!: number;
   templateNombre!: string;
   tipoEventoId!: number;

@@ -10,7 +10,9 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 import { NotificacionesService } from './notificaciones.service';
 import { NotificacionQueryDto } from './dto/notificacion.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Notificaciones')
 @Controller('notificaciones')
 @UseGuards(JwtAuthGuard)
 export class NotificacionesController {
@@ -23,6 +25,9 @@ export class NotificacionesController {
   // ═══════════════════════════════════════════
 
   @Get()
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Listar notificaciones (admin)' })
+  @ApiResponse({ status: 200, description: 'Lista paginada de notificaciones' })
   async listar(@Query() query: NotificacionQueryDto) {
     return this.notificacionesService.listar(query);
   }
@@ -33,6 +38,9 @@ export class NotificacionesController {
 
   @Post('test')
   @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Enviar notificación de prueba (admin)' })
+  @ApiResponse({ status: 201, description: 'Notificación de prueba enviada' })
   async enviarPrueba() {
     return this.notificacionesService.enviarPrueba();
   }

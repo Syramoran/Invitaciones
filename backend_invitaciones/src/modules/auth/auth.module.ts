@@ -11,34 +11,37 @@ import { UsuarioService } from '../entities-modules/usuario-module/usuario.servi
 import { LoginAttemptService } from './login-attempt.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt.auth.guard';
+import { RolesGuard } from './guards/roles.guard';
 import { TokenBlacklistService } from './strategies/token-blacklist.service';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Usuario
-    ]),
+    TypeOrmModule.forFeature([Usuario]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.getOrThrow<string>('JWT_SECRET'), 
+        secret: configService.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN') as any, 
+          expiresIn: configService.get<string>('JWT_EXPIRES_IN') as any,
         },
       }),
     }),
+    NotificacionesModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService,
+  providers: [
+    AuthService,
     HashService,
     JwtStrategy,
     JwtAuthGuard,
+    RolesGuard,
     LoginAttemptService,
     TokenBlacklistService,
-    UsuarioService
+    UsuarioService,
   ],
-  exports: [JwtModule, PassportModule, HashService, JwtAuthGuard],
+  exports: [JwtModule, PassportModule, HashService, JwtAuthGuard, RolesGuard, UsuarioService],
 })
 export class AuthModule { }

@@ -75,7 +75,10 @@ export class InvitacionesService {
     archivoMusica?: Express.Multer.File,
   ): Promise<InvitacionResponseDto> {
     // 1. Validar entidades relacionadas
-    const pedido = await this.validarPedido(dto.pedidoId);
+    let pedido: Pedido | null = null;
+    if (dto.pedidoId) {
+      pedido = await this.validarPedido(dto.pedidoId);
+    }
     const tipoEvento = await this.validarTipoEvento(dto.tipoEventoId);
     const template = await this.validarTemplate(dto.templateId, dto.tipoEventoId);
     const serviciosValidados = await this.validarServicios(dto.serviciosIds);
@@ -83,7 +86,7 @@ export class InvitacionesService {
     // 2. Transacción: crear invitación + servicios + actualizar pedido
     const invitacion = await this.dataSource.transaction(async (manager) => {
       const nueva = manager.create(Invitacion, {
-        pedidoId: dto.pedidoId,
+        pedidoId: dto.pedidoId || null,
         templateId: dto.templateId,
         tipoEventoId: dto.tipoEventoId,
         titulo: dto.titulo,
@@ -114,8 +117,10 @@ export class InvitacionesService {
         await manager.save(InvitacionServicio, registros);
       }
 
-      pedido.estado = EstadoPedido.COMPLETADO;
-      await manager.save(Pedido, pedido);
+      if (pedido) {
+        pedido.estado = EstadoPedido.COMPLETADO;
+        await manager.save(Pedido, pedido);
+      }
 
       return guardada;
     });
@@ -131,8 +136,8 @@ export class InvitacionesService {
 
     this.logger.log(
       `✅ Invitación creada — ID: ${invitacion.id} | ` +
-      `Pedido: #${dto.pedidoId} | Evento: ${tipoEvento.nombre} | ` +
-      `Template: ${template.nombre}`,
+      (dto.pedidoId ? `Pedido: #${dto.pedidoId} | ` : '') +
+      `Evento: ${tipoEvento.nombre} | Template: ${template.nombre}`,
     );
 
     return mapearInvitacionResponse(

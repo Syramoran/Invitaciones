@@ -32,6 +32,10 @@ import { MusicaModule } from './modules/musica/musica.module';
 // ── Cron jobs ──
 import { CronJobsModule } from './modules/cron-jobs/cron-jobs.module';
 
+// ── Client & Payments ──
+import { PagosModule } from './modules/pagos/pagos.module';
+import { ClientModule } from './modules/client/client.module';
+
 @Module({
   imports: [
     // ── Configuración global ──
@@ -112,6 +116,10 @@ import { CronJobsModule } from './modules/cron-jobs/cron-jobs.module';
     GaleriaModule,
     MusicaModule,
 
+    // ── Client & Payments ──
+    PagosModule,
+    ClientModule,
+
     // ── Cron jobs ──
     CronJobsModule,
   ],
@@ -126,4 +134,4 @@ import { CronJobsModule } from './modules/cron-jobs/cron-jobs.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

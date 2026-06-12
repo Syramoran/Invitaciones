@@ -23,7 +23,9 @@ import {
   PaginatedPedidosDto,
 } from './dto/pedido.dto';
 import { Public } from '../auth/decorators/public.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Pedidos')
 @Controller('pedidos')
 export class PedidosController {
   constructor(private readonly pedidosService: PedidosService) {}
@@ -36,6 +38,8 @@ export class PedidosController {
   @Post()
   @Public()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Crear pedido desde la landing (público)' })
+  @ApiResponse({ status: 201, description: 'Pedido creado exitosamente' })
   async crear(@Body() dto: CreatePedidoDto): Promise<PedidoResponseDto> {
     return this.pedidosService.crear(dto);
   }
@@ -47,6 +51,9 @@ export class PedidosController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Listar pedidos (admin)' })
+  @ApiResponse({ status: 200, description: 'Lista paginada de pedidos' })
   async listar(@Query() query: PedidoQueryDto): Promise<PaginatedPedidosDto> {
     return this.pedidosService.listar(query);
   }
@@ -57,6 +64,9 @@ export class PedidosController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Obtener pedido por ID (admin)' })
+  @ApiResponse({ status: 200, description: 'Detalle del pedido' })
   async obtenerPorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<PedidoResponseDto> {
@@ -70,6 +80,9 @@ export class PedidosController {
 
   @Patch(':id/estado')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Cambiar estado del pedido (admin)' })
+  @ApiResponse({ status: 200, description: 'Estado actualizado' })
   async cambiarEstado(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateEstadoPedidoDto,
@@ -84,6 +97,8 @@ export class PedidosController {
 
   @Get(':id/resumen')
   @Public()
+  @ApiOperation({ summary: 'Obtener resumen del pedido para el cliente (público)' })
+  @ApiResponse({ status: 200, description: 'Resumen del pedido' })
   async obtenerResumen(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<PedidoResumenResponseDto> {

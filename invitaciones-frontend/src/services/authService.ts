@@ -10,6 +10,18 @@ interface LoginResponse {
   user: { id: number; username: string; email: string; role: string }
 }
 
+interface RegisterPayload {
+  username: string
+  email: string
+  password: string
+  nombreCompleto?: string
+}
+
+interface RegisterResponse {
+  message?: string
+  user?: any
+}
+
 export const authService = {
   async login(payload: LoginPayload): Promise<LoginResponse> {
     const { data } = await apiClient.post<LoginResponse>('/auth/login', payload)
@@ -23,6 +35,16 @@ export const authService = {
     } finally {
       localStorage.removeItem(JWT_KEY)
     }
+  },
+
+  async register(payload: RegisterPayload): Promise<RegisterResponse> {
+    const { data } = await apiClient.post<RegisterResponse>('/auth/register', payload)
+    return data
+  },
+
+  async verifyEmail(token: string): Promise<any> {
+    const { data } = await apiClient.get(`/auth/verify-email?token=${token}`)
+    return data
   },
 
   async me() {

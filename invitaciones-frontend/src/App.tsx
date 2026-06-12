@@ -29,6 +29,12 @@ const ServiciosPage        = lazy(() => import('@/pages/admin/ServiciosPage'))
 const TemplatesPage        = lazy(() => import('@/pages/admin/TemplatesPage'))
 const ReportesPage         = lazy(() => import('@/pages/admin/ReportesPage'))
 
+// Client pages
+const ClientLoginPage      = lazy(() => import('@/pages/client/ClientLoginPage'))
+const ClientRegisterPage   = lazy(() => import('@/pages/client/ClientRegisterPage'))
+const ClientVerifyEmailPage= lazy(() => import('@/pages/client/ClientVerifyEmailPage'))
+const ClientPanelPage      = lazy(() => import('@/pages/client/ClientPanelPage'))
+
 /* Guard de rutas privadas */
 function PrivateRoute({ children }: { children: React.JSX.Element }) {
   const { isAuthenticated, isLoading } = useAuth()
@@ -60,6 +66,12 @@ export default function App() {
             <Route path="/privacidad"             element={<PoliticaPrivacidad />} />
             <Route path="/cookies"               element={<AvisoCookies />} />
             <Route path="/disclaimer"            element={<Disclaimer />} />
+
+            {/* ── CLIENTE ── */}
+            <Route path="/client/login"            element={<ClientLoginPage />} />
+            <Route path="/client/register"         element={<ClientRegisterPage />} />
+            <Route path="/client/verify-email"     element={<ClientVerifyEmailPage />} />
+            <Route path="/client/panel"            element={<PrivateRoute><ClientPanelPage /></PrivateRoute>} />
 
             {/* ── ADMIN ── */}
             <Route path="/admin/login" element={<LoginPage />} />

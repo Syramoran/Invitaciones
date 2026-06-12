@@ -20,7 +20,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 import { HistoriasService } from './historia.service';
 import { CreateHistoriaSeccionDto, UpdateHistoriaSeccionDto } from './dto/historia.dto';
 import { Public } from '../auth/decorators/public.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 
+@ApiTags('Historias')
 @Controller('invitaciones/:id/historias')
 export class HistoriasController {
   constructor(private readonly historiasService: HistoriasService) {}
@@ -31,6 +33,8 @@ export class HistoriasController {
 
   @Public()
   @Get()
+  @ApiOperation({ summary: 'Listar secciones de la historia (público)' })
+  @ApiResponse({ status: 200, description: 'Lista de secciones devuelta' })
   async listar(@Param('id', ParseUUIDPipe) invitacionId: string) {
     return this.historiasService.listar(invitacionId);
   }
@@ -43,6 +47,10 @@ export class HistoriasController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Crear sección de historia (admin/cliente)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Sección creada' })
   @UseInterceptors(
     FileInterceptor('imagen', {
       storage: memoryStorage(),
@@ -66,6 +74,10 @@ export class HistoriasController {
 
   @Put(':seccionId')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Actualizar sección de historia (admin/cliente)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 200, description: 'Sección actualizada' })
   @UseInterceptors(
     FileInterceptor('imagen', {
       storage: memoryStorage(),
@@ -90,6 +102,9 @@ export class HistoriasController {
   @Delete(':seccionId')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar sección de historia (admin/cliente)' })
+  @ApiResponse({ status: 204, description: 'Sección eliminada' })
   async eliminar(
     @Param('id', ParseUUIDPipe) invitacionId: string,
     @Param('seccionId', ParseIntPipe) seccionId: number,

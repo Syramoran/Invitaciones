@@ -8,17 +8,20 @@ import {
   Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTemplateDto {
+  @ApiProperty({ example: 1 })
   @IsInt()
   tipoEventoId!: number;
 
+  @ApiProperty({ example: 'Boda Clásica' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(150)
   nombre!: string;
 
-
+  @ApiProperty({ example: 'boda-clasica' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
@@ -27,11 +30,13 @@ export class CreateTemplateDto {
   })
   slug!: string;
 
+  @ApiPropertyOptional({ example: 'https://...' })
   @IsString()
   @IsOptional()
   @MaxLength(500)
   thumbnailUrl?: string;
 
+  @ApiPropertyOptional({ example: 'Descripción del template' })
   @IsString()
   @IsOptional()
   descripcion?: string;
@@ -39,11 +44,13 @@ export class CreateTemplateDto {
 
 
 export class UpdateTemplateDto {
+  @ApiPropertyOptional({ example: 'Boda Clásica' })
   @IsString()
   @IsOptional()
   @MaxLength(150)
   nombre?: string;
 
+  @ApiPropertyOptional({ example: 'boda-clasica' })
   @IsString()
   @IsOptional()
   @MaxLength(100)
@@ -52,11 +59,13 @@ export class UpdateTemplateDto {
   })
   slug?: string;
 
+  @ApiPropertyOptional({ example: 'https://...' })
   @IsString()
   @IsOptional()
   @MaxLength(500)
   thumbnailUrl?: string;
 
+  @ApiPropertyOptional({ example: 'Descripción del template' })
   @IsString()
   @IsOptional()
   descripcion?: string;
@@ -67,11 +76,13 @@ export class UpdateTemplateDto {
  * GET /templates?tipoEventoId=1&activo=true
  */
 export class TemplateQueryDto {
+  @ApiPropertyOptional({ example: 1 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   tipoEventoId?: number;
 
+  @ApiPropertyOptional({ example: true })
   @IsOptional()
   @Type(() => Boolean)
   @IsBoolean()
@@ -86,12 +97,25 @@ export class TemplateQueryDto {
  * Response completo (admin).
  */
 export class TemplateResponseDto {
+  @ApiProperty({ example: 1 })
   id!: number;
+
+  @ApiProperty({ example: 1 })
   tipoEventoId!: number;
+
+  @ApiProperty({ example: 'Boda Clásica' })
   nombre!: string;
+
+  @ApiProperty({ example: 'boda-clasica' })
   slug!: string;
+
+  @ApiProperty({ example: 'https://...' })
   thumbnailUrl!: string | null;
+
+  @ApiProperty({ example: 'Descripción del template' })
   descripcion!: string | null;
+
+  @ApiProperty({ example: true })
   activo!: boolean;
 }
 
@@ -101,9 +125,18 @@ export class TemplateResponseDto {
  * el catálogo y resolver el componente.
  */
 export class TemplatePublicDto {
+  @ApiProperty({ example: 1 })
   id!: number;
+
+  @ApiProperty({ example: 'Boda Clásica' })
   nombre!: string;
+
+  @ApiProperty({ example: 'boda-clasica' })
   slug!: string;
+
+  @ApiProperty({ example: 'https://...' })
   thumbnailUrl!: string | null;
+
+  @ApiProperty({ example: 'Descripción del template' })
   descripcion!: string | null;
 }

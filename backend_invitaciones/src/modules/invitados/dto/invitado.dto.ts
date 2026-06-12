@@ -7,6 +7,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
 // ═══════════════════════════════════════════
 // REQUEST DTOs
@@ -16,11 +17,13 @@ import { Type } from 'class-transformer';
  * Invitado individual dentro del array de carga masiva.
  */
 export class InvitadoItemDto {
+  @ApiProperty({ example: 'Juan', description: 'Nombre del invitado' })
   @IsString()
   @IsNotEmpty({ message: 'El nombre del invitado es obligatorio' })
   @MaxLength(100)
   nombre!: string;
 
+  @ApiProperty({ example: 'Pérez', description: 'Apellido del invitado' })
   @IsString()
   @IsNotEmpty({ message: 'El apellido del invitado es obligatorio' })
   @MaxLength(100)
@@ -32,6 +35,7 @@ export class InvitadoItemDto {
  * Carga masiva de invitados desde JSON (admin, JWT).
  */
 export class CargarInvitadosDto {
+  @ApiProperty({ type: [InvitadoItemDto], description: 'Lista de invitados a cargar' })
   @IsArray()
   @ArrayMinSize(1, { message: 'La lista de invitados no puede estar vacía' })
   @ValidateNested({ each: true })
@@ -45,6 +49,7 @@ export class CargarInvitadosDto {
  * Se recibe el slug tal como viene en el parámetro ?invitado de la URL.
  */
 export class ConfirmarAsistenciaDto {
+  @ApiProperty({ example: 'juan-perez-1234', description: 'Slug único del invitado' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(250)
@@ -59,52 +64,73 @@ export class ConfirmarAsistenciaDto {
  * URL personalizada generada para un invitado.
  */
 export class UrlInvitadoDto {
+  @ApiProperty({ example: 'Juan' })
   nombre!: string;
+
+  @ApiProperty({ example: 'Pérez' })
   apellido!: string;
+
+  @ApiProperty({ example: 'https://invitacion.com/boda-juan-ana?invitado=juan-perez-1234' })
   url!: string;
 }
 
-/**
- * POST /invitaciones/:id/invitados (201)
- * Response de carga masiva.
- */
 export class CargarInvitadosResponseDto {
+  @ApiProperty({ example: 15 })
   totalInvitados!: number;
+
+  @ApiProperty({ type: [UrlInvitadoDto] })
   urlsGeneradas!: UrlInvitadoDto[];
 }
 
-/**
- * GET /invitaciones/:id/invitados
- * Invitado con su estado de confirmación (admin).
- */
 export class InvitadoResponseDto {
+  @ApiProperty({ example: 1 })
   id!: number;
+
+  @ApiProperty({ example: 'Juan' })
   nombre!: string;
+
+  @ApiProperty({ example: 'Pérez' })
   apellido!: string;
+
+  @ApiProperty({ example: true })
   confirmado!: boolean;
+
+  @ApiProperty({ example: '2026-10-01T10:00:00Z', required: false, type: Date })
   fechaConfirmacion!: Date | null;
+
+  @ApiProperty({ example: 'https://invitacion.com/boda-juan-ana?invitado=juan-perez-1234' })
   urlPersonalizada!: string;
 }
 
-/**
- * POST /invitaciones/:id/confirmar (200)
- * Response de confirmación de asistencia.
- */
 export class ConfirmacionResponseDto {
+  @ApiProperty({ example: 'Asistencia confirmada exitosamente' })
   mensaje!: string;
+
+  @ApiProperty({ example: 'Juan' })
   nombre!: string;
+
+  @ApiProperty({ example: 'Pérez' })
   apellido!: string;
+
+  @ApiProperty({ example: true })
   confirmado!: boolean;
+
+  @ApiProperty({ example: '2026-10-01T10:00:00Z', required: false, type: Date })
   fechaConfirmacion!: Date | null;
 }
 
-/**
- * GET /invitaciones/:id/asistentes
- * Lista de asistentes con conteos (protegido por contraseña).
- */
 export class AsistentesResponseDto {
+  @ApiProperty({ example: 150 })
   totalEsperados!: number;
+
+  @ApiProperty({ example: 120 })
   totalConfirmados!: number;
+
+  @ApiProperty({
+    example: [
+      { nombre: 'Juan', apellido: 'Pérez', confirmado: true, fechaConfirmacion: '2026-10-01T10:00:00Z' }
+    ]
+  })
   invitados!: {
     nombre: string;
     apellido: string;

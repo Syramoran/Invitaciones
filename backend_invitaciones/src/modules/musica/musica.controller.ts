@@ -15,7 +15,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 import { MusicaService } from './musica.service';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 
+@ApiTags('Música')
 @Controller('invitaciones/:id/musica')
 export class MusicaController {
   constructor(private readonly musicaService: MusicaService) {}
@@ -25,6 +27,8 @@ export class MusicaController {
   // ═══════════════════════════════════════════
 
   @Get()
+  @ApiOperation({ summary: 'Obtener música de la invitación (público)' })
+  @ApiResponse({ status: 200, description: 'Detalles de la música' })
   async obtener(@Param('id', ParseUUIDPipe) invitacionId: string) {
     return this.musicaService.obtener(invitacionId);
   }
@@ -38,6 +42,10 @@ export class MusicaController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Subir archivo de música (admin/cliente)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Música subida exitosamente' })
   @UseInterceptors(
     FileInterceptor('archivo', {
       storage: memoryStorage(),
@@ -60,6 +68,9 @@ export class MusicaController {
   @Delete()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar música de la invitación (admin/cliente)' })
+  @ApiResponse({ status: 204, description: 'Música eliminada' })
   async eliminar(@Param('id', ParseUUIDPipe) invitacionId: string) {
     return this.musicaService.eliminar(invitacionId);
   }

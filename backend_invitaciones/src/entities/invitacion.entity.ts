@@ -17,6 +17,7 @@ import { HistoriaSeccion } from './historia-seccion.entity';
 import { FotoAnfitrion } from './foto-anfitrion.entity';
 import { Foto } from './foto.entity';
 import { Musica } from './musica.entity';
+import { Usuario } from './usuario.entity';
 
 @Entity('invitacion')
 export class Invitacion {
@@ -25,6 +26,9 @@ export class Invitacion {
 
   @Column({ type: 'int', nullable: true, name: 'pedido_id' })
   pedidoId!: number;
+
+  @Column({ type: 'int', nullable: true, name: 'usuario_id' })
+  usuarioId!: number | null;
 
   @Column({ type: 'int', name: 'template_id' })
   templateId!: number;
@@ -110,4 +114,8 @@ export class Invitacion {
 
   @OneToOne(() => Musica, (m) => m.invitacion, { cascade: true })
   musica!: Musica;
+
+  @ManyToOne(() => Usuario, (u) => u.invitaciones, { nullable: true })
+  @JoinColumn({ name: 'usuario_id' })
+  usuario!: Usuario | null;
 }

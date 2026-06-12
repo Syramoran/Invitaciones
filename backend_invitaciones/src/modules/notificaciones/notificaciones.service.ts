@@ -179,6 +179,109 @@ export class NotificacionesService implements OnModuleInit {
   }
 
   // ═══════════════════════════════════════════
+  // REGISTRO_CLIENTE
+  // Llamar desde: AuthService.register()
+  // Destinatario: email del nuevo cliente
+  // ═══════════════════════════════════════════
+
+  async notificarRegistroCliente(datos: {
+    email: string;
+    username: string;
+    tokenVerificacion: string;
+  }): Promise<void> {
+    const clientePortalUrl = this.configService.get<string>(
+      'CLIENT_PORTAL_URL',
+      'http://localhost:5173/portal',
+    );
+    const verifyUrl = `${clientePortalUrl}/verify-email?token=${datos.tokenVerificacion}`;
+
+    const asunto = '¡Bienvenido/a a Festeja! Verificá tu cuenta';
+    const mensaje =
+      `Hola ${datos.username},\n\n` +
+      `Gracias por registrarte en Festeja Invitaciones Digitales.\n` +
+      `Para activar tu cuenta hacé clic en el siguiente enlace:\n\n` +
+      `${verifyUrl}\n\n` +
+      `El enlace expira en 24 horas.\n\n` +
+      `Si no te registraste vos, ignorá este email.`;
+
+    const html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <h2 style="color:#7c3aed;">¡Bienvenido/a a Festeja! 🎉</h2>
+        <p>Hola <strong>${datos.username}</strong>,</p>
+        <p>Gracias por registrarte en <strong>Festeja Invitaciones Digitales</strong>.</p>
+        <p>Para activar tu cuenta y comenzar a crear tus invitaciones, hacé clic en el botón de abajo:</p>
+        <p style="margin:30px 0;text-align:center;">
+          <a href="${verifyUrl}"
+             style="background:#7c3aed;color:white;padding:12px 28px;text-decoration:none;border-radius:8px;font-size:16px;display:inline-block;">
+            Verificar mi cuenta
+          </a>
+        </p>
+        <p style="color:#666;font-size:13px;">O copiá este enlace en tu navegador:<br>
+          <a href="${verifyUrl}" style="color:#7c3aed;">${verifyUrl}</a>
+        </p>
+        <p style="color:#999;font-size:12px;">Este enlace expira en 24 horas. Si no te registraste vos, ignorá este email.</p>
+        <hr style="border:none;border-top:1px solid #eee;margin:30px 0;">
+        <p style="color:#888;font-size:12px;text-align:center;">Festeja Invitaciones Digitales — Notificación automática</p>
+      </div>`;
+
+    await this.crearYEnviar({
+      tipo: TipoNotificacion.NUEVO_PEDIDO, // reutilizamos el tipo más cercano
+      destinatarioEmail: datos.email,
+      asunto,
+      mensaje,
+      html,
+    });
+  }
+
+  // ═══════════════════════════════════════════
+  // PAGO_CONFIRMADO
+  // Llamar desde: PagosService.procesarWebhook()
+  // Destinatario: email del cliente
+  // ═══════════════════════════════════════════
+
+  async notificarPagoConfirmado(datos: {
+    email: string;
+    nombreCliente: string;
+    pedidoId: number;
+    invitacionId: string;
+  }): Promise<void> {
+    const clientePortalUrl = this.configService.get<string>(
+      'CLIENT_PORTAL_URL',
+      'http://localhost:5173/portal',
+    );
+    const invitacionUrl = `${clientePortalUrl}/invitaciones/${datos.invitacionId}`;
+
+    const asunto = `¡Pago confirmado! Tu invitación #${datos.pedidoId} está activa`;
+    const mensaje =
+      `Hola ${datos.nombreCliente},\n\n` +
+      `Tu pago fue confirmado. Tu invitación ya está activa.\n` +
+      `Accedé a ella aquí: ${invitacionUrl}`;
+
+    const html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <h2 style="color:#2e7d32;">¡Pago confirmado! 🎊</h2>
+        <p>Hola <strong>${datos.nombreCliente}</strong>,</p>
+        <p>Tu pago fue confirmado exitosamente. Tu invitación digital ya está activa y lista para compartir.</p>
+        <p style="margin:30px 0;text-align:center;">
+          <a href="${invitacionUrl}"
+             style="background:#2e7d32;color:white;padding:12px 28px;text-decoration:none;border-radius:8px;font-size:16px;display:inline-block;">
+            Ver mi invitación
+          </a>
+        </p>
+        <p style="color:#888;font-size:12px;text-align:center;">Festeja Invitaciones Digitales — Notificación automática</p>
+      </div>`;
+
+    await this.crearYEnviar({
+      tipo: TipoNotificacion.NUEVO_PEDIDO,
+      destinatarioEmail: datos.email,
+      asunto,
+      mensaje,
+      html,
+    });
+  }
+
+
+  // ═══════════════════════════════════════════
   // EXPIRACION_PROXIMA
   // Llamar desde: CronJobsService.notificarExpiracionProxima()
   // Destinatario: email del anfitrión (pedido.email)

@@ -36,8 +36,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
+  const register = async (username: string, email: string, password: string, nombreCompleto?: string) => {
+    await authService.register({ username, email, password, nombreCompleto })
+    // We don't automatically log in yet, waiting for verification
+  }
+
+  const verifyEmail = async (token: string) => {
+    await authService.verifyEmail(token)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, logout, register, verifyEmail }}>
       {children}
     </AuthContext.Provider>
   )

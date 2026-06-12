@@ -27,7 +27,9 @@ import {
   InvitacionQueryDto,
 } from './dto/invitacion.dto';
 import { Public } from '../auth/decorators/public.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 
+@ApiTags('Invitaciones')
 @Controller('invitaciones')
 export class InvitacionesController {
   constructor(
@@ -43,6 +45,10 @@ export class InvitacionesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Crear invitación (admin)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Invitación creada' })
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -76,6 +82,9 @@ export class InvitacionesController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Listar invitaciones (admin)' })
+  @ApiResponse({ status: 200, description: 'Lista paginada de invitaciones' })
   async listar(@Query() query: InvitacionQueryDto) {
     return this.invitacionesService.listar(query);
   }
@@ -86,6 +95,9 @@ export class InvitacionesController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Obtener invitación por ID (admin)' })
+  @ApiResponse({ status: 200, description: 'Detalle de la invitación' })
   async obtenerPorId(@Param('id', ParseUUIDPipe) id: string) {
     return this.invitacionesService.obtenerPorId(id);
   }
@@ -96,6 +108,9 @@ export class InvitacionesController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Actualizar invitación (admin)' })
+  @ApiResponse({ status: 200, description: 'Invitación actualizada' })
   async actualizar(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateInvitacionDto,
@@ -110,6 +125,9 @@ export class InvitacionesController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar invitación (admin)' })
+  @ApiResponse({ status: 204, description: 'Invitación eliminada' })
   async eliminar(@Param('id', ParseUUIDPipe) id: string) {
     return this.invitacionesService.eliminar(id);
   }
@@ -121,6 +139,10 @@ export class InvitacionesController {
   @Post(':id/fotos-anfitrion')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Agregar fotos del anfitrión (admin)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 201, description: 'Fotos agregadas correctamente' })
   @UseInterceptors(
     FileFieldsInterceptor(
       [{ name: 'fotos', maxCount: 5 }],
@@ -145,6 +167,9 @@ export class InvitacionesController {
   @Delete(':id/fotos-anfitrion/:fotoId')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar foto del anfitrión (admin)' })
+  @ApiResponse({ status: 204, description: 'Foto eliminada' })
   async eliminarFotoAnfitrion(
     @Param('id', ParseUUIDPipe) id: string,
     @Param('fotoId', ParseIntPipe) fotoId: number,
@@ -158,6 +183,8 @@ export class InvitacionesController {
   // ═══════════════════════════════════════════
   @Public()
   @Get(':id/public')
+  @ApiOperation({ summary: 'Vista pública de la invitación para el invitado (público)' })
+  @ApiResponse({ status: 200, description: 'Datos completos de la invitación' })
   async obtenerPublica(
     @Param('id', ParseUUIDPipe) id: string,
     @Query('invitado') invitado?: string,
@@ -171,6 +198,8 @@ export class InvitacionesController {
 
   @Public()
   @Get(':id/countdown')
+  @ApiOperation({ summary: 'Obtener datos de cuenta regresiva (público)' })
+  @ApiResponse({ status: 200, description: 'Datos de la cuenta regresiva devueltos' })
   async obtenerCountdown(@Param('id', ParseUUIDPipe) id: string) {
     return this.invitacionesPublicService.obtenerCountdown(id);
   }

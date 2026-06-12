@@ -31,7 +31,8 @@ import { NotificacionesService } from '../notificaciones/notificaciones.service'
 // PENDIENTE → CONTACTADO → COMPLETADO | CANCELADO
 // ═══════════════════════════════════════════
 const TRANSICIONES_VALIDAS: Record<EstadoPedido, EstadoPedido[]> = {
-  [EstadoPedido.PENDIENTE]: [EstadoPedido.CONTACTADO],
+  [EstadoPedido.PENDIENTE]: [EstadoPedido.PAGADO, EstadoPedido.CONTACTADO],
+  [EstadoPedido.PAGADO]: [EstadoPedido.COMPLETADO, EstadoPedido.CANCELADO],
   [EstadoPedido.CONTACTADO]: [EstadoPedido.COMPLETADO, EstadoPedido.CANCELADO],
   [EstadoPedido.COMPLETADO]: [],
   [EstadoPedido.CANCELADO]: [],

@@ -12,9 +12,11 @@ import { TipoEvento } from './tipo-evento.entity';
 import { Template } from './template.entity';
 import { PedidoServicio } from './pedido-servicio.entity';
 import { Invitacion } from './invitacion.entity';
+import { Usuario } from './usuario.entity';
 
 export enum EstadoPedido {
   PENDIENTE = 'PENDIENTE',
+  PAGADO = 'PAGADO',        // Pago MP confirmado — invitación activada
   CONTACTADO = 'CONTACTADO',
   COMPLETADO = 'COMPLETADO',
   CANCELADO = 'CANCELADO',
@@ -53,6 +55,15 @@ export class Pedido {
   })
   estado!: EstadoPedido;
 
+  @Column({ type: 'int', nullable: true, name: 'usuario_id' })
+  usuarioId!: number | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true, name: 'mp_preference_id' })
+  mpPreferenceId!: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true, name: 'mp_payment_id' })
+  mpPaymentId!: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;
 
@@ -70,11 +81,11 @@ export class Pedido {
   pedidoServicios!: PedidoServicio[];
 
   // NOTA: Un pedido puede tener múltiples invitaciones (ej. dos horarios distintos).
-  // La relación correcta sería @OneToMany → invitaciones!: Invitacion[].
-  // Se mantiene @OneToOne porque no se usa esta navegación en el código actual
-  // y el cron de notificaciones consulta siempre desde el lado de Invitacion.
-  // Si en el futuro se necesita obtener todas las invitaciones de un pedido,
-  // cambiar a: @OneToMany(() => Invitacion, (inv) => inv.pedido) invitaciones!: Invitacion[];
+  // Se mantiene @OneToOne porque el flujo principal es 1 pedido → 1 invitación.
   @OneToOne(() => Invitacion, (inv) => inv.pedido)
   invitacion!: Invitacion;
+
+  @ManyToOne(() => Usuario, (u) => u.pedidos, { nullable: true })
+  @JoinColumn({ name: 'usuario_id' })
+  usuario!: Usuario | null;
 }

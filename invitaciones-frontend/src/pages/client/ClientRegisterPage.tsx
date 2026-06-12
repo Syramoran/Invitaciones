@@ -9,12 +9,13 @@ export default function ClientRegisterPage() {
 
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
+  const [nombreCompleto, setNombreCompleto] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) navigate('/client/dashboard', { replace: true })
+    if (!isLoading && isAuthenticated) navigate('/client/panel', { replace: true })
   }, [isLoading, isAuthenticated, navigate])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -46,8 +47,8 @@ export default function ClientRegisterPage() {
     setSubmitting(true)
     try {
       if (!register) throw new Error('Register not available')
-      await register(username.trim(), email.trim(), password)
-      navigate('/client/dashboard', { replace: true })
+      await register(username.trim(), email.trim(), password, nombreCompleto.trim() || undefined)
+      navigate('/client/verify-email', { replace: true })
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 409) {
@@ -91,6 +92,17 @@ export default function ClientRegisterPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="tu@email.com"
+              className="w-full px-3.5 py-[11px] border-[1.5px] border-[#d1d5db] rounded-lg text-[.9rem] outline-none transition-all focus:border-[#c5a572] focus:shadow-[0_0_0_3px_rgba(197,165,114,.15)]"
+            />
+          </div>
+
+          <div className="text-left mb-4">
+            <label className="block text-[.8rem] font-medium text-[#2d2926] mb-1">Nombre Completo (Opcional)</label>
+            <input
+              type="text"
+              value={nombreCompleto}
+              onChange={e => setNombreCompleto(e.target.value)}
+              placeholder="Ej. Juan Pérez"
               className="w-full px-3.5 py-[11px] border-[1.5px] border-[#d1d5db] rounded-lg text-[.9rem] outline-none transition-all focus:border-[#c5a572] focus:shadow-[0_0_0_3px_rgba(197,165,114,.15)]"
             />
           </div>

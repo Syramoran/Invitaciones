@@ -13,7 +13,7 @@ export default function ClientLoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) navigate('/client/dashboard', { replace: true })
+    if (!isLoading && isAuthenticated) navigate('/client/panel', { replace: true })
   }, [isLoading, isAuthenticated, navigate])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -30,7 +30,7 @@ export default function ClientLoginPage() {
     setSubmitting(true)
     try {
       await login(username.trim(), password)
-      navigate('/client/dashboard', { replace: true })
+      navigate('/client/panel', { replace: true })
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 401) {
