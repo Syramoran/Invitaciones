@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
-import { Plus, Settings, Eye, Users, LogOut, CheckCircle2, Link as LinkIcon, X, Copy } from 'lucide-react'
+import { Plus, LogOut, CheckCircle2, BarChart3, Clock, FileEdit, ArrowRight } from 'lucide-react'
 import { useAuth } from '@/context/useAuth'
 import apiClient from '@/services/apiClient'
-import type { GuestEntry } from '@/types/crearInvitacion'
+import ClientInvitationCard from '@/components/client/ClientInvitationCard'
+import NoEditionsModal from '@/components/client/NoEditionsModal'
+import DeleteInvitacionModal from '@/components/client/DeleteInvitacionModal'
 
 interface InvitacionCliente {
   id: string
@@ -13,6 +15,31 @@ interface InvitacionCliente {
   activa: boolean
   estadoPago: string
   fechaEvento: string
+  editCount: number
+}
+
+interface MetricCardProps {
+  icon: React.ReactNode
+  label: string
+  value: number
+  bgColor: string
+  iconColor: string
+}
+
+function MetricCard({ icon, label, value, bgColor, iconColor }: MetricCardProps) {
+  return (
+    <div className="bg-white border border-[#f3f0ea] rounded-xl p-5 shadow-sm">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-[#6b7280] text-[.85rem] font-medium mb-1">{label}</p>
+          <p className="text-3xl font-bold text-[#2d2926]">{value}</p>
+        </div>
+        <div className={`${bgColor} ${iconColor} w-12 h-12 rounded-lg flex items-center justify-center`}>
+          {icon}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function ClientDashboardPage() {
@@ -22,14 +49,10 @@ export default function ClientDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [searchParams] = useSearchParams()
   const paymentStatus = searchParams.get('payment')
-  const tabParam = searchParams.get('tab') || 'invitations'
-  const activeTab = tabParam === 'create' ? 'create' : 'invitations'
 
-  // URL Generation Modal State
-  const [selectedInvitationForUrls, setSelectedInvitationForUrls] = useState<InvitacionCliente | null>(null)
-  const [guestJson, setGuestJson] = useState('')
-  const [guests, setGuests] = useState<GuestEntry[]>([])
-  const [parseError, setParseError] = useState<string | null>(null)
+  // Modal States
+  const [noEditionsModal, setNoEditionsModal] = useState<{ show: boolean; titulo: string }>({ show: false, titulo: '' })
+  const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadInvitaciones() {
@@ -45,37 +68,31 @@ export default function ClientDashboardPage() {
     loadInvitaciones()
   }, [])
 
-  // Handlers for URL generation
-  function handleParseJson() {
-    try {
-      const parsed = JSON.parse(guestJson)
-      if (!Array.isArray(parsed)) throw new Error('Debe ser un array JSON')
-      const parsedGuests: GuestEntry[] = parsed.map((item: Record<string, string>, i: number) => {
-        if (!item.nombre || !item.apellido) {
-          throw new Error(`Fila ${i + 1}: faltan campos "nombre" o "apellido"`)
-        }
-        return { nombre: String(item.nombre), apellido: String(item.apellido) }
-      })
-      setGuests(parsedGuests)
-      setParseError(null)
-    } catch (e) {
-      setGuests([])
-      setParseError((e as Error).message)
-    }
+  const handleDeleteConfirmed = async (invId: string) => {
+    await apiClient.delete(`/client/invitaciones/${invId}`)
+    setInvitaciones(prev => prev.filter(i => i.id !== invId))
+    setDeleteModalOpen(null)
   }
 
-  function handleClear() {
-    setGuestJson('')
-    setGuests([])
-    setParseError(null)
-  }
+  // Split invitations: paid vs. drafts (unpaid)
+  const paidInvitaciones = invitaciones.filter(inv => inv.estadoPago === 'PAGADO')
+  const draftInvitaciones = invitaciones.filter(inv => inv.estadoPago === 'PENDIENTE')
 
-  function guestSlug(g: GuestEntry) {
-    return `${g.nombre.toLowerCase().replace(/\s+/g, '-')}-${g.apellido.toLowerCase().replace(/\s+/g, '-')}`
-  }
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-  const publicUrl = selectedInvitationForUrls ? `${window.location.origin}/${selectedInvitationForUrls.id}` : ''
-  const guestUrls = guests.map(g => ({ ...g, url: `${publicUrl}?invitado=${guestSlug(g)}` }))
+  const activeInvitations = paidInvitaciones.filter(inv => {
+    const eventDate = new Date(inv.fechaEvento)
+    eventDate.setHours(0, 0, 0, 0)
+    return eventDate.getTime() >= today.getTime()
+  })
+
+  const upcomingInvitations = activeInvitations.filter(inv => {
+    const eventDate = new Date(inv.fechaEvento)
+    const sevenDaysFromNow = new Date(today)
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
+    return eventDate.getTime() <= sevenDaysFromNow.getTime()
+  })
 
   return (
     <div className="min-h-screen bg-[#fcfaf8] text-[#2d2926]">
@@ -93,7 +110,7 @@ export default function ClientDashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-8 py-12">
+      <main className="max-w-6xl mx-auto px-8 py-12">
         {paymentStatus === 'success' && (
           <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 text-green-800">
             <CheckCircle2 className="w-5 h-5" />
@@ -104,221 +121,151 @@ export default function ClientDashboardPage() {
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex items-center gap-4 mb-8 border-b border-[#e5e7eb]">
-          <button
-            onClick={() => navigate('/client/dashboard?tab=invitations')}
-            className={`pb-3 px-4 font-medium text-sm transition-colors ${
-              activeTab === 'invitations'
-                ? 'text-[#2d2926] border-b-2 border-[#c5a572]'
-                : 'text-[#6b7280] hover:text-[#2d2926]'
-            }`}
+        {/* Title + prominent create button */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-2xl font-semibold">Mis Invitaciones</h1>
+            <p className="text-[#6b7280] text-[.9rem] mt-1">Gestioná tus invitaciones digitales</p>
+          </div>
+          <Link
+            to="/client/create-invitation"
+            className="inline-flex items-center gap-2 bg-[#c5a572] hover:bg-[#b09365] text-white px-6 py-3 rounded-full font-medium transition-colors shadow-sm"
           >
-            Mis Invitaciones
-          </button>
-          <button
-            onClick={() => navigate('/client/dashboard?tab=create')}
-            className={`pb-3 px-4 font-medium text-sm transition-colors ${
-              activeTab === 'create'
-                ? 'text-[#2d2926] border-b-2 border-[#c5a572]'
-                : 'text-[#6b7280] hover:text-[#2d2926]'
-            }`}
-          >
-            Crear Nueva Invitación
-          </button>
+            <Plus className="w-5 h-5" />
+            Crear invitación
+          </Link>
         </div>
 
-        {activeTab === 'create' ? (
-          /* TAB: CREAR NUEVA INVITACIÓN */
-          <div className="text-center py-24 bg-white border border-[#f3f0ea] rounded-2xl shadow-sm">
-            <div className="w-16 h-16 bg-[#fcfaf8] text-[#c5a572] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Plus className="w-8 h-8" />
-            </div>
-            <h2 className="text-xl font-semibold mb-2">Crear una nueva invitación</h2>
-            <p className="text-[#6b7280] mb-6 text-[.95rem]">Diseñá tu invitación digital personalizada en minutos.</p>
-            <Link
-              to="/client/create-invitation"
-              className="inline-flex items-center gap-2 bg-[#c5a572] hover:bg-[#b09365] text-white px-8 py-3 rounded-full font-medium transition-colors shadow-sm"
-            >
-              <Plus className="w-5 h-5" />
-              Comenzar
-            </Link>
-          </div>
-        ) : loading ? (
-          /* TAB: INVITACIONES - LOADING */
+        {loading ? (
           <div className="text-center py-20 text-[#6b7280]">Cargando tus invitaciones...</div>
         ) : invitaciones.length === 0 ? (
-          /* TAB: INVITACIONES - VACÍO */
+          /* VACÍO */
           <div className="text-center py-24 bg-white border border-[#f3f0ea] rounded-2xl shadow-sm">
             <div className="w-16 h-16 bg-[#fcfaf8] text-[#c5a572] rounded-full flex items-center justify-center mx-auto mb-4">
               <Plus className="w-8 h-8" />
             </div>
             <h2 className="text-xl font-semibold mb-2">Aún no tenés invitaciones</h2>
             <p className="text-[#6b7280] mb-6 text-[.95rem]">Empezá creando la invitación para tu próximo evento.</p>
-            <button
-              onClick={() => navigate('/client/dashboard?tab=create')}
+            <Link
+              to="/client/create-invitation"
               className="inline-flex items-center gap-2 bg-[#2d2926] hover:bg-[#4a4441] text-[#fefcf9] px-6 py-3 rounded-full font-medium transition-colors"
             >
+              <Plus className="w-5 h-5" />
               Crear mi primera invitación
-            </button>
+            </Link>
           </div>
         ) : (
-          /* TAB: INVITACIONES - LISTADO */
-          <div className="grid md:grid-cols-2 gap-6">
-            {invitaciones.filter(inv => inv.estadoPago === 'PAGADO').length === 0 ? (
-              <div className="md:col-span-2 bg-white border border-[#f3f0ea] rounded-2xl p-8 text-center text-[#6b7280]">
-                Tus invitaciones pagadas aparecerán aquí.
-              </div>
-            ) : (
-              invitaciones.filter(inv => inv.estadoPago === 'PAGADO').map(inv => {
-                const eventPassed = new Date(inv.fechaEvento).getTime() < new Date().setHours(0, 0, 0, 0)
-
-                return (
-                  <div key={inv.id} className="bg-white border border-[#f3f0ea] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                    <div className="absolute top-4 right-4 bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded-full font-medium border border-green-200">
-                      Activa
+          <>
+            {/* Borradores (sin pagar) */}
+            {draftInvitaciones.length > 0 && (
+              <section className="mb-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileEdit className="w-5 h-5 text-[#c5a572]" />
+                  <h2 className="text-lg font-semibold">Borradores sin pagar</h2>
+                  <span className="text-[.72rem] px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-semibold">
+                    {draftInvitaciones.length}
+                  </span>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {draftInvitaciones.map(inv => (
+                    <div
+                      key={inv.id}
+                      className="bg-white border border-dashed border-yellow-300 rounded-2xl p-5 shadow-sm flex flex-col"
+                    >
+                      <div className="flex items-start justify-between mb-1">
+                        <span className="text-[.72rem] font-bold tracking-wider text-[#c5a572] uppercase">
+                          {inv.tipoEventoNombre}
+                        </span>
+                        <span className="text-[.7rem] px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-medium">
+                          Pendiente de pago
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-semibold mb-1">{inv.titulo}</h3>
+                      <p className="text-[#6b7280] text-[.85rem] mb-4">
+                        {new Date(inv.fechaEvento).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                      <div className="flex items-center gap-2 mt-auto">
+                        <button
+                          onClick={() => navigate(`/client/create-invitation?id=${inv.id}`)}
+                          className="flex-1 flex items-center justify-center gap-1.5 text-[.85rem] font-medium bg-[#c5a572] hover:bg-[#b09365] text-white px-4 py-2 rounded-full transition-colors"
+                        >
+                          Continuar y pagar
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteModalOpen(inv.id)}
+                          title="Eliminar borrador"
+                          className="flex items-center justify-center w-9 h-9 rounded-full border border-[#e5e7eb] text-[#dc2626] hover:bg-red-50 hover:border-red-300 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
-
-                    <div className="text-[.75rem] font-bold tracking-wider text-[#c5a572] uppercase mb-1">
-                      {inv.tipoEventoNombre}
-                    </div>
-                    <h3 className="text-xl font-semibold mb-1 pr-24">{inv.titulo}</h3>
-                    <p className="text-[#6b7280] text-[.9rem] mb-6">
-                      {new Date(inv.fechaEvento).toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      {!eventPassed && (
-                        <Link to={`/client/create-invitation?id=${inv.id}`} className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#2d2926] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]">
-                          <Settings className="w-3.5 h-3.5" />
-                          Editar
-                        </Link>
-                      )}
-                      <Link to={`/${inv.id}`} target="_blank" className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#2d2926] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]">
-                        <Eye className="w-3.5 h-3.5" />
-                        Ver web
-                      </Link>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(`${window.location.origin}/${inv.id}`)
-                          alert('¡Enlace copiado al portapapeles!')
-                        }}
-                        className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#c5a572] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]"
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                        Copiar link
-                      </button>
-                      <Link to={`/${inv.id}/asistentes`} className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#2d2926] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]">
-                        <Users className="w-3.5 h-3.5" />
-                        Asistentes
-                      </Link>
-                      <button onClick={() => setSelectedInvitationForUrls(inv)} className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#c5a572] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]">
-                        <LinkIcon className="w-3.5 h-3.5" />
-                        Generar URLs
-                      </button>
-                    </div>
-                  </div>
-                )
-              })
+                  ))}
+                </div>
+              </section>
             )}
-          </div>
+
+            {/* Métricas + listado de pagadas */}
+            {paidInvitaciones.length > 0 && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+                  <MetricCard
+                    icon={<BarChart3 className="w-6 h-6" />}
+                    label="Total de invitaciones"
+                    value={paidInvitaciones.length}
+                    bgColor="bg-blue-50"
+                    iconColor="text-blue-600"
+                  />
+                  <MetricCard
+                    icon={<CheckCircle2 className="w-6 h-6" />}
+                    label="Activas"
+                    value={activeInvitations.length}
+                    bgColor="bg-green-50"
+                    iconColor="text-green-600"
+                  />
+                  <MetricCard
+                    icon={<Clock className="w-6 h-6" />}
+                    label="Próximas (7 días)"
+                    value={upcomingInvitations.length}
+                    bgColor="bg-yellow-50"
+                    iconColor="text-yellow-600"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  {paidInvitaciones.map(inv => (
+                    <ClientInvitationCard
+                      key={inv.id}
+                      invitacion={inv}
+                      onNoEditionsModal={() => setNoEditionsModal({ show: true, titulo: inv.titulo })}
+                      onDeleted={() => setInvitaciones(prev => prev.filter(i => i.id !== inv.id))}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         )}
       </main>
 
-      {/* URL Generation Modal */}
-      {selectedInvitationForUrls && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#f0f0f0]">
-              <h3 className="text-lg font-semibold text-[#2d2926]">
-                Generar URLs - {selectedInvitationForUrls.titulo}
-              </h3>
-              <button
-                type="button"
-                onClick={() => { setSelectedInvitationForUrls(null); handleClear() }}
-                className="text-[#9ca3af] hover:text-[#2d2926] transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* No Editions Modal */}
+      {noEditionsModal.show && (
+        <NoEditionsModal
+          invitacionTitulo={noEditionsModal.titulo}
+          onClose={() => setNoEditionsModal({ show: false, titulo: '' })}
+        />
+      )}
 
-            <div className="p-6 overflow-y-auto">
-              <label className="block text-[.85rem] font-medium mb-1 text-[#2d2926]">
-                Lista de invitados (JSON)
-              </label>
-              <p className="text-[.76rem] text-[#6b7280] mb-3">
-                Cargá la lista de invitados para generar URLs personalizadas con saludo individual.
-              </p>
-              <textarea
-                rows={5}
-                value={guestJson}
-                onChange={e => {
-                  setGuestJson(e.target.value)
-                  setGuests([])
-                  setParseError(null)
-                }}
-                placeholder={`[\n  { "nombre": "Juan", "apellido": "Pérez" },\n  { "nombre": "María", "apellido": "García" }\n]`}
-                className="w-full px-3 py-2.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.82rem] font-mono focus:border-[#c5a572] focus:outline-none resize-none transition-colors"
-              />
-              <p className="text-[.72rem] text-[#6b7280] mt-1 mb-3">
-                Formato: <code className="bg-[#f4f5f7] px-1 rounded">{`[{"nombre":"...","apellido":"..."}]`}</code>
-              </p>
-
-              {parseError && (
-                <div className="px-3 py-2 mb-3 bg-[#fee2e2] text-[#dc2626] rounded-lg text-[.8rem]">
-                  ⚠ {parseError}
-                </div>
-              )}
-
-              <div className="flex gap-2 mb-4">
-                <button
-                  type="button"
-                  onClick={handleParseJson}
-                  disabled={!guestJson.trim()}
-                  className="px-4 py-2 bg-[#2d2926] text-[#fefcf9] rounded-lg text-[.82rem] font-medium hover:bg-[#4a4441] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
-                  Generar URLs
-                </button>
-                {(guests.length > 0 || guestJson) && (
-                  <button type="button" onClick={handleClear}
-                    className="px-4 py-2 border border-[#d1d5db] rounded-lg text-[.82rem] hover:border-[#dc2626] hover:text-[#dc2626] transition-colors">
-                    Limpiar
-                  </button>
-                )}
-              </div>
-
-              {/* Guest URL summary */}
-              {guestUrls.length > 0 && (
-                <div className="bg-[#dcfce7] text-[#166534] rounded-xl px-4 py-3 text-[.82rem]">
-                  <p className="font-semibold mb-0.5">
-                    ✓ {guestUrls.length} URL{guestUrls.length !== 1 ? 's' : ''} personalizadas generadas
-                  </p>
-                  <p className="text-[#166534]/80">
-                    Cada invitado tiene su link con el parámetro <code className="bg-[#bbf7d0] px-1 rounded">?invitado=</code>.
-                  </p>
-
-                  <div className="mt-3 max-h-40 overflow-y-auto bg-white/50 rounded p-2 text-[.75rem] font-mono border border-green-200">
-                    {guestUrls.map((g, i) => (
-                      <div key={i} className="truncate mb-1 last:mb-0">
-                        {g.url}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="px-6 py-4 border-t border-[#f0f0f0] bg-[#fcfaf8] flex justify-end">
-              <button
-                type="button"
-                onClick={() => { setSelectedInvitationForUrls(null); handleClear() }}
-                className="px-5 py-2.5 bg-[#2d2926] text-white rounded-lg text-[.88rem] font-medium hover:bg-[#4a4441] transition-colors"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Delete Modal for Drafts */}
+      {deleteModalOpen && (
+        <DeleteInvitacionModal
+          invitacionTitulo={invitaciones.find(i => i.id === deleteModalOpen)?.titulo || ''}
+          onConfirm={() => handleDeleteConfirmed(deleteModalOpen)}
+          onCancel={() => setDeleteModalOpen(null)}
+        />
       )}
     </div>
   )
