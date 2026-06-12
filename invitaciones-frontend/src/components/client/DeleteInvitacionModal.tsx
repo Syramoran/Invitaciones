@@ -12,7 +12,7 @@ export default function DeleteInvitacionModal({ invitacionTitulo, onConfirm, onC
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const requiredText = 'eliminar invitación'
+  const requiredText = 'eliminar'
   const isConfirmed = confirmText.toLowerCase().trim() === requiredText
 
   async function handleConfirm() {
@@ -22,8 +22,10 @@ export default function DeleteInvitacionModal({ invitacionTitulo, onConfirm, onC
     setError(null)
     try {
       await onConfirm()
-    } catch (err) {
-      setError('No se pudo eliminar la invitación. Intentá de nuevo.')
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || err?.message || 'No se pudo eliminar la invitación. Intentá de nuevo.'
+      setError(errorMsg)
+      console.error('Delete error:', err)
     } finally {
       setLoading(false)
     }
