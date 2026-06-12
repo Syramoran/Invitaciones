@@ -20,6 +20,7 @@ import {
   ServicioResponseDto,
 } from './dto/servicio.dto';
 import { Public } from '../auth/decorators/public.decorator';
+import { RequireAdmin } from '../auth/decorators/require-admin.decorator';
 
 @Controller('servicios')
 export class ServiciosController {
@@ -46,11 +47,13 @@ export class ServiciosController {
   // ─────────────────────────────────────────
 
   @Post()
+  @RequireAdmin()
   create(@Body() dto: CreateServicioDto): Promise<ServicioResponseDto> {
     return this.serviciosService.create(dto);
   }
 
   @Put(':id')
+  @RequireAdmin()
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateServicioDto,

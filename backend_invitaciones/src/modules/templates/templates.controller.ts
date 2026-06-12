@@ -15,6 +15,7 @@ import {
 import { TemplatesService } from './templates.service';
 import { CreateTemplateDto, UpdateTemplateDto, TemplateQueryDto, TemplateResponseDto, TemplatePublicDto } from './dto/template.dto';
 import { Public } from '../auth/decorators/public.decorator';
+import { RequireAdmin } from '../auth/decorators/require-admin.decorator';
 
 @Controller('templates')
 export class TemplatesController {
@@ -47,11 +48,13 @@ export class TemplatesController {
   // ─────────────────────────────────────────
 
   @Post()
+  @RequireAdmin()
   create(@Body() dto: CreateTemplateDto) {
     return this.templatesService.create(dto);
   }
 
   @Put(':id')
+  @RequireAdmin()
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateTemplateDto,

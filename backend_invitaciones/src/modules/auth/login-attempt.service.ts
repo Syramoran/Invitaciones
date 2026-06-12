@@ -1,43 +1,59 @@
 // src/modules/auth/login-attempt.service.ts
-import { Injectable} from '@nestjs/common';
-
-interface AttemptRecord {
-  count: number;
-  blockedUntil: Date | null;
-}
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { LoginAttempt } from '../../entities';
 
 const MAX_ATTEMPTS = 5;
 const BLOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutos
 
 @Injectable()
 export class LoginAttemptService {
-  private readonly attempts = new Map<string, AttemptRecord>();
+  constructor(
+    @InjectRepository(LoginAttempt)
+    private readonly loginAttemptRepository: Repository<LoginAttempt>,
+  ) { }
 
-  isBlocked(ip: string): boolean {
-    const record = this.attempts.get(ip);
-    if (!record?.blockedUntil) return false;
+  async isBlocked(ip: string): Promise<boolean> {
+    const record = await this.loginAttemptRepository.findOne({
+      where: { ip },
+    });
 
-    if (new Date() < record.blockedUntil) {
+    if (!record?.lockedUntil) return false;
+
+    if (new Date() < record.lockedUntil) {
       return true;
     }
 
     // El bloqueo expiró — lo limpiamos
-    this.attempts.delete(ip);
+    await this.loginAttemptRepository.delete({ ip });
     return false;
   }
 
-  registerFailure(ip: string): void {
-    const record = this.attempts.get(ip) ?? { count: 0, blockedUntil: null };
-    record.count += 1;
+  async registerFailure(ip: string): Promise<void> {
+    const record = await this.loginAttemptRepository.findOne({
+      where: { ip },
+    });
 
-    if (record.count >= MAX_ATTEMPTS) {
-      record.blockedUntil = new Date(Date.now() + BLOCK_DURATION_MS);
+    if (!record) {
+      await this.loginAttemptRepository.save({
+        ip,
+        attemptCount: 1,
+        lockedUntil: null,
+      });
+      return;
     }
 
-    this.attempts.set(ip, record);
+    record.attemptCount += 1;
+
+    if (record.attemptCount >= MAX_ATTEMPTS) {
+      record.lockedUntil = new Date(Date.now() + BLOCK_DURATION_MS);
+    }
+
+    await this.loginAttemptRepository.save(record);
   }
 
-  reset(ip: string): void {
-    this.attempts.delete(ip);
+  async reset(ip: string): Promise<void> {
+    await this.loginAttemptRepository.delete({ ip });
   }
 }

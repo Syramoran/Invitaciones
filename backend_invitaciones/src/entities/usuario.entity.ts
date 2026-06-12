@@ -13,7 +13,7 @@ export class Usuario {
   @Column({ type: 'varchar', length: 100, unique: true })
   username!: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, unique: true })
   email!: string;
 
   @Column({ type: 'varchar', length: 255, name: 'password_hash' })
@@ -21,6 +21,9 @@ export class Usuario {
 
   @Column({ type: 'varchar', length: 20, default: 'ADMIN' })
   role!: string;
+
+  @Column({ type: 'boolean', default: false, name: 'email_verificado' })
+  emailVerificado!: boolean;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt!: Date;

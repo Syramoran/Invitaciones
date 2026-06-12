@@ -17,3 +17,7 @@ export { Foto } from './foto.entity';
 export { Musica } from './musica.entity';
 export { Notificacion, TipoNotificacion } from './notificacion.entity';
 export { LogEliminacion } from './log-eliminacion.entity';
+export { VerificacionEmail } from './verificacion-email.entity';
+export { TokenBlacklist } from './token-blacklist.entity';
+export { LoginAttempt } from './login-attempt.entity';
+export { PasswordReset } from './password-reset.entity';

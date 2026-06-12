@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { Usuario } from '../../entities';
+import { Usuario, VerificacionEmail, TokenBlacklist, LoginAttempt, PasswordReset } from '../../entities';
 import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -16,29 +16,35 @@ import { TokenBlacklistService } from './strategies/token-blacklist.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      Usuario
+      Usuario,
+      VerificacionEmail, // Para que AuthService pueda inyectar el repositorio
+      TokenBlacklist, // Para persistencia de tokens blacklisteados
+      LoginAttempt, // Para persistencia de intentos de login
+      PasswordReset, // Para reset de contraseña
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.getOrThrow<string>('JWT_SECRET'), 
+        secret: configService.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN') as any, 
+          expiresIn: configService.get<string | number>('JWT_EXPIRES_IN', '30m'),
         },
-      }),
+      } as any),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService,
+  providers: [
+    AuthService,
     HashService,
     JwtStrategy,
     JwtAuthGuard,
     LoginAttemptService,
     TokenBlacklistService,
-    UsuarioService
+    UsuarioService,
+    // NotificacionesService es @Global — NestJS lo inyecta automáticamente
   ],
   exports: [JwtModule, PassportModule, HashService, JwtAuthGuard],
 })
-export class AuthModule { }
+export class AuthModule {}

@@ -18,6 +18,8 @@ const PoliticaPrivacidad   = lazy(() => import('@/pages/legal/PoliticaPrivacidad
 const AvisoCookies         = lazy(() => import('@/pages/legal/AvisoCookies'))
 const Disclaimer           = lazy(() => import('@/pages/legal/Disclaimer'))
 const NotFoundPage         = lazy(() => import('@/pages/public/NotFoundPage'))
+
+// Admin
 const AdminLayout          = lazy(() => import('@/components/admin/AdminLayout').then(m => ({ default: m.AdminLayout })))
 const LoginPage            = lazy(() => import('@/pages/admin/LoginPage'))
 const DashboardPage        = lazy(() => import('@/pages/admin/DashboardPage'))
@@ -29,11 +31,33 @@ const ServiciosPage        = lazy(() => import('@/pages/admin/ServiciosPage'))
 const TemplatesPage        = lazy(() => import('@/pages/admin/TemplatesPage'))
 const ReportesPage         = lazy(() => import('@/pages/admin/ReportesPage'))
 
-/* Guard de rutas privadas */
-function PrivateRoute({ children }: { children: React.JSX.Element }) {
-  const { isAuthenticated, isLoading } = useAuth()
+// Cliente
+const ClientLoginPage      = lazy(() => import('@/pages/client/ClientLoginPage'))
+const ClientRegisterPage   = lazy(() => import('@/pages/client/ClientRegisterPage'))
+const ClientVerifyEmailPage= lazy(() => import('@/pages/client/ClientVerifyEmailPage'))
+const ClientForgotPasswordPage= lazy(() => import('@/pages/client/ClientForgotPasswordPage'))
+const ClientResetPasswordPage= lazy(() => import('@/pages/client/ClientResetPasswordPage'))
+const ClientDashboardPage  = lazy(() => import('@/pages/client/ClientDashboardPage'))
+
+// ─── Guards ──────────────────────────────────────────────────────
+
+/** Protege rutas de admin — redirige a /admin/login */
+function AdminPrivateRoute({ children }: { children: React.JSX.Element }) {
+  const { isAuthenticated, isLoading, user } = useAuth()
   if (isLoading) return <div className="page-loading">Cargando...</div>
-  return isAuthenticated ? children : <Navigate to="/admin/login" replace />
+  if (!isAuthenticated) return <Navigate to="/admin/login" replace />
+  if (user?.role !== 'ADMIN') return <Navigate to="/client/login" replace />
+  return children
+}
+
+/** Protege rutas de cliente — redirige a /client/login */
+function ClientPrivateRoute({ children }: { children: React.JSX.Element }) {
+  const { isAuthenticated, isLoading, user } = useAuth()
+  if (isLoading) return <div className="page-loading">Cargando...</div>
+  // El cliente debe estar autenticado con role CLIENT
+  if (!isAuthenticated) return <Navigate to="/client/login" replace />
+  if (user?.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />
+  return children
 }
 
 const PageLoader = () => <div className="page-loading"></div>
@@ -51,9 +75,6 @@ export default function App() {
             <Route path="/pedido-enviado"          element={<PedidoEnviadoPage />} />
             <Route path="/emprende"                element={<EmprendePage />} />
             <Route path="/templates"               element={<TemplatesShowcasePage />} />
-            <Route path="/:eventoId"               element={<InvitacionPage />} />
-            <Route path="/:eventoId/galeria"       element={<GaleriaPage />} />
-            <Route path="/:eventoId/asistentes"   element={<AsistentesPage />} />
 
             {/* ── LEGALES ── */}
             <Route path="/terminos"               element={<TerminosServicio />} />
@@ -63,7 +84,7 @@ export default function App() {
 
             {/* ── ADMIN ── */}
             <Route path="/admin/login" element={<LoginPage />} />
-            <Route path="/admin" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
+            <Route path="/admin" element={<AdminPrivateRoute><AdminLayout /></AdminPrivateRoute>}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard"              element={<DashboardPage />} />
               <Route path="pedidos"                element={<PedidosPage />} />
@@ -74,6 +95,22 @@ export default function App() {
               <Route path="templates"              element={<TemplatesPage />} />
               <Route path="reportes"               element={<ReportesPage />} />
             </Route>
+
+            {/* ── CLIENTE ── */}
+            <Route path="/client/login"           element={<ClientLoginPage />} />
+            <Route path="/client/register"        element={<ClientRegisterPage />} />
+            <Route path="/client/verify-email"    element={<ClientVerifyEmailPage />} />
+            <Route path="/client/forgot-password" element={<ClientForgotPasswordPage />} />
+            <Route path="/client/reset-password"  element={<ClientResetPasswordPage />} />
+            <Route
+              path="/client/dashboard"
+              element={<ClientPrivateRoute><ClientDashboardPage /></ClientPrivateRoute>}
+            />
+
+            {/* ── INVITACIONES PÚBLICAS (al final para no capturar rutas /client) ── */}
+            <Route path="/:eventoId"               element={<InvitacionPage />} />
+            <Route path="/:eventoId/galeria"       element={<GaleriaPage />} />
+            <Route path="/:eventoId/asistentes"   element={<AsistentesPage />} />
 
             {/* ── 404 ── */}
             <Route path="*"                        element={<NotFoundPage />} />

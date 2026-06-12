@@ -26,15 +26,17 @@ apiClient.interceptors.request.use(
 )
 
 /* ── RESPONSE INTERCEPTOR ─────────────────────
-   401 → limpia JWT y redirige a /admin/login     */
+   401 → limpia JWT y redirige según la ruta    */
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
       localStorage.removeItem(JWT_KEY)
-      // Solo redirige si estamos en una ruta /admin
-      if (window.location.pathname.startsWith('/admin')) {
+      const path = window.location.pathname
+      if (path.startsWith('/admin')) {
         window.location.href = '/admin/login'
+      } else if (path.startsWith('/client')) {
+        window.location.href = '/client/login'
       }
     }
     return Promise.reject(error)

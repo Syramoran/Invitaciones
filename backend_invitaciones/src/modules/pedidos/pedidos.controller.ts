@@ -9,9 +9,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
-  UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 
 import { PedidosService } from './pedidos.service';
 import {
@@ -23,6 +21,7 @@ import {
   PaginatedPedidosDto,
 } from './dto/pedido.dto';
 import { Public } from '../auth/decorators/public.decorator';
+import { RequireAdmin } from '../auth/decorators/require-admin.decorator';
 
 @Controller('pedidos')
 export class PedidosController {
@@ -46,7 +45,7 @@ export class PedidosController {
   // ═══════════════════════════════════════════
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @RequireAdmin()
   async listar(@Query() query: PedidoQueryDto): Promise<PaginatedPedidosDto> {
     return this.pedidosService.listar(query);
   }
@@ -56,7 +55,7 @@ export class PedidosController {
   // ═══════════════════════════════════════════
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @RequireAdmin()
   async obtenerPorId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<PedidoResponseDto> {
@@ -69,7 +68,7 @@ export class PedidosController {
   // ═══════════════════════════════════════════
 
   @Patch(':id/estado')
-  @UseGuards(JwtAuthGuard)
+  @RequireAdmin()
   async cambiarEstado(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateEstadoPedidoDto,

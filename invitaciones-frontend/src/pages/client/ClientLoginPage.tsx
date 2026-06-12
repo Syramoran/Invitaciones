@@ -32,8 +32,17 @@ export default function ClientLoginPage() {
       await login(username.trim(), password)
       navigate('/client/dashboard', { replace: true })
     } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response?.status
-      if (status === 401) {
+      const response = (err as { response?: { status?: number; data?: { code?: string; userId?: number; email?: string } } })?.response
+      const status = response?.status
+      const data = response?.data
+
+      if (status === 403 && data?.code === 'EMAIL_NOT_VERIFIED' && data?.userId) {
+        // Cuenta sin verificar — redirigir a la pantalla de verificación
+        navigate(
+          `/client/verify-email?userId=${data.userId}&email=${encodeURIComponent(data.email ?? '')}&from=login`,
+          { replace: true }
+        )
+      } else if (status === 401) {
         setError('Usuario o contraseña incorrectos')
       } else {
         setError('Error al conectarse con el servidor')
@@ -66,7 +75,7 @@ export default function ClientLoginPage() {
             />
           </div>
 
-          <div className="text-left mb-6">
+          <div className="text-left mb-4">
             <label className="block text-[.8rem] font-medium text-[#2d2926] mb-1">Contraseña</label>
             <input
               type="password"
@@ -76,6 +85,15 @@ export default function ClientLoginPage() {
               placeholder="••••••••"
               className="w-full px-3.5 py-[11px] border-[1.5px] border-[#d1d5db] rounded-lg text-[.9rem] outline-none transition-all focus:border-[#c5a572] focus:shadow-[0_0_0_3px_rgba(197,165,114,.15)]"
             />
+          </div>
+
+          <div className="text-right mb-6">
+            <Link
+              to="/client/forgot-password"
+              className="text-[.8rem] text-[#c5a572] hover:underline font-medium"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
           </div>
 
           {error && <p className="text-[#dc2626] text-[.82rem] mb-4 -mt-2">{error}</p>}

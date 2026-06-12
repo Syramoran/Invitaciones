@@ -179,7 +179,135 @@ export class NotificacionesService implements OnModuleInit {
   }
 
   // ═══════════════════════════════════════════
-  // EXPIRACION_PROXIMA
+  // VERIFICACION_EMAIL
+  // Llamar desde: AuthService.register() y AuthService.resendVerification()
+  // Destinatario: email del usuario recién registrado
+  // ═══════════════════════════════════════════
+
+  async enviarCodigoVerificacion(datos: {
+    email: string;
+    username: string;
+    codigo: string;
+  }): Promise<void> {
+    const asunto = `${datos.codigo} es tu código de verificación — Festeja`;
+    const mensaje =
+      `Hola ${datos.username},\n\n` +
+      `Tu código de verificación es: ${datos.codigo}\n\n` +
+      `Este código es válido por 15 minutos.\n\n` +
+      `Si no creaste esta cuenta, podés ignorar este mensaje.\n\n` +
+      `— Festeja Invitaciones Digitales`;
+
+    const html = `
+      <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #f0ece4;">
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#2d2926 0%,#4a4441 100%);padding:32px 40px;text-align:center;">
+          <p style="margin:0;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">
+            festejá<span style="color:#c5a572;font-style:italic;">.</span>
+          </p>
+          <p style="margin:8px 0 0;font-size:13px;color:rgba(255,255,255,0.6);letter-spacing:0.5px;text-transform:uppercase;">Verificación de cuenta</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:40px 40px 32px;">
+          <p style="margin:0 0 8px;font-size:16px;color:#2d2926;">Hola, <strong>${datos.username}</strong> 👋</p>
+          <p style="margin:0 0 32px;font-size:15px;color:#6b7280;line-height:1.6;">
+            Usá el siguiente código para verificar tu cuenta. Es válido por <strong>15 minutos</strong>.
+          </p>
+
+          <!-- OTP Box -->
+          <div style="background:#faf8f5;border:2px solid #e8e0d4;border-radius:12px;padding:28px;text-align:center;margin-bottom:32px;">
+            <p style="margin:0 0 8px;font-size:12px;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Tu código de verificación</p>
+            <p style="margin:0;font-size:42px;font-weight:800;letter-spacing:12px;color:#2d2926;font-family:'Courier New',monospace;">${datos.codigo}</p>
+          </div>
+
+          <p style="margin:0;font-size:13px;color:#9ca3af;line-height:1.6;">
+            Si no creaste una cuenta en Festeja, podés ignorar este mensaje de forma segura.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#faf8f5;padding:20px 40px;border-top:1px solid #f0ece4;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#9ca3af;">© Festeja Invitaciones Digitales — Notificación automática</p>
+        </div>
+      </div>`;
+
+    await this.crearYEnviar({
+      tipo: TipoNotificacion.VERIFICACION_EMAIL,
+      destinatarioEmail: datos.email,
+      asunto,
+      mensaje,
+      html,
+    });
+  }
+
+  // Reset de contraseña
+  // Destinatario: email del usuario que solicitó reset
+  // ═══════════════════════════════════════════
+
+  async enviarEmailResetPassword(datos: {
+    email: string;
+    username: string;
+    resetLink: string;
+  }): Promise<void> {
+    const asunto = 'Resetea tu contraseña — Festeja';
+    const mensaje =
+      `Hola ${datos.username},\n\n` +
+      `Recibimos una solicitud para resetear tu contraseña. Usá el siguiente link:\n\n` +
+      `${datos.resetLink}\n\n` +
+      `Este link es válido por 30 minutos.\n\n` +
+      `Si no solicitaste un reset, podés ignorar este mensaje de forma segura.\n\n` +
+      `— Festeja Invitaciones Digitales`;
+
+    const html = `
+      <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #f0ece4;">
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#2d2926 0%,#4a4441 100%);padding:32px 40px;text-align:center;">
+          <p style="margin:0;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">
+            festejá<span style="color:#c5a572;font-style:italic;">.</span>
+          </p>
+          <p style="margin:8px 0 0;font-size:13px;color:rgba(255,255,255,0.6);letter-spacing:0.5px;text-transform:uppercase;">Reset de contraseña</p>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:40px 40px 32px;">
+          <p style="margin:0 0 8px;font-size:16px;color:#2d2926;">Hola, <strong>${datos.username}</strong> 👋</p>
+          <p style="margin:0 0 32px;font-size:15px;color:#6b7280;line-height:1.6;">
+            Solicitaste resetear tu contraseña. Usá el siguiente link para continuar. Es válido por <strong>30 minutos</strong>.
+          </p>
+
+          <!-- CTA Button -->
+          <div style="text-align:center;margin-bottom:32px;">
+            <a href="${datos.resetLink}" style="display:inline-block;background:#c5a572;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">
+              Resetear contraseña
+            </a>
+          </div>
+
+          <p style="margin:0 0 16px;font-size:13px;color:#9ca3af;">O copia y pega este link en tu navegador:</p>
+          <p style="margin:0 0 16px;font-size:12px;color:#6b7280;word-break:break-all;background:#faf8f5;padding:12px;border-radius:8px;border-left:3px solid #c5a572;">
+            ${datos.resetLink}
+          </p>
+
+          <p style="margin:0;font-size:13px;color:#9ca3af;line-height:1.6;">
+            Si no solicitaste resetear tu contraseña, podés ignorar este mensaje de forma segura. Tu cuenta permanecerá protegida.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#faf8f5;padding:20px 40px;border-top:1px solid #f0ece4;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#9ca3af;">© Festeja Invitaciones Digitales — Notificación automática</p>
+        </div>
+      </div>`;
+
+    await this.crearYEnviar({
+      tipo: TipoNotificacion.VERIFICACION_EMAIL,
+      destinatarioEmail: datos.email,
+      asunto,
+      mensaje,
+      html,
+    });
+  }
+
+
   // Llamar desde: CronJobsService.notificarExpiracionProxima()
   // Destinatario: email del anfitrión (pedido.email)
   // ═══════════════════════════════════════════
@@ -256,6 +384,7 @@ export class NotificacionesService implements OnModuleInit {
 
   // ═══════════════════════════════════════════
   // Método privado — Crear registro + enviar email
+  // El email se intenta enviar SIEMPRE, incluso si falla el registro en BD.
   // ═══════════════════════════════════════════
 
   private async crearYEnviar(datos: {
@@ -265,18 +394,29 @@ export class NotificacionesService implements OnModuleInit {
     mensaje: string;
     html?: string;
   }): Promise<NotificacionResponseDto> {
-    const guardada = await this.notificacionRepo.save(
-      this.notificacionRepo.create({
-        tipo: datos.tipo,
-        destinatarioEmail: datos.destinatarioEmail,
-        asunto: datos.asunto,
-        mensaje: datos.mensaje,
-        enviada: false,
-      }),
-    );
+    // 1. Intentar persistir en BD (puede fallar si la constraint está desactualizada)
+    let guardada: Notificacion | null = null;
+    try {
+      guardada = await this.notificacionRepo.save(
+        this.notificacionRepo.create({
+          tipo: datos.tipo,
+          destinatarioEmail: datos.destinatarioEmail,
+          asunto: datos.asunto,
+          mensaje: datos.mensaje,
+          enviada: false,
+        }),
+      );
+    } catch (dbError: any) {
+      this.logger.warn(
+        `⚠️ No se pudo registrar notificación en BD [${datos.tipo}]: ${dbError.message}. ` +
+        `Se intentará enviar el email de todas formas.`,
+      );
+    }
 
+    // 2. Enviar email independientemente de si el registro en BD falló
     try {
       if (this.transporter) {
+        this.logger.log(`📧 Intentando sendMail [${datos.tipo}] → ${datos.destinatarioEmail}`);
         await this.transporter.sendMail({
           from: this.fromEmail,
           to: datos.destinatarioEmail,
@@ -284,19 +424,34 @@ export class NotificacionesService implements OnModuleInit {
           text: datos.mensaje,
           html: datos.html ?? datos.mensaje.replace(/\n/g, '<br>'),
         });
-        this.logger.log(`📧 Email enviado [${datos.tipo}] → ${datos.destinatarioEmail}`);
-      } else {
-        this.logger.warn(`📧 SMTP no configurado — [${datos.tipo}] → ${datos.destinatarioEmail} (solo BD)`);
-      }
+        this.logger.log(`✅ Email enviado correctamente [${datos.tipo}] → ${datos.destinatarioEmail}`);
 
-      guardada.enviada = true;
-      guardada.fechaEnvio = new Date();
-      await this.notificacionRepo.save(guardada);
-    } catch (error: any) {
-      this.logger.error(`❌ Error enviando email #${guardada.id}: ${error.message}`);
+        // Actualizar estado en BD si el registro existe
+        if (guardada) {
+          guardada.enviada = true;
+          guardada.fechaEnvio = new Date();
+          await this.notificacionRepo.save(guardada).catch(() => {/* ignorar error de update */});
+        }
+      } else {
+        this.logger.warn(`⚠️ SMTP transporter es NULL — email NO enviado [${datos.tipo}] → ${datos.destinatarioEmail}`);
+      }
+    } catch (emailError: any) {
+      this.logger.error(`❌ Error en sendMail [${datos.tipo}] → ${datos.destinatarioEmail}: ${emailError.message}`);
     }
 
-    return this.mapearResponse(guardada);
+    // Retornar un objeto válido aunque no haya registro en BD
+    if (guardada) return this.mapearResponse(guardada);
+
+    return {
+      id: 0,
+      tipo: datos.tipo,
+      destinatarioEmail: datos.destinatarioEmail,
+      asunto: datos.asunto,
+      mensaje: datos.mensaje,
+      enviada: false,
+      fechaEnvio: null,
+      createdAt: new Date(),
+    };
   }
 
   private mapearResponse(n: Notificacion): NotificacionResponseDto {

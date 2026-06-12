@@ -36,8 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
+  const register = async (username: string, email: string, password: string) => {
+    return authService.register({ username, email, password })
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, isAuthenticated: !!user, login, logout, register }}
+    >
       {children}
     </AuthContext.Provider>
   )

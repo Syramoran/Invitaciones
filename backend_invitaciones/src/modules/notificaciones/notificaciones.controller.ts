@@ -3,16 +3,15 @@ import {
   Get,
   Post,
   Query,
-  UseGuards,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 import { NotificacionesService } from './notificaciones.service';
 import { NotificacionQueryDto } from './dto/notificacion.dto';
+import { RequireAdmin } from '../auth/decorators/require-admin.decorator';
 
 @Controller('notificaciones')
-@UseGuards(JwtAuthGuard)
+@RequireAdmin()
 export class NotificacionesController {
   constructor(
     private readonly notificacionesService: NotificacionesService,
