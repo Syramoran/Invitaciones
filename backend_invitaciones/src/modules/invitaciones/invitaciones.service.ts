@@ -2,6 +2,7 @@ import {
   Injectable,
   Inject,
   NotFoundException,
+  ForbiddenException,
   UnprocessableEntityException,
   Logger,
   forwardRef,
@@ -73,9 +74,10 @@ export class InvitacionesService {
     dto: CreateInvitacionDto,
     fotosAnfitrion?: Express.Multer.File[],
     archivoMusica?: Express.Multer.File,
+    usuarioId?: number,
   ): Promise<InvitacionResponseDto> {
     // 1. Validar entidades relacionadas
-    const pedido = await this.validarPedido(dto.pedidoId);
+    const pedido = dto.pedidoId ? await this.validarPedido(dto.pedidoId) : null;
     const tipoEvento = await this.validarTipoEvento(dto.tipoEventoId);
     const template = await this.validarTemplate(dto.templateId, dto.tipoEventoId);
     const serviciosValidados = await this.validarServicios(dto.serviciosIds);
@@ -84,6 +86,7 @@ export class InvitacionesService {
     const invitacion = await this.dataSource.transaction(async (manager) => {
       const nueva = manager.create(Invitacion, {
         pedidoId: dto.pedidoId,
+        usuarioId: usuarioId ?? null,
         templateId: dto.templateId,
         tipoEventoId: dto.tipoEventoId,
         titulo: dto.titulo,
@@ -114,8 +117,10 @@ export class InvitacionesService {
         await manager.save(InvitacionServicio, registros);
       }
 
-      pedido.estado = EstadoPedido.COMPLETADO;
-      await manager.save(Pedido, pedido);
+      if (pedido) {
+        pedido.estado = EstadoPedido.COMPLETADO;
+        await manager.save(Pedido, pedido);
+      }
 
       return guardada;
     });
@@ -131,7 +136,7 @@ export class InvitacionesService {
 
     this.logger.log(
       `✅ Invitación creada — ID: ${invitacion.id} | ` +
-      `Pedido: #${dto.pedidoId} | Evento: ${tipoEvento.nombre} | ` +
+      `${dto.pedidoId ? `Pedido: #${dto.pedidoId} | ` : ''}Evento: ${tipoEvento.nombre} | ` +
       `Template: ${template.nombre}`,
     );
 
@@ -156,6 +161,7 @@ export class InvitacionesService {
       .createQueryBuilder('invitacion')
       .leftJoinAndSelect('invitacion.tipoEvento', 'tipoEvento')
       .leftJoinAndSelect('invitacion.template', 'template')
+      .leftJoinAndSelect('invitacion.usuario', 'usuario')
       .leftJoinAndSelect('invitacion.invitacionServicios', 'is')
       .leftJoinAndSelect('is.servicio', 'servicio')
       .leftJoinAndSelect('invitacion.fotosAnfitrion', 'fotosAnfitrion')
@@ -195,6 +201,7 @@ export class InvitacionesService {
     const invitacion = await this.invitacionRepo.findOne({
       where: { id },
       relations: [
+        'usuario',
         'tipoEvento',
         'template',
         'invitacionServicios',
@@ -234,6 +241,11 @@ export class InvitacionesService {
       throw new NotFoundException(`Invitación ${id} no encontrada.`);
     }
 
+    // Validar límite de ediciones (máximo 5)
+    if (invitacion.editCount >= 5) {
+      throw new UnprocessableEntityException(`Se alcanzó el límite de ediciones permitidas.`);
+    }
+
     // Validar template si se cambia
     if (dto.templateId && dto.templateId !== invitacion.templateId) {
       await this.validarTemplate(
@@ -259,6 +271,10 @@ export class InvitacionesService {
 
     const { serviciosIds, ...campos } = dto;
     Object.assign(invitacion, campos);
+
+    // Incrementar contador de ediciones
+    invitacion.editCount += 1;
+
     await this.invitacionRepo.save(invitacion);
 
     return this.obtenerPorId(id);
@@ -328,6 +344,89 @@ export class InvitacionesService {
     }
 
     return invitacion;
+  }
+
+  // ═══════════════════════════════════════════
+  // GET /client/invitaciones — Listar invitaciones del usuario (JWT)
+  // ═══════════════════════════════════════════
+
+  async listarPorUsuario(usuarioId: number): Promise<InvitacionResponseDto[]> {
+    const invitaciones = await this.invitacionRepo.find({
+      where: { usuarioId },
+      relations: [
+        'tipoEvento',
+        'template',
+        'invitacionServicios',
+        'invitacionServicios.servicio',
+        'fotosAnfitrion',
+      ],
+      order: { createdAt: 'DESC' },
+    });
+
+    return invitaciones.map((inv) =>
+      mapearInvitacionResponse(
+        inv,
+        inv.tipoEvento?.nombre ?? '',
+        inv.template?.nombre ?? '',
+        extraerServicios(inv),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════
+  // Verificar que la invitación pertenece al usuario (client, JWT)
+  // ═══════════════════════════════════════════
+
+  async verificarPropiedad(id: string, usuarioId: number): Promise<void> {
+    const invitacion = await this.invitacionRepo.findOne({
+      where: { id },
+      select: ['id', 'usuarioId'],
+    });
+
+    if (!invitacion) {
+      throw new NotFoundException(`Invitación ${id} no encontrada.`);
+    }
+
+    if (invitacion.usuarioId !== usuarioId) {
+      throw new ForbiddenException('No tenés permiso para acceder a esta invitación.');
+    }
+  }
+
+  // ═══════════════════════════════════════════
+  // Actualizar estado de pago — Simular pago exitoso
+  // ═══════════════════════════════════════════
+
+  async actualizarEstadoPago(
+    id: string,
+    estadoPago: 'PAGADO' | 'CANCELADO',
+  ): Promise<InvitacionResponseDto> {
+    const invitacion = await this.invitacionRepo.findOne({
+      where: { id },
+      relations: [
+        'tipoEvento',
+        'template',
+        'invitacionServicios',
+        'invitacionServicios.servicio',
+      ],
+    });
+
+    if (!invitacion) {
+      throw new NotFoundException(`Invitación ${id} no encontrada.`);
+    }
+
+    invitacion.estadoPago = estadoPago;
+    await this.invitacionRepo.save(invitacion);
+
+    this.logger.log(
+      `💳 Estado de pago actualizado — ID: ${id} | Estado: ${estadoPago}`,
+    );
+
+    return mapearInvitacionResponse(
+      invitacion,
+      invitacion.tipoEvento?.nombre ?? '',
+      invitacion.template?.nombre ?? '',
+      extraerServicios(invitacion),
+    );
   }
 
   // ═══════════════════════════════════════════
