@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { Plus, Settings, Eye, Users, LogOut, CheckCircle2, Link as LinkIcon, X, Copy } from 'lucide-react'
 import { useAuth } from '@/context/useAuth'
 import apiClient from '@/services/apiClient'
@@ -17,10 +17,13 @@ interface InvitacionCliente {
 
 export default function ClientDashboardPage() {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
   const [invitaciones, setInvitaciones] = useState<InvitacionCliente[]>([])
   const [loading, setLoading] = useState(true)
   const [searchParams] = useSearchParams()
   const paymentStatus = searchParams.get('payment')
+  const tabParam = searchParams.get('tab') || 'invitations'
+  const activeTab = tabParam === 'create' ? 'create' : 'invitations'
 
   // URL Generation Modal State
   const [selectedInvitationForUrls, setSelectedInvitationForUrls] = useState<InvitacionCliente | null>(null)
@@ -101,34 +104,66 @@ export default function ClientDashboardPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-display font-semibold tracking-tight">Mis Invitaciones</h1>
-          <Link
-            to="/client/crear-invitacion"
-            className="flex items-center gap-2 bg-[#c5a572] hover:bg-[#b09365] text-white px-5 py-2.5 rounded-full font-medium transition-colors shadow-sm"
+        {/* Tabs */}
+        <div className="flex items-center gap-4 mb-8 border-b border-[#e5e7eb]">
+          <button
+            onClick={() => navigate('/client/dashboard?tab=invitations')}
+            className={`pb-3 px-4 font-medium text-sm transition-colors ${
+              activeTab === 'invitations'
+                ? 'text-[#2d2926] border-b-2 border-[#c5a572]'
+                : 'text-[#6b7280] hover:text-[#2d2926]'
+            }`}
           >
-            <Plus className="w-5 h-5" />
-            Crear Invitación
-          </Link>
+            Mis Invitaciones
+          </button>
+          <button
+            onClick={() => navigate('/client/dashboard?tab=create')}
+            className={`pb-3 px-4 font-medium text-sm transition-colors ${
+              activeTab === 'create'
+                ? 'text-[#2d2926] border-b-2 border-[#c5a572]'
+                : 'text-[#6b7280] hover:text-[#2d2926]'
+            }`}
+          >
+            Crear Nueva Invitación
+          </button>
         </div>
 
-        {loading ? (
+        {activeTab === 'create' ? (
+          /* TAB: CREAR NUEVA INVITACIÓN */
+          <div className="text-center py-24 bg-white border border-[#f3f0ea] rounded-2xl shadow-sm">
+            <div className="w-16 h-16 bg-[#fcfaf8] text-[#c5a572] rounded-full flex items-center justify-center mx-auto mb-4">
+              <Plus className="w-8 h-8" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">Crear una nueva invitación</h2>
+            <p className="text-[#6b7280] mb-6 text-[.95rem]">Diseñá tu invitación digital personalizada en minutos.</p>
+            <Link
+              to="/client/create-invitation"
+              className="inline-flex items-center gap-2 bg-[#c5a572] hover:bg-[#b09365] text-white px-8 py-3 rounded-full font-medium transition-colors shadow-sm"
+            >
+              <Plus className="w-5 h-5" />
+              Comenzar
+            </Link>
+          </div>
+        ) : loading ? (
+          /* TAB: INVITACIONES - LOADING */
           <div className="text-center py-20 text-[#6b7280]">Cargando tus invitaciones...</div>
         ) : invitaciones.length === 0 ? (
+          /* TAB: INVITACIONES - VACÍO */
           <div className="text-center py-24 bg-white border border-[#f3f0ea] rounded-2xl shadow-sm">
             <div className="w-16 h-16 bg-[#fcfaf8] text-[#c5a572] rounded-full flex items-center justify-center mx-auto mb-4">
               <Plus className="w-8 h-8" />
             </div>
             <h2 className="text-xl font-semibold mb-2">Aún no tenés invitaciones</h2>
             <p className="text-[#6b7280] mb-6 text-[.95rem]">Empezá creando la invitación para tu próximo evento.</p>
-            <Link
-              to="/client/crear-invitacion"
+            <button
+              onClick={() => navigate('/client/dashboard?tab=create')}
               className="inline-flex items-center gap-2 bg-[#2d2926] hover:bg-[#4a4441] text-[#fefcf9] px-6 py-3 rounded-full font-medium transition-colors"
             >
               Crear mi primera invitación
-            </Link>
+            </button>
           </div>
         ) : (
+          /* TAB: INVITACIONES - LISTADO */
           <div className="grid md:grid-cols-2 gap-6">
             {invitaciones.filter(inv => inv.estadoPago === 'PAGADO').length === 0 ? (
               <div className="md:col-span-2 bg-white border border-[#f3f0ea] rounded-2xl p-8 text-center text-[#6b7280]">
@@ -154,7 +189,7 @@ export default function ClientDashboardPage() {
 
                     <div className="flex flex-wrap items-center gap-2">
                       {!eventPassed && (
-                        <Link to={`/client/crear-invitacion?id=${inv.id}`} className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#2d2926] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]">
+                        <Link to={`/client/create-invitation?id=${inv.id}`} className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#2d2926] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]">
                           <Settings className="w-3.5 h-3.5" />
                           Editar
                         </Link>

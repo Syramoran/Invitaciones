@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
 import { Check } from 'lucide-react'
 import { Ornament } from './Ornament'
+import { useCrearInvitacionModal } from '@/context/crearInvitacionModalContext'
 
 const baseFeatures = [
   'Informacion del evento (fecha, hora, ubicacion, dress code)',
@@ -20,6 +20,8 @@ const addons = [
 ]
 
 export function Pricing() {
+  const { openModal } = useCrearInvitacionModal()
+
   return (
     <section id="precios" className="py-24 bg-ivory relative">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-champagne-dark to-transparent" />
@@ -86,13 +88,13 @@ export function Pricing() {
           <p className="text-sm text-warm-gray font-light mb-7">
             50% de descuento en tu segunda invitacion
           </p>
-          <Link
-            to="/crear"
+          <button
+            onClick={openModal}
             className="inline-flex items-center gap-2 bg-charcoal text-champagne-light font-medium px-8 py-3.5 rounded-full hover:bg-charcoal-soft hover:-translate-y-0.5 hover:shadow-md transition-all"
           >
             Arma tu presupuesto
             <span>→</span>
-          </Link>
+          </button>
         </div>
       </div>
     </section>

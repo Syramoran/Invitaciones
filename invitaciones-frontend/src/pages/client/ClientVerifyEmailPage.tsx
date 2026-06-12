@@ -17,6 +17,8 @@ export default function ClientVerifyEmailPage() {
   const email = searchParams.get('email') ?? ''
   // 'from=login' indica que el usuario llegó desde el login (no desde el registro)
   const fromLogin = searchParams.get('from') === 'login'
+  // 'redirect' indica dónde ir después de verificar (ej: 'create')
+  const redirectParam = searchParams.get('redirect')
 
   // Estado de los dígitos del OTP
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''))
@@ -133,7 +135,8 @@ export default function ClientVerifyEmailPage() {
         // Actualizar el contexto de auth con el usuario retornado
         // El token ya fue guardado por authService.verifyEmail()
         // Recargamos la sesión navegando al dashboard (AuthProvider lo detectará)
-        navigate('/client/dashboard', { replace: true })
+        const dashboardUrl = redirectParam ? `/client/dashboard?tab=${redirectParam}` : '/client/dashboard'
+        navigate(dashboardUrl, { replace: true })
       }, 1200)
     } catch (err: unknown) {
       const data = (err as any)?.response?.data

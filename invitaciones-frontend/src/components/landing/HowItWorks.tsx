@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom'
 import { Monitor, ClipboardList, MessageCircle, Link2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Ornament } from './Ornament'
+import { useCrearInvitacionModal } from '@/context/crearInvitacionModalContext'
 
 const steps = [
   {
@@ -27,6 +27,8 @@ const steps = [
 ]
 
 export function HowItWorks() {
+  const { openModal } = useCrearInvitacionModal()
+
   return (
     <section id="como-funciona" className="py-24 bg-ivory relative">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-champagne-dark to-transparent" />
@@ -83,13 +85,13 @@ export function HowItWorks() {
         </div>
 
         <div className="text-center mt-14">
-          <Link
-            to="/crear"
+          <button
+            onClick={openModal}
             className="inline-flex items-center gap-2 bg-charcoal text-champagne-light font-medium px-8 py-3.5 rounded-full hover:bg-charcoal-soft hover:-translate-y-0.5 hover:shadow-md transition-all"
           >
             Empezá ahora
             <span>→</span>
-          </Link>
+          </button>
         </div>
       </div>
     </section>

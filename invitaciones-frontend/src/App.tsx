@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '@/context/authContext'
 import { useAuth } from '@/context/useAuth'
+import { CrearInvitacionModalProvider } from '@/context/crearInvitacionModalContext'
 import { Suspense, lazy } from 'react'
 
 // Lazy loading — cada chunk se carga solo cuando se navega a esa ruta
@@ -32,12 +33,13 @@ const TemplatesPage        = lazy(() => import('@/pages/admin/TemplatesPage'))
 const ReportesPage         = lazy(() => import('@/pages/admin/ReportesPage'))
 
 // Cliente
-const ClientLoginPage      = lazy(() => import('@/pages/client/ClientLoginPage'))
-const ClientRegisterPage   = lazy(() => import('@/pages/client/ClientRegisterPage'))
-const ClientVerifyEmailPage= lazy(() => import('@/pages/client/ClientVerifyEmailPage'))
-const ClientForgotPasswordPage= lazy(() => import('@/pages/client/ClientForgotPasswordPage'))
-const ClientResetPasswordPage= lazy(() => import('@/pages/client/ClientResetPasswordPage'))
-const ClientDashboardPage  = lazy(() => import('@/pages/client/ClientDashboardPage'))
+const ClientLoginPage           = lazy(() => import('@/pages/client/ClientLoginPage'))
+const ClientRegisterPage        = lazy(() => import('@/pages/client/ClientRegisterPage'))
+const ClientVerifyEmailPage     = lazy(() => import('@/pages/client/ClientVerifyEmailPage'))
+const ClientForgotPasswordPage  = lazy(() => import('@/pages/client/ClientForgotPasswordPage'))
+const ClientResetPasswordPage   = lazy(() => import('@/pages/client/ClientResetPasswordPage'))
+const ClientDashboardPage       = lazy(() => import('@/pages/client/ClientDashboardPage'))
+const CrearInvitacionWizard     = lazy(() => import('@/pages/client/CrearInvitacionWizard'))
 
 // ─── Guards ──────────────────────────────────────────────────────
 
@@ -66,7 +68,8 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
+        <CrearInvitacionModalProvider>
+          <Suspense fallback={<PageLoader />}>
           <Routes>
 
             {/* ── PÚBLICAS ── */}
@@ -106,6 +109,10 @@ export default function App() {
               path="/client/dashboard"
               element={<ClientPrivateRoute><ClientDashboardPage /></ClientPrivateRoute>}
             />
+            <Route
+              path="/client/create-invitation"
+              element={<ClientPrivateRoute><CrearInvitacionWizard /></ClientPrivateRoute>}
+            />
 
             {/* ── INVITACIONES PÚBLICAS (al final para no capturar rutas /client) ── */}
             <Route path="/:eventoId"               element={<InvitacionPage />} />
@@ -116,7 +123,8 @@ export default function App() {
             <Route path="*"                        element={<NotFoundPage />} />
 
           </Routes>
-        </Suspense>
+          </Suspense>
+        </CrearInvitacionModalProvider>
       </BrowserRouter>
     </AuthProvider>
   )

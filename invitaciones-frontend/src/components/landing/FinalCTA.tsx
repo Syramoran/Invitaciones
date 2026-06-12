@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom'
 import { MessageCircle, Star } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useCrearInvitacionModal } from '@/context/crearInvitacionModalContext'
 
 export function FinalCTA() {
+  const { openModal } = useCrearInvitacionModal()
   return (
     <section id="contacto" className="py-16 bg-charcoal text-champagne-light text-center relative overflow-hidden">
       {/* Background decoration */}
@@ -30,13 +31,13 @@ export function FinalCTA() {
         </p>
 
         <div className="flex items-center justify-center gap-4 flex-wrap">
-          <Link
-            to="/crear"
+          <button
+            onClick={openModal}
             className="inline-flex items-center gap-2 bg-gold text-white font-medium px-10 py-4 rounded-full hover:bg-gold-dark hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(197,165,114,0.3)] transition-all"
           >
             Creá tu invitacion
             <span>→</span>
-          </Link>
+          </button>
           <a
             href="https://wa.me/5493435083034"
             target="_blank"

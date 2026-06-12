@@ -1,9 +1,11 @@
-import { Link } from 'react-router-dom'
-import {  ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { PhoneMockup } from './PhoneMockup'
 import { InvitationPreview } from './InvitationPreview'
+import { useCrearInvitacionModal } from '@/context/crearInvitacionModalContext'
 
 export function Hero() {
+  const { openModal } = useCrearInvitacionModal()
+
   const scrollToEvents = () => {
     const element = document.getElementById('showcase')
     if (element) {
@@ -49,13 +51,13 @@ export function Hero() {
           </p>
 
           <div className="animate-hero-item animate-hero-item-3 flex items-center gap-4 flex-wrap lg:justify-start justify-center">
-            <Link
-              to="/crear"
+            <button
+              onClick={openModal}
               className="inline-flex items-center gap-2 bg-champagne-light text-charcoal font-medium px-8 py-3.5 rounded-full hover:bg-champagne hover:-translate-y-0.5 hover:shadow-md transition-all"
             >
               Empezá a crear
               <span>→</span>
-            </Link>
+            </button>
             <button
               onClick={scrollToEvents}
               className="inline-flex items-center gap-2 text-champagne font-medium px-2 py-3.5 hover:text-white transition-colors"

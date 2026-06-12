@@ -1,5 +1,5 @@
 import { useState, useEffect, useId } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { Loader2, Eye, EyeOff, Check, X } from 'lucide-react'
 import { useAuth } from '@/context/useAuth'
 
@@ -19,7 +19,9 @@ const PASSWORD_RULES: PasswordRule[] = [
 export default function ClientRegisterPage() {
   const { register, isAuthenticated, isLoading } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const formId = useId()
+  const redirectParam = searchParams.get('redirect')
 
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
@@ -76,7 +78,8 @@ export default function ClientRegisterPage() {
         email.trim(),
         password,
       )
-      navigate(`/client/verify-email?userId=${userId}&email=${encodeURIComponent(userEmail)}`)
+      const verifyUrl = `/client/verify-email?userId=${userId}&email=${encodeURIComponent(userEmail)}${redirectParam ? `&redirect=${redirectParam}` : ''}`
+      navigate(verifyUrl)
     } catch (err: unknown) {
       const data = (err as any)?.response?.data
       if (data?.code === 'USERNAME_TAKEN') {

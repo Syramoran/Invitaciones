@@ -117,6 +117,7 @@ export function CrearInvitacionWizard() {
         tipoEventoId: pedido.tipoEventoId,
         templateId:   pedido.templateId,
         titulo:       prev.step1.titulo,
+        colorPrimario: prev.step1.colorPrimario,
       },
       step2: {
         ...prev.step2,
@@ -140,6 +141,11 @@ export function CrearInvitacionWizard() {
             ? { ...(INITIAL_CAMPOS[updates.tipoEventoId] ?? {}) }
             : {},
         }
+      }
+
+      // When colorPrimario changes, sync to step2
+      if ('colorPrimario' in updates) {
+        next.step2 = { ...next.step2, colorPrimario: updates.colorPrimario ?? '' }
       }
 
       // When pedidoId changes, sync services from the selected pedido
@@ -242,7 +248,7 @@ export function CrearInvitacionWizard() {
     <div>
       <WizardStepper current={currentStep} onGoBack={goTo} />
 
-      <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-sm p-6 mt-5">
+      <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-sm p-6 sm:p-8 mt-5">
         {currentStep === 1 && (
           <Step1DatosBasicos
             state={formState.step1}
@@ -300,6 +306,7 @@ export function CrearInvitacionWizard() {
             error={submitError}
             onGenerate={handleGenerate}
             onPrev={() => goTo(5)}
+            onGoTo={goTo}
           />
         )}
       </div>

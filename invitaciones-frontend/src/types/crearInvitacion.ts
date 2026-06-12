@@ -91,6 +91,7 @@ export interface WizardStep1 {
   tipoEventoId: number | null
   templateId: number | null
   titulo: string
+  colorPrimario: string   // Selected in step 1, synced to step 2
 }
 
 // Step 2 ─────────────────────────────────────────────────────────────────────
@@ -211,7 +212,7 @@ export interface CrearInvitacionResult {
 
 export function createInitialFormState(): WizardFormState {
   return {
-    step1: { pedidoId: '', tipoEventoId: null, templateId: null, titulo: '' },
+    step1: { pedidoId: '', tipoEventoId: null, templateId: null, titulo: '', colorPrimario: '' },
     step2: {
       fechaEvento: '', horaEvento: '', ubicacion: '', direccion: '',
       latitud: '', longitud: '', colorPrimario: '',

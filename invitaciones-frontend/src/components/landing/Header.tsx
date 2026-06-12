@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, X, Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/hooks/useTheme'
+import { useCrearInvitacionModal } from '@/context/crearInvitacionModalContext'
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
+  const { openModal } = useCrearInvitacionModal()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,8 +74,8 @@ export function Header() {
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            <Link
-              to="/crear"
+            <button
+              onClick={openModal}
               className={`inline-flex items-center gap-2 text-sm font-medium px-6 py-2.5 rounded-full hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 ${
                 isScrolled
                   ? 'bg-charcoal text-champagne-light hover:bg-charcoal-soft dark:bg-champagne-light dark:text-charcoal dark:hover:bg-champagne'
@@ -82,7 +84,7 @@ export function Header() {
             >
               Crea tu invitacion
               <span className="text-xs">→</span>
-            </Link>
+            </button>
           </div>
 
           <button
@@ -134,13 +136,15 @@ export function Header() {
           Contacto
         </button>
 
-        <Link
-          to="/crear"
+        <button
+          onClick={() => {
+            openModal()
+            setIsMobileMenuOpen(false)
+          }}
           className="mt-4 bg-charcoal text-champagne-light font-medium px-8 py-3.5 rounded-full"
-          onClick={() => setIsMobileMenuOpen(false)}
         >
           Crea tu invitacion →
-        </Link>
+        </button>
       </div>
     </>
   )
