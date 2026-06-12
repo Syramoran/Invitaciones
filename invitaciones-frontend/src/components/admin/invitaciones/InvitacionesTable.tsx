@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Copy, Eye, Trash2, Loader2, QrCode, X, Download } from 'lucide-react'
+import { Copy, Pencil, Trash2, Loader2, QrCode, X, Download } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import type { InvitacionAdmin } from '@/types/adminInvitacion'
 import { getDaysLeft, getInvitacionStatus } from '@/types/adminInvitacion'
@@ -197,7 +197,7 @@ export function InvitacionesTable({
                       onClick={() => onView(inv)}
                       className="flex items-center gap-1 px-2.5 py-1 text-[.75rem] font-medium border border-[#d1d5db] rounded-lg hover:border-[#2d2926] transition-colors"
                     >
-                      <Eye className="w-3.5 h-3.5" /> Ver
+                      <Pencil className="w-3.5 h-3.5" /> Editar
                     </button>
 
                     <button

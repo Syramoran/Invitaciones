@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { AlertCircle, Loader2, X, Music, ImagePlus, PlusCircle, Trash2, Check } from 'lucide-react'
+import { AlertCircle, Loader2, X, Music, ImagePlus, PlusCircle, Trash2, Check, Heart, Crown, Cake, Pencil } from 'lucide-react'
 
 import { adminInvitacionService } from '@/services/adminInvitacionService'
 import type { HistoriaSeccionResponse, MusicaResponse } from '@/services/adminInvitacionService'
@@ -9,11 +9,24 @@ import { servicioService } from '@/services/servicioService'
 import type { Template } from '@/services/templateService'
 import type { InvitacionAdmin } from '@/types/adminInvitacion'
 import type { WizardStep1, WizardStep2, WizardStep3, ServiceToggle, TipoUbicacion } from '@/types/crearInvitacion'
-import { INITIAL_CAMPOS } from '@/types/crearInvitacion'
+import { INITIAL_CAMPOS, TEMPLATE_COLORS, COLORES_PALETA } from '@/types/crearInvitacion'
 import { TIPO_LABEL } from '@/services/templateService'
 
+import { WizardStepper } from '@/components/admin/crear-invitacion/WizardStepper'
+import type { StepDef } from '@/components/admin/crear-invitacion/WizardStepper'
 import { Step2Evento } from '@/components/admin/crear-invitacion/Step2Evento'
 import { Step3Servicios } from '@/components/admin/crear-invitacion/Step3Servicios'
+import { InvitationPreview } from '@/components/landing/InvitationPreview'
+
+// ─── Edit wizard steps ────────────────────────────────────────────────────────
+
+const EDIT_STEPS: StepDef[] = [
+  { num: 1, label: 'Template' },
+  { num: 2, label: 'Evento' },
+  { num: 3, label: 'Servicios' },
+  { num: 4, label: 'Contenido' },
+  { num: 5, label: 'Guardar' },
+]
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -45,32 +58,17 @@ interface EditFormState {
   activa: boolean
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Tipo event options ───────────────────────────────────────────────────────
 
 const TIPO_OPTIONS = [
-  { id: 1, label: 'Boda' },
-  { id: 2, label: 'Quinceañera' },
-  { id: 3, label: 'Cumpleaños' },
-]
+  { id: 1, label: 'Boda',       icon: Heart, bgColor: '#fce4ec', iconColor: '#c2185b', description: 'Matrimonios y casamientos' },
+  { id: 2, label: 'Quinceañera', icon: Crown, bgColor: '#f3e5f5', iconColor: '#7b1fa2', description: 'Celebración de 15 años' },
+  { id: 3, label: 'Cumpleaños', icon: Cake,  bgColor: '#fff8e1', iconColor: '#f57f17', description: 'Fiestas de cumpleaños' },
+] as const
 
-const GRADIENTS = [
-  'linear-gradient(135deg,#f7ede3,#efe0cc)',
-  'linear-gradient(135deg,#e8f0e6,#d4ddd0)',
-  'linear-gradient(135deg,#fff,#f5f5f5)',
-  'linear-gradient(135deg,#fce4ec,#f8d0dc)',
-  'linear-gradient(135deg,#1a1a3a,#2a2a5a)',
-  'linear-gradient(135deg,#fef9f0,#fdf0f5)',
-  'linear-gradient(135deg,#1a1a2e,#16213e)',
-  'linear-gradient(135deg,#f5f0ea,#ebe5dd)',
-  'linear-gradient(135deg,#fff3e0,#ffe0b2)',
-]
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-const GRADIENT_TEXT = [
-  '#2d2926','#3a5a3a','#2d2926','#5a3a4a',
-  '#e0d0ff','#6a4a5a','#ff6fd8','#2d2926','#e65100',
-]
-
-const INPUT_CLS = 'w-full px-3 py-2.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.88rem] focus:border-[#c5a572] focus:outline-none bg-white transition-colors'
+const INPUT_CLS = 'w-full px-4 py-3 border-[1.5px] border-[#d1d5db] rounded-xl text-[.9rem] focus:border-[#c5a572] focus:outline-none bg-white transition-colors placeholder:text-[#b0b7c3]'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -80,7 +78,6 @@ function mapInvitacionToFormState(
   musica: MusicaResponse | null,
   allServices: { id: number; nombre: string; descripcion: string | null; incluidoEnBase: boolean; activo: boolean }[],
 ): EditFormState {
-  // Detect multiple locations mode
   const campos = (inv.camposEspecificos ?? {}) as Record<string, unknown>
   const ubicacionesRaw = campos.ubicaciones as unknown[] | undefined
   const modoMultiple = inv.ubicacion === 'multiple' && Array.isArray(ubicacionesRaw) && ubicacionesRaw.length > 0
@@ -96,14 +93,12 @@ function mapInvitacionToFormState(
       }))
     : []
 
-  // camposEspecificos without ubicaciones key
   const { ubicaciones: _ub, ...camposRest } = campos
   const camposEspecificos: Record<string, string> = {}
   for (const [k, v] of Object.entries(camposRest)) {
     camposEspecificos[k] = String(v ?? '')
   }
 
-  // Build service toggles
   const enabledServiceIds = new Set(inv.servicios.filter(s => s.habilitado).map(s => s.servicioId))
   const servicios: ServiceToggle[] = allServices
     .filter(s => s.activo)
@@ -115,7 +110,6 @@ function mapInvitacionToFormState(
       enabled: enabledServiceIds.has(s.id),
     }))
 
-  // Build historia editables
   const historiasEdit: HistoriaEditable[] = historias.map(h => ({
     localId: crypto.randomUUID(),
     serverId: h.id,
@@ -126,7 +120,6 @@ function mapInvitacionToFormState(
     existingImagenUrl: h.imagenUrl,
   }))
 
-  // Existing fotos
   const existingFotos: ExistingFoto[] = (inv.fotosAnfitrion ?? []).map(f => ({ id: f.id, url: f.url }))
 
   const fechaEvento = typeof inv.fechaEvento === 'string'
@@ -139,6 +132,7 @@ function mapInvitacionToFormState(
       tipoEventoId: inv.tipoEventoId,
       templateId: inv.templateId,
       titulo: inv.titulo,
+      colorPrimario: inv.colorPrimario ?? '',
     },
     step2: {
       fechaEvento,
@@ -167,54 +161,21 @@ function mapInvitacionToFormState(
   }
 }
 
-// ─── Step indicators ──────────────────────────────────────────────────────────
-
-const STEPS = ['Datos', 'Evento', 'Servicios', 'Contenido', 'Guardar']
-
-function StepBar({ current, onGoTo }: { current: number; onGoTo: (n: number) => void }) {
-  return (
-    <div className="flex items-center gap-1 mb-6">
-      {STEPS.map((label, i) => {
-        const n = i + 1
-        const done = n < current
-        const active = n === current
-        return (
-          <div key={n} className="flex items-center gap-1 flex-1 last:flex-none">
-            <button
-              type="button"
-              onClick={() => done && onGoTo(n)}
-              disabled={!done}
-              className={[
-                'w-7 h-7 rounded-full text-[.72rem] font-bold flex items-center justify-center shrink-0 transition-colors',
-                active ? 'bg-[#c5a572] text-white' : done ? 'bg-[#2d2926] text-white cursor-pointer' : 'bg-[#e5e7eb] text-[#9ca3af]',
-              ].join(' ')}
-            >
-              {done ? <Check className="w-3.5 h-3.5" /> : n}
-            </button>
-            <span className={['text-[.75rem] hidden sm:block', active ? 'text-[#2d2926] font-semibold' : 'text-[#9ca3af]'].join(' ')}>
-              {label}
-            </span>
-            {i < STEPS.length - 1 && (
-              <div className={['flex-1 h-px mx-1', done ? 'bg-[#2d2926]' : 'bg-[#e5e7eb]'].join(' ')} />
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-// ─── Step 1 — Datos Básicos (simplified for edit) ─────────────────────────────
+// ─── Step 1 — Template & Datos Básicos ───────────────────────────────────────
 
 function Step1Edit({
   state,
   templates,
+  colorPrimario,
   onChange,
+  onColorChange,
   onNext,
 }: {
   state: WizardStep1
   templates: Template[]
+  colorPrimario: string
   onChange: (u: Partial<WizardStep1>) => void
+  onColorChange: (color: string) => void
   onNext: () => void
 }) {
   const filtered = templates.filter(t => t.activo && (state.tipoEventoId === null || t.tipoEventoId === state.tipoEventoId))
@@ -222,41 +183,100 @@ function Step1Edit({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-5">Datos Básicos</h2>
+      <div className="mb-7">
+        <h2 className="text-xl font-semibold text-[#2d2926]">Tipo de evento y diseño</h2>
+        <p className="text-[.84rem] text-[#6b7280] mt-1">
+          Modificá el tipo de celebración, el diseño y el título de la invitación.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-        <div>
-          <label className="block text-[.8rem] font-medium mb-1 text-[#2d2926]">
-            Tipo de evento <span className="text-[#dc2626]">*</span>
-          </label>
-          <select
-            value={state.tipoEventoId ?? ''}
-            onChange={e => onChange({ tipoEventoId: e.target.value ? Number(e.target.value) : null, templateId: null })}
-            className={INPUT_CLS}
-          >
-            <option value="">— Seleccionar —</option>
-            {TIPO_OPTIONS.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
-          </select>
+      {/* Read-only pedido badge */}
+      {state.pedidoId && (
+        <div className="mb-7 rounded-xl border border-[#e5e7eb] bg-[#f9fafb] px-4 py-3 flex items-center gap-2.5">
+          <span className="text-[.78rem] text-[#6b7280]">Pedido asociado:</span>
+          <span className="text-[.78rem] font-semibold px-2.5 py-0.5 bg-[#c5a572]/15 text-[#9e7f4e] rounded-full">
+            PED-{state.pedidoId.padStart(3, '0')}
+          </span>
         </div>
-        <div className="flex items-end">
-          <p className="text-[.76rem] text-[#6b7280] bg-[#f4f5f7] rounded-lg px-3 py-2.5 w-full">
-            Pedido: <strong className="text-[#2d2926]">#{state.pedidoId || '—'}</strong>
-          </p>
+      )}
+
+      {/* Tipo de evento */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[.78rem] font-semibold uppercase tracking-widest text-[#6b7280]">Tipo de evento</span>
+          <span className="text-[#dc2626] text-sm leading-none">*</span>
+        </div>
+        <p className="text-[.76rem] text-[#9ca3af] mb-3">Seleccioná el tipo de celebración para filtrar los diseños disponibles</p>
+
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          {TIPO_OPTIONS.map(tipo => {
+            const Icon = tipo.icon
+            const isSelected = state.tipoEventoId === tipo.id
+            return (
+              <button
+                key={tipo.id}
+                type="button"
+                onClick={() => onChange({ tipoEventoId: tipo.id, templateId: state.tipoEventoId !== tipo.id ? null : state.templateId })}
+                className={[
+                  'relative flex flex-col items-center gap-2.5 sm:gap-3 px-2 py-4 sm:p-5 rounded-2xl border-2 transition-all duration-200',
+                  isSelected
+                    ? 'border-[#c5a572] bg-[#c5a572]/6 shadow-md'
+                    : 'border-[#e5e7eb] bg-white hover:border-[#c5a572]/50 hover:shadow-sm hover:-translate-y-0.5',
+                ].join(' ')}
+              >
+                {isSelected && (
+                  <span className="absolute top-2 right-2 w-5 h-5 bg-[#c5a572] rounded-full flex items-center justify-center shadow">
+                    <Check className="w-3 h-3 text-white" />
+                  </span>
+                )}
+                <div
+                  className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center"
+                  style={{ backgroundColor: tipo.bgColor }}
+                >
+                  <Icon className="w-5 h-5 sm:w-7 sm:h-7" style={{ color: tipo.iconColor }} />
+                </div>
+                <div className="text-center">
+                  <div className={[
+                    'font-semibold text-[.88rem] sm:text-[.95rem] leading-tight',
+                    isSelected ? 'text-[#2d2926]' : 'text-[#4a4441]',
+                  ].join(' ')}>
+                    {tipo.label}
+                  </div>
+                </div>
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      {/* Template grid */}
-      <div className="mb-5">
-        <label className="block text-[.8rem] font-medium mb-2 text-[#2d2926]">
-          Template <span className="text-[#dc2626]">*</span>
-        </label>
+      {/* Template gallery */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[.78rem] font-semibold uppercase tracking-widest text-[#6b7280]">Diseño de invitación</span>
+          <span className="text-[#dc2626] text-sm leading-none">*</span>
+        </div>
+        <p className="text-[.76rem] text-[#9ca3af] mb-3">
+          {state.tipoEventoId === null
+            ? 'Seleccioná primero el tipo de evento'
+            : `${filtered.length} diseño${filtered.length !== 1 ? 's' : ''} disponible${filtered.length !== 1 ? 's' : ''} para ${TIPO_LABEL[state.tipoEventoId] ?? 'este tipo'}`}
+        </p>
+
         {state.tipoEventoId === null ? (
-          <p className="text-[.82rem] text-[#9ca3af] py-4">Seleccioná un tipo de evento para ver los templates disponibles</p>
+          <div className="flex flex-col items-center justify-center py-14 rounded-2xl border-2 border-dashed border-[#e5e7eb] bg-[#fafafa]">
+            <div className="w-14 h-14 rounded-2xl bg-[#f0ede8] flex items-center justify-center mb-3">
+              <span className="text-2xl">🎨</span>
+            </div>
+            <p className="text-[.86rem] text-[#9ca3af]">Elegí un tipo de evento para ver los diseños</p>
+          </div>
         ) : filtered.length === 0 ? (
-          <p className="text-[.82rem] text-[#9ca3af] py-4">No hay templates activos para {TIPO_LABEL[state.tipoEventoId] ?? 'este tipo'}</p>
+          <div className="py-10 text-center rounded-2xl border border-[#f0f0f0] bg-[#fafafa]">
+            <p className="text-[.84rem] text-[#9ca3af]">
+              No hay diseños activos para {TIPO_LABEL[state.tipoEventoId] ?? 'este tipo'}
+            </p>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {filtered.map((t, i) => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {filtered.map(t => {
               const selected = state.templateId === t.id
               return (
                 <button
@@ -264,23 +284,33 @@ function Step1Edit({
                   type="button"
                   onClick={() => onChange({ templateId: t.id })}
                   className={[
-                    'rounded-xl overflow-hidden border-2 text-left transition-all hover:-translate-y-0.5 hover:shadow-md',
-                    selected ? 'border-[#c5a572] shadow-md' : 'border-transparent',
+                    'group relative rounded-2xl overflow-hidden text-left transition-all duration-200',
+                    selected
+                      ? 'ring-2 ring-[#c5a572] ring-offset-2 shadow-lg'
+                      : 'ring-1 ring-[#e5e7eb] hover:ring-[#c5a572]/60 hover:shadow-md hover:-translate-y-0.5',
                   ].join(' ')}
                 >
-                  <div
-                    className="h-[110px] flex items-center justify-center font-serif text-[.95rem] font-semibold px-3 text-center"
-                    style={{
-                      background: t.thumbnailUrl ? undefined : GRADIENTS[i % GRADIENTS.length],
-                      backgroundImage: t.thumbnailUrl ? `url(${t.thumbnailUrl})` : undefined,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      color: GRADIENT_TEXT[i % GRADIENT_TEXT.length],
-                    }}
-                  >
-                    {!t.thumbnailUrl && t.nombre}
+                  <div className="w-full h-64 relative overflow-hidden bg-[#f5f5f5]">
+                    <InvitationPreview slug={t.slug} interactive={false} paused={true} />
+                    {!selected && (
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 pointer-events-none" />
+                    )}
+                    {selected && (
+                      <div className="absolute inset-0 bg-[#c5a572]/25 flex items-center justify-center pointer-events-none">
+                        <div className="w-10 h-10 bg-[#c5a572] rounded-full flex items-center justify-center shadow-lg">
+                          <Check className="w-5 h-5 text-white" />
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="px-3 py-2 bg-white text-[.78rem] font-medium text-[#2d2926] truncate">{t.nombre}</div>
+                  <div className={['px-3 py-2.5 transition-colors', selected ? 'bg-[#c5a572]/10' : 'bg-white'].join(' ')}>
+                    <p className={['text-[.78rem] font-semibold truncate', selected ? 'text-[#9e7f4e]' : 'text-[#2d2926]'].join(' ')}>
+                      {t.nombre}
+                    </p>
+                    {t.descripcion && (
+                      <p className="text-[.68rem] text-[#9ca3af] mt-0.5 truncate">{t.descripcion}</p>
+                    )}
+                  </div>
                 </button>
               )
             })}
@@ -288,10 +318,78 @@ function Step1Edit({
         )}
       </div>
 
+      {/* Color primario */}
+      {state.tipoEventoId && state.templateId && (
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[.78rem] font-semibold uppercase tracking-widest text-[#6b7280]">Color primario</span>
+          </div>
+          <p className="text-[.76rem] text-[#9ca3af] mb-3">
+            Personaliza el color temático de la invitación.
+          </p>
+          <div className="bg-white border border-[#e5e7eb] rounded-xl p-4">
+            <div className="flex flex-wrap gap-2.5">
+              <button
+                type="button"
+                title="Predeterminado (según diseño)"
+                onClick={() => onColorChange('')}
+                className="relative w-9 h-9 rounded-full border-2 transition-all duration-150 hover:scale-110 bg-white overflow-hidden"
+                style={{
+                  borderColor: colorPrimario === '' ? '#9ca3af' : '#e5e7eb',
+                  boxShadow: colorPrimario === '' ? '0 0 0 2px white, 0 0 0 4px #9ca3af' : 'none',
+                }}
+              >
+                <span
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(135deg, transparent calc(50% - 1.5px), #dc2626 calc(50% - 1.5px), #dc2626 calc(50% + 1.5px), transparent calc(50% + 1.5px))',
+                  }}
+                />
+                {colorPrimario === '' && <Check className="w-3 h-3 absolute inset-0 m-auto text-gray-600 drop-shadow" />}
+              </button>
+              {(() => {
+                const template = templates.find(t => t.id === state.templateId)
+                const paleta = template?.slug && TEMPLATE_COLORS[template.slug]
+                  ? (TEMPLATE_COLORS[template.slug] as { hex: string; label: string }[])
+                  : (COLORES_PALETA as unknown as { hex: string; label: string }[])
+                return paleta.map(c => (
+                  <button
+                    key={c.hex}
+                    type="button"
+                    title={c.label}
+                    onClick={() => onColorChange(c.hex)}
+                    className="relative w-9 h-9 rounded-full border-2 transition-all duration-150 hover:scale-110"
+                    style={{
+                      backgroundColor: c.hex,
+                      borderColor: colorPrimario?.toLowerCase() === c.hex.toLowerCase() ? c.hex : 'transparent',
+                      boxShadow: colorPrimario?.toLowerCase() === c.hex.toLowerCase()
+                        ? `0 0 0 2px white, 0 0 0 4px ${c.hex}`
+                        : 'none',
+                    }}
+                  >
+                    {colorPrimario?.toLowerCase() === c.hex.toLowerCase() && (
+                      <Check className="w-3.5 h-3.5 absolute inset-0 m-auto drop-shadow text-white" />
+                    )}
+                  </button>
+                ))
+              })()}
+            </div>
+            <p className="mt-2.5 text-[.75rem] text-[#9ca3af]">
+              {colorPrimario === '' ? 'Predeterminado (según diseño)' : `Color: ${colorPrimario}`}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Título */}
       <div className="mb-6">
-        <label className="block text-[.8rem] font-medium mb-1 text-[#2d2926]">
-          Título del evento <span className="text-[#dc2626]">*</span>
-        </label>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[.78rem] font-semibold uppercase tracking-widest text-[#6b7280]">Título del evento</span>
+          <span className="text-[#dc2626] text-sm leading-none">*</span>
+        </div>
+        <p className="text-[.76rem] text-[#9ca3af] mb-2">
+          Aparece en el encabezado de la invitación tal cual lo escribís aquí.
+        </p>
         <input
           type="text" maxLength={200}
           placeholder="Ej: Boda de María & Joaquín"
@@ -299,15 +397,21 @@ function Step1Edit({
           onChange={e => onChange({ titulo: e.target.value })}
           className={INPUT_CLS}
         />
-        <div className="flex justify-end mt-0.5">
-          <span className="text-[.7rem] text-[#9ca3af]">{state.titulo.length}/200</span>
+        <div className="flex justify-end mt-1">
+          <span className="text-[.7rem] text-[#b0b7c3]">{state.titulo.length}/200</span>
         </div>
       </div>
 
-      <div className="flex justify-end pt-4 border-t border-[#f0f0f0]">
+      <div className="flex items-center justify-between pt-4 border-t border-[#f0f0f0]">
+        <div className="text-[.78rem] text-[#9ca3af]">
+          {!state.tipoEventoId && 'Seleccioná el tipo de evento'}
+          {state.tipoEventoId && !state.templateId && 'Seleccioná un diseño'}
+          {state.tipoEventoId && state.templateId && !state.titulo.trim() && 'Completá el título'}
+          {canProceed && <span className="text-[#16a34a] font-medium">✓ Listo para continuar</span>}
+        </div>
         <button type="button" onClick={onNext} disabled={!canProceed}
-          className="px-5 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-lg text-[.88rem] font-medium hover:bg-[#4a4441] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-          Siguiente →
+          className="px-6 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-xl text-[.88rem] font-semibold hover:bg-[#4a4441] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          Continuar →
         </button>
       </div>
     </div>
@@ -335,11 +439,10 @@ function Step4ContenidoEdit({
   function normalize(str: string) {
     return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   }
-  const showMusica = servicios.some(s => s.enabled && normalize(s.nombre).includes('musica'))
+  const showMusica   = servicios.some(s => s.enabled && normalize(s.nombre).includes('musica'))
   const showHistoria = servicios.some(s => s.enabled && normalize(s.nombre).includes('historia'))
 
-  // ── Photos ────────────────────────────────────────────────────────────────
-
+  // Photos
   function handleNewFotos(files: FileList | null) {
     if (!files) return
     const totalExisting = state.existingFotos.length - state.removedFotoIds.length
@@ -366,17 +469,15 @@ function Step4ContenidoEdit({
   }
 
   const totalFotos = state.existingFotos.length - state.removedFotoIds.length + state.newFotos.length
-  const canAddMore = totalFotos < 5
+  const canAddMore  = totalFotos < 5
 
-  // ── Music ─────────────────────────────────────────────────────────────────
-
+  // Music
   function handleMusicaFile(files: FileList | null) {
     if (!files?.[0]) return
     onChange({ newMusica: files[0], newMusicaNombre: files[0].name, removeMusica: false })
   }
 
-  // ── Historias ─────────────────────────────────────────────────────────────
-
+  // Historias
   function updateHistoria(localId: string, updates: Partial<HistoriaEditable>) {
     onChange({ historias: state.historias.map(h => h.localId === localId ? { ...h, ...updates } : h) })
   }
@@ -410,13 +511,17 @@ function Step4ContenidoEdit({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-5">Contenido Multimedia</h2>
+      <div className="mb-7">
+        <h2 className="text-xl font-semibold text-[#2d2926]">Contenido Multimedia</h2>
+        <p className="text-[.84rem] text-[#6b7280] mt-1">
+          Administrá las fotos, música e historia de la invitación.
+        </p>
+      </div>
 
-      {/* ── Fotos ── */}
-      <div className="bg-white border border-[#f0f0f0] rounded-xl p-4 mb-4">
+      {/* Fotos */}
+      <div className="bg-white border border-[#f0f0f0] rounded-2xl p-4 mb-4">
         <h3 className="font-semibold text-[.9rem] mb-3">📷 Fotos del Anfitrión</h3>
 
-        {/* Existing fotos */}
         {state.existingFotos.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-3">
             {state.existingFotos.map((foto, i) => {
@@ -444,7 +549,6 @@ function Step4ContenidoEdit({
           </div>
         )}
 
-        {/* New fotos */}
         {state.newFotosPreviews.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-3">
             {state.newFotosPreviews.map((src, i) => (
@@ -462,7 +566,7 @@ function Step4ContenidoEdit({
 
         {canAddMore && (
           <button type="button" onClick={() => fotosInputRef.current?.click()}
-            className="flex flex-col items-center justify-center w-full py-5 border-2 border-dashed border-[#d1d5db] rounded-lg hover:border-[#c5a572] hover:bg-[rgba(197,165,114,.03)] transition-colors text-[#6b7280]">
+            className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-[#d1d5db] rounded-lg hover:border-[#c5a572] hover:bg-[rgba(197,165,114,.03)] transition-colors text-[#6b7280]">
             <ImagePlus className="w-6 h-6 mb-1.5" />
             <span className="text-[.82rem]">Agregar fotos</span>
             <span className="text-[.7rem] text-[#9ca3af] mt-0.5">JPG, PNG, WebP · Máx. 5 MB c/u · {5 - totalFotos} restante{5 - totalFotos !== 1 ? 's' : ''}</span>
@@ -471,13 +575,12 @@ function Step4ContenidoEdit({
         <input ref={fotosInputRef} type="file" accept="image/*" multiple hidden onChange={e => handleNewFotos(e.target.files)} />
       </div>
 
-      {/* ── Música ── */}
+      {/* Música */}
       {showMusica && (
-        <div className="bg-white border border-[#f0f0f0] rounded-xl p-4 mb-4">
+        <div className="bg-white border border-[#f0f0f0] rounded-2xl p-4 mb-4">
           <h3 className="font-semibold text-[.9rem] mb-1">🎵 Música</h3>
           <p className="text-[.76rem] text-[#6b7280] mb-3">Se reproduce automáticamente al abrir la invitación. MP3 · Máx. 20 MB.</p>
 
-          {/* Existing music */}
           {state.existingMusica && !state.removeMusica && !state.newMusica && (
             <div className="flex items-center gap-3 px-3 py-2.5 bg-[#f4f5f7] rounded-lg mb-2">
               <Music className="w-4 h-4 text-[#c5a572] shrink-0" />
@@ -496,7 +599,6 @@ function Step4ContenidoEdit({
             </div>
           )}
 
-          {/* New music */}
           {state.newMusica ? (
             <div className="flex items-center gap-3 px-3 py-2.5 bg-[#f4f5f7] rounded-lg">
               <Music className="w-4 h-4 text-[#c5a572] shrink-0" />
@@ -508,7 +610,7 @@ function Step4ContenidoEdit({
             </div>
           ) : (
             <button type="button" onClick={() => musicaInputRef.current?.click()}
-              className="flex flex-col items-center justify-center w-full py-4 border-2 border-dashed border-[#d1d5db] rounded-lg hover:border-[#c5a572] hover:bg-[rgba(197,165,114,.03)] transition-colors text-[#6b7280]">
+              className="flex flex-col items-center justify-center w-full py-5 border-2 border-dashed border-[#d1d5db] rounded-lg hover:border-[#c5a572] hover:bg-[rgba(197,165,114,.03)] transition-colors text-[#6b7280]">
               <Music className="w-5 h-5 mb-1.5" />
               <span className="text-[.82rem]">{state.existingMusica ? 'Reemplazar música' : 'Subir música (MP3)'}</span>
             </button>
@@ -517,9 +619,9 @@ function Step4ContenidoEdit({
         </div>
       )}
 
-      {/* ── Historias ── */}
+      {/* Historias */}
       {showHistoria && (
-        <div className="bg-white border border-[#f0f0f0] rounded-xl p-4 mb-4">
+        <div className="bg-white border border-[#f0f0f0] rounded-2xl p-4 mb-4">
           <h3 className="font-semibold text-[.9rem] mb-1">📖 Historia</h3>
           <p className="text-[.76rem] text-[#6b7280] mb-3">Hasta 3 secciones con texto e imagen opcional.</p>
 
@@ -541,7 +643,6 @@ function Step4ContenidoEdit({
                 className="w-full px-3 py-2 border-[1.5px] border-[#d1d5db] rounded-lg text-[.85rem] focus:border-[#c5a572] focus:outline-none resize-none bg-white transition-colors mb-2"
               />
               <div className="flex items-center gap-2">
-                {/* Show existing or new image */}
                 {(h.imagenPreview || h.existingImagenUrl) ? (
                   <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#d1d5db] shrink-0">
                     <img src={h.imagenPreview ?? h.existingImagenUrl!} alt="preview" className="w-full h-full object-cover" />
@@ -581,11 +682,11 @@ function Step4ContenidoEdit({
 
       <div className="flex justify-between mt-2 pt-4 border-t border-[#f0f0f0]">
         <button type="button" onClick={onPrev}
-          className="px-5 py-2.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.88rem] font-medium hover:border-[#2d2926] transition-colors">
+          className="px-5 py-2.5 border-[1.5px] border-[#d1d5db] rounded-xl text-[.88rem] font-medium hover:border-[#2d2926] transition-colors">
           ← Anterior
         </button>
         <button type="button" onClick={onNext}
-          className="px-5 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-lg text-[.88rem] font-medium hover:bg-[#4a4441] transition-colors">
+          className="px-6 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-xl text-[.88rem] font-semibold hover:bg-[#4a4441] transition-colors">
           Revisar →
         </button>
       </div>
@@ -593,7 +694,7 @@ function Step4ContenidoEdit({
   )
 }
 
-// ─── Step 5 — Review & Save ───────────────────────────────────────────────────
+// ─── Step 5 — Revisar y Guardar ───────────────────────────────────────────────
 
 function Step5Guardar({
   state,
@@ -602,6 +703,7 @@ function Step5Guardar({
   error,
   onSave,
   onPrev,
+  onGoTo,
   onToggleActiva,
 }: {
   state: EditFormState
@@ -610,11 +712,12 @@ function Step5Guardar({
   error: string | null
   onSave: () => void
   onPrev: () => void
+  onGoTo: (step: number) => void
   onToggleActiva: (val: boolean) => void
 }) {
-  const tpl = templates.find(t => t.id === state.step1.templateId)
+  const tpl       = templates.find(t => t.id === state.step1.templateId)
   const esMultiple = state.step2.ubicacion === 'multiple'
-  const enabled = state.step3.servicios.filter(s => s.enabled)
+  const enabled   = state.step3.servicios.filter(s => s.enabled)
 
   const ubicacionOk = esMultiple
     ? state.step2.ubicaciones.length >= 1 &&
@@ -622,33 +725,43 @@ function Step5Guardar({
     : !!(state.step2.ubicacion && state.step2.direccion && state.step2.latitud && state.step2.longitud)
 
   const checks = [
-    { ok: !!state.step1.tipoEventoId && !!state.step1.templateId && !!state.step1.titulo.trim(), text: 'Tipo, template y título definidos' },
-    { ok: !!(state.step2.fechaEvento && state.step2.horaEvento) && ubicacionOk, text: 'Datos del evento completos' },
-    { ok: state.step3.servicios.length > 0, text: 'Servicios configurados' },
+    { ok: !!state.step1.tipoEventoId && !!state.step1.templateId && !!state.step1.titulo.trim(), text: 'Tipo, template y título definidos', step: 1 },
+    { ok: !!(state.step2.fechaEvento && state.step2.horaEvento) && ubicacionOk, text: 'Datos del evento completos', step: 2 },
+    { ok: state.step3.servicios.length > 0, text: 'Servicios configurados', step: 3 },
   ]
   const canSave = checks.every(c => c.ok)
 
-  function Row({ label, value }: { label: string; value: React.ReactNode }) {
+  function ReviewCard({ title, step, children }: { title: string; step: number; children: React.ReactNode }) {
     return (
-      <div className="flex gap-2 flex-wrap text-[.85rem]">
-        <span className="text-[#6b7280] shrink-0">{label}:</span>
-        <span className="text-[#2d2926] font-medium">{value ?? '—'}</span>
+      <div className="bg-white border border-[#f0f0f0] rounded-2xl p-4 sm:p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="text-[.78rem] font-semibold text-[#6b7280] uppercase tracking-wider">{title}</h4>
+          <button
+            type="button"
+            onClick={() => onGoTo(step)}
+            className="flex items-center gap-1 text-[.72rem] text-[#c5a572] hover:text-[#9e7f4e] font-medium transition-colors"
+          >
+            <Pencil className="w-3 h-3" />
+            Editar
+          </button>
+        </div>
+        <div className="space-y-1.5 text-[.84rem]">{children}</div>
       </div>
     )
   }
 
-  function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  function Row({ label, value, dim }: { label: string; value: React.ReactNode; dim?: boolean }) {
     return (
-      <div className="bg-white border border-[#f0f0f0] rounded-xl p-4">
-        <h4 className="text-[.82rem] font-semibold text-[#6b7280] uppercase tracking-wider mb-2">{title}</h4>
-        <div className="space-y-1">{children}</div>
+      <div className="flex gap-2 flex-wrap leading-snug">
+        <span className="text-[#9ca3af] shrink-0 min-w-[80px]">{label}</span>
+        <span className={dim ? 'text-[#9ca3af] italic' : 'text-[#2d2926] font-medium'}>{value ?? '—'}</span>
       </div>
     )
   }
 
   function CheckItem({ ok, text }: { ok: boolean; text: string }) {
     return (
-      <div className="flex items-center gap-2 text-[.85rem]">
+      <div className="flex items-center gap-2.5 text-[.84rem]">
         <span className={['w-5 h-5 rounded-full flex items-center justify-center text-[.65rem] font-bold text-white shrink-0', ok ? 'bg-[#16a34a]' : 'bg-[#dc2626]'].join(' ')}>
           {ok ? '✓' : '✕'}
         </span>
@@ -659,53 +772,63 @@ function Step5Guardar({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-5">Revisar y Guardar</h2>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-        <Card title="Datos Básicos">
-          <Row label="Tipo" value={TIPO_LABEL[state.step1.tipoEventoId!] ?? '—'} />
-          <Row label="Template" value={tpl?.nombre ?? '—'} />
-          <Row label="Título" value={state.step1.titulo || '—'} />
-          {state.step1.pedidoId && <Row label="Pedido" value={`#${state.step1.pedidoId}`} />}
-        </Card>
-
-        <Card title="Evento">
-          <Row label="Fecha" value={state.step2.fechaEvento || '—'} />
-          <Row label="Hora" value={state.step2.horaEvento || '—'} />
-          {esMultiple ? (
-            state.step2.ubicaciones.map(u => (
-              <Row key={u.tipo} label={u.tipo} value={u.nombre || '—'} />
-            ))
-          ) : (
-            <>
-              <Row label="Lugar" value={state.step2.ubicacion || '—'} />
-              <Row label="Dirección" value={state.step2.direccion || '—'} />
-            </>
-          )}
-        </Card>
-
-        <Card title="Servicios">
-          {enabled.length === 0
-            ? <span className="text-[.85rem] text-[#9ca3af]">Ninguno</span>
-            : enabled.map(s => (
-              <span key={s.id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#f4f5f7] text-[#4a4441] rounded text-[.78rem] mr-1 mb-1">
-                {s.nombre}
-                {s.incluidoEnBase && <span className="text-[#16a34a] text-[.65rem]">✓</span>}
-              </span>
-            ))
-          }
-        </Card>
-
-        <Card title="Contenido">
-          <Row label="Fotos existentes" value={`${state.existingFotos.length - state.removedFotoIds.length} (−${state.removedFotoIds.length} eliminadas)`} />
-          <Row label="Fotos nuevas" value={state.newFotos.length > 0 ? `${state.newFotos.length} para subir` : 'ninguna'} />
-          <Row label="Música" value={state.removeMusica ? 'Se eliminará' : state.newMusica ? state.newMusicaNombre : state.existingMusica ? 'Sin cambios' : 'Sin música'} />
-          <Row label="Historias" value={`${state.historias.length} sección${state.historias.length !== 1 ? 'es' : ''}`} />
-        </Card>
+      <div className="mb-7">
+        <h2 className="text-xl font-semibold text-[#2d2926]">Revisar y guardar</h2>
+        <p className="text-[.84rem] text-[#6b7280] mt-1">
+          Revisá los datos antes de guardar. Podés editar cada sección haciendo click en "Editar".
+        </p>
       </div>
 
-      {/* activa toggle */}
-      <div className="bg-white border border-[#f0f0f0] rounded-xl p-4 mb-5 flex items-center gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+        <ReviewCard title="Tipo y diseño" step={1}>
+          <Row label="Tipo"    value={TIPO_LABEL[state.step1.tipoEventoId!] ?? '—'} />
+          <Row label="Diseño"  value={tpl?.nombre ?? '—'} />
+          <Row label="Título"  value={state.step1.titulo || '—'} dim={!state.step1.titulo} />
+          {state.step1.pedidoId && <Row label="Pedido" value={`PED-${state.step1.pedidoId.padStart(3, '0')}`} />}
+        </ReviewCard>
+
+        <ReviewCard title="Fecha y lugar" step={2}>
+          <Row label="Fecha"  value={state.step2.fechaEvento || '—'} dim={!state.step2.fechaEvento} />
+          <Row label="Hora"   value={state.step2.horaEvento || '—'} dim={!state.step2.horaEvento} />
+          {esMultiple
+            ? state.step2.ubicaciones.map(u => <Row key={u.tipo} label={u.tipo} value={u.nombre || '—'} />)
+            : <Row label="Lugar" value={state.step2.ubicacion || '—'} dim={!state.step2.ubicacion} />
+          }
+        </ReviewCard>
+
+        <ReviewCard title="Servicios" step={3}>
+          {enabled.length === 0
+            ? <span className="text-[#9ca3af] italic text-[.84rem]">Ninguno seleccionado</span>
+            : (
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {enabled.map(s => (
+                  <span key={s.id} className={[
+                    'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[.74rem] font-medium',
+                    s.incluidoEnBase ? 'bg-[#dcfce7] text-[#16a34a]' : 'bg-[#f4f0ea] text-[#4a4441]',
+                  ].join(' ')}>
+                    {s.nombre}{s.incluidoEnBase && <span className="text-[.6rem]">✓</span>}
+                  </span>
+                ))}
+              </div>
+            )
+          }
+        </ReviewCard>
+
+        <ReviewCard title="Contenido" step={4}>
+          <Row label="Fotos exist."
+            value={`${state.existingFotos.length - state.removedFotoIds.length} (−${state.removedFotoIds.length} eliminadas)`}
+          />
+          <Row label="Fotos nuevas" value={state.newFotos.length > 0 ? `${state.newFotos.length} para subir` : 'ninguna'} dim={state.newFotos.length === 0} />
+          <Row label="Música"
+            value={state.removeMusica ? 'Se eliminará' : state.newMusica ? state.newMusicaNombre : state.existingMusica ? 'Sin cambios' : 'Sin música'}
+            dim={!state.removeMusica && !state.newMusica && !state.existingMusica}
+          />
+          <Row label="Historias" value={`${state.historias.length} sección${state.historias.length !== 1 ? 'es' : ''}`} />
+        </ReviewCard>
+      </div>
+
+      {/* Estado activa toggle */}
+      <div className="bg-white border border-[#f0f0f0] rounded-2xl p-4 sm:p-5 mb-5 flex items-center gap-4">
         <label className="relative w-11 h-6 shrink-0 cursor-pointer">
           <input type="checkbox" checked={state.activa}
             onChange={e => onToggleActiva(e.target.checked)}
@@ -720,29 +843,34 @@ function Step5Guardar({
       </div>
 
       {/* Checklist */}
-      <div className="bg-white border border-[#f0f0f0] rounded-xl p-4 mb-5">
-        <h4 className="text-[.82rem] font-semibold text-[#6b7280] uppercase tracking-wider mb-3">Checklist</h4>
+      <div className="bg-white border border-[#f0f0f0] rounded-2xl p-4 sm:p-5 mb-5">
+        <h4 className="text-[.78rem] font-semibold text-[#6b7280] uppercase tracking-wider mb-3">Checklist de requisitos</h4>
         <div className="space-y-2">
           {checks.map((c, i) => <CheckItem key={i} ok={c.ok} text={c.text} />)}
         </div>
+        {!canSave && (
+          <p className="mt-3 text-[.78rem] text-[#f59e0b] bg-[#fffbeb] rounded-lg px-3 py-2">
+            ⚠ Completá los items marcados en rojo antes de guardar.
+          </p>
+        )}
       </div>
 
       {error && (
-        <div className="flex items-start gap-3 px-4 py-3 bg-[#fee2e2] text-[#dc2626] rounded-xl mb-4 text-[.85rem]">
+        <div className="flex items-start gap-3 px-4 py-3 bg-[#fee2e2] text-[#dc2626] rounded-2xl mb-4 text-[.85rem]">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           {error}
         </div>
       )}
 
-      <div className="flex justify-between pt-4 border-t border-[#f0f0f0]">
+      <div className="flex items-center justify-between pt-4 border-t border-[#f0f0f0]">
         <button type="button" onClick={onPrev} disabled={loading}
-          className="px-5 py-2.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.88rem] font-medium hover:border-[#2d2926] disabled:opacity-40 transition-colors">
+          className="px-5 py-2.5 border-[1.5px] border-[#d1d5db] rounded-xl text-[.88rem] font-medium hover:border-[#2d2926] disabled:opacity-40 transition-colors">
           ← Anterior
         </button>
         <button type="button" onClick={onSave} disabled={!canSave || loading}
-          className="flex items-center gap-2 px-7 py-2.5 bg-[#c5a572] text-white rounded-lg text-[.95rem] font-semibold hover:bg-[#9e7f4e] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          className="flex items-center gap-2.5 px-7 py-3 bg-[#c5a572] text-white rounded-xl text-[.95rem] font-semibold hover:bg-[#9e7f4e] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm">
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-          {loading ? 'Guardando…' : 'Guardar cambios'}
+          {loading ? 'Guardando…' : '💾 Guardar cambios'}
         </button>
       </div>
     </div>
@@ -756,14 +884,14 @@ export default function EditarInvitacionPage() {
   const navigate = useNavigate()
 
   const [loadingData, setLoadingData] = useState(true)
-  const [dataError, setDataError] = useState<string | null>(null)
-  const [templates, setTemplates] = useState<Template[]>([])
-  const [formState, setFormState] = useState<EditFormState | null>(null)
+  const [dataError,   setDataError]   = useState<string | null>(null)
+  const [templates,   setTemplates]   = useState<Template[]>([])
+  const [formState,   setFormState]   = useState<EditFormState | null>(null)
   const [originalHistoriaIds, setOriginalHistoriaIds] = useState<number[]>([])
   const [currentStep, setCurrentStep] = useState(1)
-  const [saving, setSaving] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
-  const [saved, setSaved] = useState(false)
+  const [saving,      setSaving]      = useState(false)
+  const [saveError,   setSaveError]   = useState<string | null>(null)
+  const [saved,       setSaved]       = useState(false)
 
   // ── Load data ──────────────────────────────────────────────────────────────
 
@@ -834,46 +962,40 @@ export default function EditarInvitacionPage() {
     const { step1, step2, step3 } = formState
     const modoMultiple = step2.ubicaciones.length > 0
 
-    // Build camposEspecificos
-    const camposBase = { ...step2.camposEspecificos }
+    const camposBase   = { ...step2.camposEspecificos }
     const camposFinales = modoMultiple
       ? { ...camposBase, ubicaciones: step2.ubicaciones }
       : camposBase
 
-    // Build servicios IDs
     const serviciosIds = step3.servicios.filter(s => s.enabled).map(s => s.id)
 
     try {
-      // 1. PUT main invitation data
       await adminInvitacionService.update(id, {
-        templateId: step1.templateId!,
+        templateId:   step1.templateId!,
         tipoEventoId: step1.tipoEventoId!,
-        titulo: step1.titulo.trim(),
-        fechaEvento: step2.fechaEvento,
-        horaEvento: step2.horaEvento,
-        ubicacion: modoMultiple ? 'multiple' : step2.ubicacion.trim(),
-        direccion: modoMultiple ? 'multiple' : step2.direccion.trim(),
-        latitud: modoMultiple ? 0 : Number(step2.latitud),
-        longitud: modoMultiple ? 0 : Number(step2.longitud),
+        titulo:       step1.titulo.trim(),
+        fechaEvento:  step2.fechaEvento,
+        horaEvento:   step2.horaEvento,
+        ubicacion:    modoMultiple ? 'multiple' : step2.ubicacion.trim(),
+        direccion:    modoMultiple ? 'multiple' : step2.direccion.trim(),
+        latitud:      modoMultiple ? 0 : Number(step2.latitud),
+        longitud:     modoMultiple ? 0 : Number(step2.longitud),
         colorPrimario: step2.colorPrimario || null,
         contrasenaAsistentes: step2.contrasenaAsistentes.trim() || undefined,
-        maxFotos: step2.maxFotos,
+        maxFotos:     step2.maxFotos,
         camposEspecificos: Object.keys(camposFinales).length > 0 ? camposFinales : undefined,
         serviciosIds,
         activa: formState.activa,
       })
 
-      // 2. Delete removed existing fotos
       for (const fotoId of formState.removedFotoIds) {
         await adminInvitacionService.deleteFotoAnfitrion(id, fotoId)
       }
 
-      // 3. Upload new fotos
       if (formState.newFotos.length > 0) {
         await adminInvitacionService.addFotosAnfitrion(id, formState.newFotos)
       }
 
-      // 4. Music management
       if (formState.removeMusica && formState.existingMusica) {
         await adminInvitacionService.deleteMusica(id)
       }
@@ -881,26 +1003,21 @@ export default function EditarInvitacionPage() {
         await adminInvitacionService.uploadMusica(id, formState.newMusica)
       }
 
-      // 5. Historias management
       const currentServerIds = new Set(
         formState.historias.filter(h => h.serverId !== undefined).map(h => h.serverId!)
       )
 
-      // Delete removed historias (were in original, not in current)
       for (const serverId of originalHistoriaIds) {
         if (!currentServerIds.has(serverId)) {
           await adminInvitacionService.deleteHistoria(id, serverId)
         }
       }
 
-      // Update or create
       for (const h of formState.historias) {
         if (h.serverId !== undefined) {
-          // removeImagen = existingImagenUrl was cleared and no new image was provided
           const removeImagen = h.existingImagenUrl === null && h.imagen === null
           await adminInvitacionService.updateHistoria(id, h.serverId, h.texto, h.orden, h.imagen, removeImagen)
         } else {
-          // Create new
           await adminInvitacionService.createHistoria(id, h.texto, h.orden, h.imagen)
         }
       }
@@ -951,14 +1068,14 @@ export default function EditarInvitacionPage() {
           <button
             type="button"
             onClick={() => { setSaved(false); setSaveError(null) }}
-            className="px-5 py-2.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.88rem] font-medium hover:border-[#2d2926] transition-colors"
+            className="px-5 py-2.5 border-[1.5px] border-[#d1d5db] rounded-xl text-[.88rem] font-medium hover:border-[#2d2926] transition-colors"
           >
             Seguir editando
           </button>
           <button
             type="button"
             onClick={() => navigate('/admin/invitaciones')}
-            className="px-5 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-lg text-[.88rem] font-medium hover:bg-[#4a4441] transition-colors"
+            className="px-5 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-xl text-[.88rem] font-medium hover:bg-[#4a4441] transition-colors"
           >
             Volver al listado
           </button>
@@ -968,20 +1085,26 @@ export default function EditarInvitacionPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5">
-        <h1 className="text-xl font-semibold text-[#2d2926]">Editar Invitación</h1>
+    <div className="min-h-screen pb-24">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-2xl font-semibold text-[#2d2926]">Editar Invitación</h1>
         <span className="text-[.78rem] text-[#9ca3af] font-mono">{id}</span>
       </div>
+      <p className="text-[.84rem] text-[#6b7280] mb-8">
+        Modificá los datos, diseño y contenido de la invitación paso a paso.
+      </p>
 
-      <StepBar current={currentStep} onGoTo={goTo} />
+      <WizardStepper current={currentStep} onGoBack={goTo} steps={EDIT_STEPS} />
 
-      <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-sm p-6">
+      <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-sm p-6 sm:p-8">
         {currentStep === 1 && (
           <Step1Edit
             state={formState.step1}
             templates={templates}
+            colorPrimario={formState.step2.colorPrimario}
             onChange={updateStep1}
+            onColorChange={color => updateStep2({ colorPrimario: color })}
             onNext={() => goTo(2)}
           />
         )}
@@ -1024,6 +1147,7 @@ export default function EditarInvitacionPage() {
             error={saveError}
             onSave={handleSave}
             onPrev={() => goTo(4)}
+            onGoTo={goTo}
             onToggleActiva={val => setFormState(prev => prev ? { ...prev, activa: val } : prev)}
           />
         )}
