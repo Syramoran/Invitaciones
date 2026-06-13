@@ -71,6 +71,17 @@ export function Header() {
                 <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-gold transition-all group-hover:w-full" />
               </button>
             ))}
+            <Link
+              to="/emprende"
+              className={`text-sm transition-colors duration-300 relative group ${
+                isScrolled
+                  ? 'text-charcoal-soft hover:text-charcoal dark:text-warm-gray-light dark:hover:text-champagne-light'
+                  : 'text-white/80 hover:text-white'
+              }`}
+            >
+              Emprendé
+              <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-gold transition-all group-hover:w-full" />
+            </Link>
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
@@ -153,6 +164,13 @@ export function Header() {
         >
           Contacto
         </button>
+        <Link
+          to="/emprende"
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="font-display text-3xl font-medium text-charcoal dark:text-champagne-light"
+        >
+          Emprendé
+        </Link>
 
         <button
           onClick={() => {
