@@ -125,7 +125,7 @@ export default function EmprendePage() {
                 Prepará tu próxima reunión con clientes usando nuestra galería de invitaciones. Todos los diseños interactivos listos para probar.
               </p>
               <Link
-                to="/plantillas"
+                to="/templates"
                 target="_blank"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-champagne-light hover:bg-charcoal-soft dark:bg-champagne-light dark:text-charcoal dark:hover:bg-champagne rounded-full text-sm font-medium transition-all"
               >
