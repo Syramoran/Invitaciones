@@ -220,8 +220,8 @@ export default function CrearInvitacionWizard() {
   }
 
   const calcularTotal = () =>
-    30000 + formState.step3.servicios
-      .filter(s => !s.incluidoEnBase && s.enabled)
+    formState.step3.servicios
+      .filter(s => s.incluidoEnBase || s.enabled)
       .reduce((sum, s) => sum + Number(s.precio ?? 0), 0)
 
   const handlePay = async (codigoDescuento?: string) => {

@@ -27,9 +27,10 @@ export function Step6Pago({
   onValidarCodigo,
   onPrev,
 }: Props) {
+  const serviciosBase = formState.step3.servicios.filter(s => s.incluidoEnBase)
   const serviciosOpcionales = formState.step3.servicios.filter(s => !s.incluidoEnBase && s.enabled)
+  const precioBase = serviciosBase.reduce((sum, s) => sum + Number(s.precio), 0)
   const costoExtra = serviciosOpcionales.reduce((sum, s) => sum + Number(s.precio), 0)
-  const precioBase = 30000
   const totalSinDescuento = precioBase + costoExtra
 
   const [codigoInput, setCodigoInput] = useState('')
