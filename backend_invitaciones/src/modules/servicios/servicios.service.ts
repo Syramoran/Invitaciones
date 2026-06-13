@@ -113,7 +113,7 @@ export class ServiciosService {
     async calcularPrecio(ids: number[]): Promise<{ total: number; desglose: { id: number; nombre: string; precio: number }[] }> {
 
         if (!ids || ids.length === 0) {
-            return { total: 500, desglose: [] };
+            return { total: 0, desglose: [] };
         }
         console.log('IDs recibidos para calcular precio:', ids);
         
