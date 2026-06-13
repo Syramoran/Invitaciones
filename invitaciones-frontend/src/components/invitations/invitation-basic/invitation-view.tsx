@@ -17,9 +17,9 @@ interface InvitationViewProps {
 function getTituloInvitacion(invitacion: InvitacionPublica): string {
   const { camposEspecificos, titulo } = invitacion
 
-  if (camposEspecificos?.nombreNovia && camposEspecificos?.nombreNovio) {
+  if (camposEspecificos?.novio1 && camposEspecificos?.novio2) {
     const campos = camposEspecificos as unknown as CamposEspecificosBoda
-    return `${campos.nombreNovia} & ${campos.nombreNovio}`
+    return `${campos.novio1} & ${campos.novio2}`
   }
 
   return titulo

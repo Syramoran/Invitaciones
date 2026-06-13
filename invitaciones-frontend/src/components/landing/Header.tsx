@@ -1,14 +1,23 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, Sun, Moon } from 'lucide-react'
+import { Menu, X, Sun, Moon, User } from 'lucide-react'
 import { useTheme } from '@/hooks/useTheme'
 import { useCrearInvitacionModal } from '@/context/crearInvitacionModalContext'
+import { useAuth } from '@/context/useAuth'
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const { openModal } = useCrearInvitacionModal()
+  const { isAuthenticated, user } = useAuth()
+
+  // Destino del icono de usuario según el estado de sesión
+  const accountPath = !isAuthenticated
+    ? '/client/login'
+    : user?.role === 'ADMIN'
+      ? '/admin/dashboard'
+      : '/client/dashboard'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,6 +74,15 @@ export function Header() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
+            <Link
+              to={accountPath}
+              title={isAuthenticated ? 'Ir a mi panel' : 'Iniciar sesión'}
+              className={`p-2 rounded-full transition-colors duration-300 ${
+                isScrolled ? 'text-charcoal hover:bg-black/5 dark:text-champagne-light dark:hover:bg-white/10' : 'text-white hover:bg-white/10'
+              }`}
+            >
+              <User className="w-4 h-4" />
+            </Link>
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className={`p-2 rounded-full transition-colors duration-300 ${
@@ -145,6 +163,15 @@ export function Header() {
         >
           Crea tu invitacion →
         </button>
+
+        <Link
+          to={accountPath}
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="flex items-center gap-2 text-lg font-medium text-charcoal dark:text-champagne-light"
+        >
+          <User className="w-5 h-5" />
+          {isAuthenticated ? 'Mi panel' : 'Iniciar sesión'}
+        </Link>
       </div>
     </>
   )

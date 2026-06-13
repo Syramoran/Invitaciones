@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Copy, Pencil, Trash2, Loader2, QrCode, X, Download } from 'lucide-react'
+import { Copy, Pencil, Trash2, Loader2, QrCode, X, Download, FileDown } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import type { InvitacionAdmin } from '@/types/adminInvitacion'
 import { getDaysLeft, getInvitacionStatus } from '@/types/adminInvitacion'
 import { InvitacionStatusBadge } from './InvitacionStatusBadge'
+import apiClient from '@/services/apiClient'
 
 interface Props {
   invitaciones: InvitacionAdmin[]
@@ -106,6 +107,24 @@ function QrModal({ inv, onClose }: { inv: InvitacionAdmin; onClose: () => void }
   )
 }
 
+// ── CSV Download ──────────────────────────────────────────────────────────────
+
+async function downloadGuestCsv(inv: InvitacionAdmin) {
+  try {
+    const response = await apiClient.get(`/invitaciones/${inv.id}/invitados/export`, {
+      responseType: 'blob',
+    })
+    const url = URL.createObjectURL(response.data as Blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `invitados-${inv.titulo.replace(/\s+/g, '-').toLowerCase()}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch {
+    alert('Esta invitación no tiene invitados cargados.')
+  }
+}
+
 // ── Table ─────────────────────────────────────────────────────────────────────
 
 export function InvitacionesTable({
@@ -132,6 +151,7 @@ export function InvitacionesTable({
           <thead>
             <tr>
               <TH>Título</TH>
+              <TH>Creado por</TH>
               <TH>Tipo</TH>
               <TH>Template</TH>
               <TH>Fecha Evento</TH>
@@ -152,6 +172,19 @@ export function InvitacionesTable({
                 {/* Título */}
                 <td className="px-3 py-2.5 text-[.85rem] font-medium max-w-[200px] truncate">
                   {inv.titulo}
+                </td>
+
+                {/* Creado por */}
+                <td className="px-3 py-2.5 text-[.82rem]">
+                  {inv.usuarioId == null ? (
+                    <span className="inline-block px-2 py-0.5 text-[.7rem] font-medium bg-[#2d2926] text-[#fefcf9] rounded-full">
+                      Admin
+                    </span>
+                  ) : (
+                    <span className="inline-block px-2 py-0.5 text-[.7rem] font-medium bg-[#eef2ff] text-[#4f46e5] rounded-full">
+                      {inv.usuarioUsername ?? `Cliente #${inv.usuarioId}`}
+                    </span>
+                  )}
                 </td>
 
                 {/* Tipo */}
@@ -212,6 +245,14 @@ export function InvitacionesTable({
                       className="flex items-center gap-1 px-2.5 py-1 text-[.75rem] font-medium border border-[#d1d5db] rounded-lg text-[#6b7280] hover:border-[#555] hover:text-[#1a1a1a] transition-colors"
                     >
                       <QrCode className="w-3.5 h-3.5" /> QR
+                    </button>
+
+                    <button
+                      onClick={() => downloadGuestCsv(inv)}
+                      className="flex items-center gap-1 px-2.5 py-1 text-[.75rem] font-medium border border-[#d1d5db] rounded-lg text-[#16a34a] hover:border-[#16a34a] transition-colors"
+                      title="Descargar CSV con enlaces de invitados"
+                    >
+                      <FileDown className="w-3.5 h-3.5" /> CSV
                     </button>
 
                     <button

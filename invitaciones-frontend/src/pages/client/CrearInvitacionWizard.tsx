@@ -4,32 +4,33 @@ import { Loader2 } from 'lucide-react'
 import apiClient from '@/services/apiClient'
 
 import type { WizardFormState, ServiceToggle } from '@/types/crearInvitacion'
-import { createInitialFormState } from '@/types/crearInvitacion'
+import { createInitialFormState, INITIAL_CAMPOS } from '@/types/crearInvitacion'
 import { templateService } from '@/services/templateService'
 import { servicioService } from '@/services/servicioService'
 import type { Template } from '@/services/templateService'
-import { getEventConfig } from '@/config/eventoConfig'
-
-import { Step1DatosBasicos } from '@/components/client/crear-invitacion/Step1DatosBasicos'
-import { Step2Evento } from '@/components/client/crear-invitacion/Step2Evento'
-import { Step3Servicios } from '@/components/client/crear-invitacion/Step3Servicios'
-import { Step4Contenido } from '@/components/client/crear-invitacion/Step4Contenido'
-import { Step6Pago } from '@/components/client/crear-invitacion/Step6Pago'
+// ── Use admin step components directly (identical UX, just no pedido selector) ──
+import { Step1DatosBasicos } from '@/components/admin/crear-invitacion/Step1DatosBasicos'
+import { Step2Evento }       from '@/components/admin/crear-invitacion/Step2Evento'
+import { Step3Servicios }    from '@/components/admin/crear-invitacion/Step3Servicios'
+import { Step4Contenido }    from '@/components/admin/crear-invitacion/Step4Contenido'
+import { Step5Invitados }    from '@/components/admin/crear-invitacion/Step5Invitados'
+import { Step6Revisar }      from '@/components/client/crear-invitacion/Step6Revisar'
+import { Step6Pago }         from '@/components/client/crear-invitacion/Step6Pago'
 
 const STEPS = [
-  { num: 1, label: 'Básico' },
-  { num: 2, label: 'Servicios' },
-  { num: 3, label: 'Evento' },
+  { num: 1, label: 'Diseño' },
+  { num: 2, label: 'Evento' },
+  { num: 3, label: 'Servicios' },
   { num: 4, label: 'Contenido' },
-  { num: 5, label: 'Pago' },
+  { num: 5, label: 'Invitados' },
+  { num: 6, label: 'Revisar' },
+  { num: 7, label: 'Pagar' },
 ]
-import { useAuth } from '@/context/useAuth'
 
 export default function CrearInvitacionWizard() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const editId = searchParams.get('id')
-  const { user } = useAuth()
 
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(true)
@@ -49,7 +50,6 @@ export default function CrearInvitacionWizard() {
         ])
         setTemplates(tempRes)
 
-        // Build service toggles
         const servicios: ServiceToggle[] = svcsRes
           .filter(s => s.activo)
           .map(s => ({
@@ -64,33 +64,37 @@ export default function CrearInvitacionWizard() {
         setFormState(prev => ({ ...prev, step3: { servicios } }))
 
         if (editId) {
-          // Implementar precarga de datos para edición de borradores
-          const invRes = await apiClient.get(`/client/invitaciones/${editId}`)
+          const [invRes, musicaRes] = await Promise.all([
+            apiClient.get(`/client/invitaciones/${editId}`),
+            apiClient.get(`/invitaciones/${editId}/musica`).catch(() => ({ data: null })),
+          ])
           const inv = invRes.data
+          const musica = musicaRes.data
           setIsPaid(inv.estadoPago === 'PAGADO')
-          // Precarga básica por ahora
           setFormState(prev => ({
             ...prev,
             step1: {
               ...prev.step1,
-              tipoEventoId: inv.tipoEvento?.id || null,
-              templateId: inv.template?.id || null,
-              titulo: inv.titulo || '',
-              nombreHomenajeados: inv.camposEspecificos?.nombreHomenajeados || inv.camposEspecificos?.nombre || '',
-              nombreNovio1: inv.camposEspecificos?.novio1 || '',
-              nombreNovio2: inv.camposEspecificos?.novio2 || '',
-              colorPrimario: inv.colorPrimario || '',
+              tipoEventoId: inv.tipoEvento?.id ?? null,
+              templateId: inv.template?.id ?? null,
+              titulo: inv.titulo ?? '',
+              colorPrimario: inv.colorPrimario ?? '',
             },
             step2: {
               ...prev.step2,
               fechaEvento: inv.fechaEvento ? new Date(inv.fechaEvento).toISOString().split('T')[0] : '',
-              horaEvento: inv.horaEvento || '',
-              ubicacion: inv.ubicacion === 'multiple' ? 'multiple' : (inv.ubicacion || ''),
-              direccion: inv.direccion === 'multiple' ? 'multiple' : (inv.direccion || ''),
-              googleMapsUrl: inv.camposEspecificos?.googleMapsUrl || '',
-              ubicaciones: inv.camposEspecificos?.ubicaciones || [],
-              camposEspecificos: inv.camposEspecificos || {},
-            }
+              horaEvento: inv.horaEvento ?? '',
+              ubicacion: inv.ubicacion === 'multiple' ? 'multiple' : (inv.ubicacion ?? ''),
+              direccion: inv.direccion === 'multiple' ? 'multiple' : (inv.direccion ?? ''),
+              colorPrimario: inv.colorPrimario ?? '',
+              ubicaciones: inv.camposEspecificos?.ubicaciones ?? [],
+              camposEspecificos: inv.camposEspecificos ?? {},
+            },
+            step4: {
+              ...prev.step4,
+              existingFotos: (inv.fotosAnfitrion ?? []).map((f: { id: number; url: string }) => ({ id: f.id, url: f.url })),
+              existingMusica: musica ? { id: musica.id, archivoUrl: musica.archivoUrl } : null,
+            },
           }))
         }
       } catch (err) {
@@ -102,144 +106,198 @@ export default function CrearInvitacionWizard() {
     loadData()
   }, [editId])
 
-  // Updaters
+  // ── Updaters ─────────────────────────────────────────────────────────────────
+
   const updateStep1 = useCallback((updates: Partial<WizardFormState['step1']>) => {
     setFormState(prev => {
       const next = { ...prev, step1: { ...prev.step1, ...updates } }
+
+      // When event type changes, reset camposEspecificos
       if ('tipoEventoId' in updates && updates.tipoEventoId !== prev.step1.tipoEventoId) {
-        const config = getEventConfig(updates.tipoEventoId ?? null)
         next.step2 = {
           ...prev.step2,
-          camposEspecificos: { ...(config.initialCampos) },
+          camposEspecificos: updates.tipoEventoId
+            ? { ...(INITIAL_CAMPOS[updates.tipoEventoId] ?? {}) }
+            : {},
         }
       }
+
+      // Sync colorPrimario to step2
+      if ('colorPrimario' in updates) {
+        next.step2 = { ...next.step2, colorPrimario: updates.colorPrimario ?? '' }
+      }
+
       return next
     })
   }, [])
-  const updateStep2 = useCallback((u: Partial<WizardFormState['step2']>) => setFormState(p => ({ ...p, step2: { ...p.step2, ...u } })), [])
-  const updateStep3 = useCallback((u: Partial<WizardFormState['step3']>) => setFormState(p => ({ ...p, step3: { ...p.step3, ...u } })), [])
-  const updateStep4 = useCallback((u: Partial<WizardFormState['step4']>) => setFormState(p => ({ ...p, step4: { ...p.step4, ...u } })), [])
 
-  const handleNext = () => { setError(null); setStep(s => s + 1) }
-  const handlePrev = () => { setError(null); setStep(s => s - 1) }
-  const goTo = (s: number) => { if (s >= 1 && s <= 5) { setError(null); setStep(s) } }
+  const updateStep2 = useCallback((u: Partial<WizardFormState['step2']>) =>
+    setFormState(p => ({ ...p, step2: { ...p.step2, ...u } })), [])
+
+  const updateStep3 = useCallback((u: Partial<WizardFormState['step3']>) =>
+    setFormState(p => ({ ...p, step3: { ...p.step3, ...u } })), [])
+
+  const updateStep4 = useCallback((u: Partial<WizardFormState['step4']>) =>
+    setFormState(p => ({ ...p, step4: { ...p.step4, ...u } })), [])
+
+  const updateStep5 = useCallback((u: Partial<WizardFormState['step5']>) =>
+    setFormState(p => ({ ...p, step5: { ...p.step5, ...u } })), [])
+
+  const handleNext = () => { setError(null); setStep(s => Math.min(s + 1, STEPS.length)) }
+  const handlePrev = () => { setError(null); setStep(s => Math.max(s - 1, 1)) }
+  const goTo = (s: number) => { if (s >= 1 && s <= STEPS.length) { setError(null); setStep(s) } }
+
+  // ── Payload builder ───────────────────────────────────────────────────────────
 
   const buildPayload = () => {
-    let novio1 = formState.step2.camposEspecificos.novio1 || ''
-    let novio2 = formState.step2.camposEspecificos.novio2 || ''
-    let nombre = formState.step2.camposEspecificos.nombre || ''
-
-    const config = getEventConfig(formState.step1.tipoEventoId)
-
-    if (config.nombresType === 'novios') {
-      novio1 = formState.step1.nombreNovio1?.trim() || novio1
-      novio2 = formState.step1.nombreNovio2?.trim() || novio2
-    } else if (config.nombresType === 'homenajeado' && formState.step1.nombreHomenajeados) {
-      nombre = formState.step1.nombreHomenajeados.trim()
-    }
-
+    const { step1, step2, step3 } = formState
+    const colorPrimario = step2.colorPrimario || step1.colorPrimario
     return {
-      tipoEventoId: formState.step1.tipoEventoId,
-      templateId: formState.step1.templateId,
-      titulo: formState.step1.titulo,
-      colorPrimario: formState.step1.colorPrimario,
-      fechaEvento: formState.step2.fechaEvento,
-      horaEvento: formState.step2.horaEvento,
-      ubicacion: formState.step2.ubicacion,
-      direccion: formState.step2.direccion,
-      latitud: 0,
-      longitud: 0,
+      tipoEventoId: step1.tipoEventoId,
+      templateId:   step1.templateId,
+      titulo:        step1.titulo,
+      ...(colorPrimario ? { colorPrimario } : {}),
+      fechaEvento:   step2.fechaEvento,
+      horaEvento:    step2.horaEvento,
+      ubicacion:     step2.ubicacion,
+      direccion:     step2.direccion,
+      latitud:       step2.latitud || 0,
+      longitud:      step2.longitud || 0,
       camposEspecificos: {
-        ...formState.step2.camposEspecificos,
-        nombreHomenajeados: formState.step1.nombreHomenajeados,
-        googleMapsUrl: formState.step2.googleMapsUrl,
-        ubicaciones: formState.step2.ubicaciones,
-        novio1,
-        novio2,
-        nombre,
+        ...step2.camposEspecificos,
+        ubicaciones: step2.ubicaciones,
       },
-      serviciosIds: formState.step3.servicios.filter(s => s.enabled).map(s => s.id)
+      serviciosIds: step3.servicios.filter(s => s.enabled).map(s => s.id),
     }
   }
 
+  async function saveInvitacion(): Promise<string> {
+    const payload = buildPayload()
+    let currentId = editId
 
-  const handlePay = async () => {
+    if (!currentId) {
+      const res = await apiClient.post('/client/invitaciones', payload)
+      currentId = res.data.id as string
+    } else {
+      await apiClient.put(`/client/invitaciones/${currentId}`, payload)
+    }
+
+    // Upload new fotos
+    if (formState.step4.fotos.length > 0) {
+      const fd = new FormData()
+      formState.step4.fotos.forEach(f => fd.append('fotos', f))
+      await apiClient.post(`/client/invitaciones/${currentId}/fotos-anfitrion`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    }
+
+    // Delete removed existing fotos
+    for (const fotoId of formState.step4.removedFotoIds) {
+      await apiClient.delete(`/client/invitaciones/${currentId}/fotos-anfitrion/${fotoId}`)
+    }
+
+    // Remove existing musica if flagged
+    if (formState.step4.removeMusica && formState.step4.existingMusica) {
+      await apiClient.delete(`/invitaciones/${currentId}/musica`)
+    }
+
+    // Upload new musica
+    if (formState.step4.musica) {
+      const fd = new FormData()
+      fd.append('archivo', formState.step4.musica)
+      await apiClient.post(`/invitaciones/${currentId}/musica`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    }
+
+    if (formState.step5.guests.length > 0) {
+      await apiClient.post(`/invitaciones/${currentId}/invitados`, {
+        invitados: formState.step5.guests,
+      })
+    }
+
+    return currentId!
+  }
+
+  const calcularTotal = () =>
+    30000 + formState.step3.servicios
+      .filter(s => !s.incluidoEnBase && s.enabled)
+      .reduce((sum, s) => sum + Number(s.precio ?? 0), 0)
+
+  const handlePay = async (codigoDescuento?: string) => {
+    if (isPaid) {
+      setError('Esta invitación ya fue pagada y no puede volver a procesarse.')
+      return
+    }
     setSaving(true)
     setError(null)
     try {
-      // 1. Asegurar guardado básico
-      let currentId = editId
-      const payload = buildPayload() as any
-      
-      if (!currentId) {
-        const res = await apiClient.post('/client/invitaciones', payload)
-        currentId = res.data.id
-      } else {
-        await apiClient.put(`/client/invitaciones/${currentId}`, payload)
-      }
-
-      // TODO: Guardar servicios, fotos, historias e invitados usando el service si fuera necesario.
-
-      // 2. Crear preferencia MP
-      const totalPrecio = 30000 + formState.step3.servicios.filter(s => !s.incluidoEnBase && s.enabled).reduce((sum, s) => sum + Number(s.precio), 0)
-
+      const currentId = await saveInvitacion()
       const prefRes = await apiClient.post(`/pagos/crear-preferencia/${currentId}`, {
         title: formState.step1.titulo,
-        price: totalPrecio
+        price: calcularTotal(),
+        ...(codigoDescuento ? { codigoDescuento } : {}),
       })
 
-      // 3. Redirigir a MercadoPago
-      window.location.href = prefRes.data.init_point
-    } catch (err) {
-      console.error(err)
-      setError('Error al procesar el pago. Por favor intenta nuevamente.')
-      setSaving(false)
-    }
-  }
-
-  const handleSimulatePay = async () => {
-    setSaving(true)
-    setError(null)
-    try {
-      let currentId = editId
-      const payload = buildPayload() as any
-      
-      if (!currentId) {
-        const res = await apiClient.post('/client/invitaciones', payload)
-        currentId = res.data.id
-      } else {
-        await apiClient.put(`/client/invitaciones/${currentId}`, payload)
+      if (prefRes.data.tipo === 'GRATUITO') {
+        navigate('/client/dashboard?payment=success')
+        return
       }
 
-      await apiClient.post(`/pagos/simular-pago-exitoso/${currentId}`)
-      navigate('/client/dashboard?payment=success')
-    } catch (err) {
+      window.location.href = prefRes.data.init_point
+    } catch (err: any) {
       console.error(err)
-      setError('Error al simular el pago localmente.')
+      const msg = err?.response?.data?.message ?? 'Error al procesar el pago. Por favor intenta nuevamente.'
+      setError(msg)
       setSaving(false)
     }
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#fcfaf8]"><Loader2 className="w-8 h-8 animate-spin text-[#c5a572]" /></div>
+  const handleActivarGratis = async (codigoDescuento: string) => {
+    await handlePay(codigoDescuento)
+  }
+
+  const handleValidarCodigo = async (codigo: string) => {
+    const res = await apiClient.post('/codigos-descuento/validar', { codigo })
+    return res.data as { valido: boolean; porcentaje: number; mensaje: string }
+  }
+
+  // ── Loading ───────────────────────────────────────────────────────────────────
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fcfaf8]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#c5a572]" />
+      </div>
+    )
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-[#fcfaf8] text-[#2d2926] pb-24">
       {/* Header */}
       <header className="bg-white border-b border-[#f3f0ea] px-6 md:px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-        <div className="font-display text-2xl font-semibold cursor-pointer" onClick={() => navigate('/client/dashboard')}>
+        <div
+          className="font-display text-2xl font-semibold cursor-pointer"
+          onClick={() => navigate('/client/dashboard')}
+        >
           festejá<span className="text-[#c5a572] italic">.</span>
         </div>
-        <div className="flex items-center gap-3 sm:gap-6">
-          <button onClick={() => navigate('/client/dashboard')} className="text-[.85rem] font-medium text-[#6b7280] hover:text-[#2d2926]">Cancelar</button>
-        </div>
+        <button
+          onClick={() => navigate('/client/dashboard')}
+          className="text-[.85rem] font-medium text-[#6b7280] hover:text-[#2d2926]"
+        >
+          Cancelar
+        </button>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-10">
 
         {/* Stepper */}
-        <div className="flex items-end gap-0 overflow-x-auto pb-1 mb-8 border-b border-[#e5e7eb] hide-scrollbar">
+        <div className="flex items-end gap-0 pb-1 mb-8 border-b border-[#e5e7eb]">
           {STEPS.map((s, i) => {
-            const isDone = s.num < step
+            const isDone   = s.num < step
             const isActive = s.num === step
             return (
               <div key={s.num} className="flex items-center">
@@ -248,49 +306,105 @@ export default function CrearInvitacionWizard() {
                   onClick={() => isDone && goTo(s.num)}
                   disabled={!isDone}
                   className={[
-                    'flex items-center gap-2 px-3 py-2.5 whitespace-nowrap text-[.82rem] border-b-2 -mb-px transition-colors',
-                    isActive ? 'text-[#2d2926] font-semibold border-[#c5a572]'
-                      : isDone ? 'text-[#16a34a] border-transparent hover:border-[#16a34a]/40 cursor-pointer'
-                        : 'text-[#9ca3af] border-transparent cursor-default',
+                    'flex items-center gap-1.5 px-2 sm:px-3 py-2 whitespace-nowrap text-[.75rem] sm:text-[.82rem] border-b-2 -mb-px transition-colors',
+                    isActive  ? 'text-[#2d2926] font-semibold border-[#c5a572]'
+                    : isDone  ? 'text-[#16a34a] border-transparent hover:border-[#16a34a]/40 cursor-pointer'
+                    :           'text-[#9ca3af] border-transparent cursor-default',
                   ].join(' ')}
                 >
                   <span className={[
-                    'w-6 h-6 rounded-full flex items-center justify-center text-[.7rem] font-semibold border-[1.5px] shrink-0 transition-colors',
+                    'w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[.65rem] sm:text-[.7rem] font-semibold border-[1.5px] shrink-0 transition-colors',
                     isActive ? 'bg-[#c5a572] border-[#c5a572] text-white'
-                      : isDone ? 'bg-[#16a34a] border-[#16a34a] text-white'
-                        : 'border-[#d1d5db] text-[#9ca3af]',
+                    : isDone ? 'bg-[#16a34a] border-[#16a34a] text-white'
+                    :          'border-[#d1d5db] text-[#9ca3af]',
                   ].join(' ')}>
                     {isDone ? '✓' : s.num}
                   </span>
                   <span className="hidden sm:inline">{s.label}</span>
                 </button>
-                {i < STEPS.length - 1 && <div className="w-4 sm:w-8 h-px bg-[#e5e7eb] shrink-0 mx-0.5 mb-0.5" />}
+                {i < STEPS.length - 1 && (
+                  <div className="w-2 sm:w-3 h-px bg-[#e5e7eb] shrink-0 mx-0 mb-0.5" />
+                )}
               </div>
             )
           })}
         </div>
 
-        {/* Form Steps */}
-        <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl shadow-sm border border-[#f3f0ea]">
+        {/* Step content */}
+        <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-sm p-6 sm:p-8">
+
           {step === 1 && (
-            <Step1DatosBasicos state={formState.step1} onChange={updateStep1} templates={templates} onNext={handleNext} isPaid={isPaid} />
+            // Pass pedidos={[]} → hides the "Vincular pedido" section
+            <Step1DatosBasicos
+              state={formState.step1}
+              templates={templates}
+              pedidos={[]}
+              onChange={updateStep1}
+              onNext={handleNext}
+            />
           )}
 
           {step === 2 && (
-            <Step3Servicios state={formState.step3} onChange={updateStep3} onNext={handleNext} onPrev={handlePrev} />
+            <Step2Evento
+              state={formState.step2}
+              tipoEventoId={formState.step1.tipoEventoId}
+              templateSlug={templates.find(t => t.id === formState.step1.templateId)?.slug ?? null}
+              onChange={updateStep2}
+              onNext={handleNext}
+              onPrev={handlePrev}
+            />
           )}
 
           {step === 3 && (
-            <Step2Evento state={formState.step2} servicios={formState.step3.servicios} tipoEventoId={formState.step1.tipoEventoId} templateSlug={templates.find(t => t.id === formState.step1.templateId)?.slug ?? null} colorPrimario={formState.step1.colorPrimario} onColorChange={(c) => updateStep1({ colorPrimario: c })} onChange={updateStep2} onNext={handleNext} onPrev={handlePrev} />
+            <Step3Servicios
+              state={formState.step3}
+              onChange={updateStep3}
+              onNext={handleNext}
+              onPrev={handlePrev}
+            />
           )}
 
           {step === 4 && (
-            <Step4Contenido state={formState.step4} servicios={formState.step3.servicios} onChange={updateStep4} onNext={handleNext} onPrev={handlePrev} />
+            <Step4Contenido
+              state={formState.step4}
+              servicios={formState.step3.servicios}
+              onChange={updateStep4}
+              onNext={handleNext}
+              onPrev={handlePrev}
+            />
           )}
 
           {step === 5 && (
-            <Step6Pago formState={formState} loading={saving} error={error} onGenerateAndPay={handlePay} onPrev={handlePrev} onSimulateDevPayment={handleSimulatePay} />
+            <Step5Invitados
+              state={formState.step5}
+              onChange={updateStep5}
+              onNext={handleNext}
+              onPrev={handlePrev}
+            />
           )}
+
+          {step === 6 && (
+            <Step6Revisar
+              formState={formState}
+              templates={templates}
+              onNext={handleNext}
+              onPrev={handlePrev}
+              onGoTo={goTo}
+            />
+          )}
+
+          {step === 7 && (
+            <Step6Pago
+              formState={formState}
+              loading={saving}
+              error={error}
+              onGenerateAndPay={handlePay}
+              onActivarGratis={handleActivarGratis}
+              onValidarCodigo={handleValidarCodigo}
+              onPrev={handlePrev}
+            />
+          )}
+
         </div>
       </main>
     </div>

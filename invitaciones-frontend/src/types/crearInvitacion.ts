@@ -82,6 +82,11 @@ export const TEMPLATE_COLORS: Record<string, { hex: string; label: string }[]> =
 }
 
 export const COLORES_PALETA = PALETAS_BODA_CLASICA // Default fallback
+
+// Templates whose selected-color checkmark should be dark (light-colored swatches)
+export const DARK_CHECKMARK_SLUGS: string[] = [
+  'cumple-elegante', 'boda-clasica', 'cumple-festivo',
+]
 // ─── Wizard form types for "Crear Invitación" (6-step flow) ───────────────────
 
 // Step 1 ─────────────────────────────────────────────────────────────────────
@@ -92,6 +97,9 @@ export interface WizardStep1 {
   templateId: number | null
   titulo: string
   colorPrimario: string   // Selected in step 1, synced to step 2
+  nombreNovio1?: string
+  nombreNovio2?: string
+  nombreHomenajeados?: string
 }
 
 // Step 2 ─────────────────────────────────────────────────────────────────────
@@ -119,6 +127,7 @@ export interface WizardStep2 {
   colorPrimario: string   // #RRGGBB
   contrasenaAsistentes: string
   maxFotos: number
+  googleMapsUrl?: string
   /** Dynamic fields per event type stored as a flat key→value map */
   camposEspecificos: Record<string, string>
   /** Multiple locations mode: if non-empty, overrides single ubicacion/direccion/lat/long */
@@ -150,6 +159,7 @@ export interface ServiceToggle {
   id: number
   nombre: string
   descripcion: string | null
+  precio?: number | string
   incluidoEnBase: boolean
   enabled: boolean
 }
@@ -174,6 +184,11 @@ export interface WizardStep4 {
   musica: File | null
   musicaNombre: string
   historias: HistoriaSeccion[]
+  // For edit mode: existing server-side media
+  existingFotos: { id: number; url: string }[]
+  removedFotoIds: number[]
+  existingMusica: { id: number; archivoUrl: string } | null
+  removeMusica: boolean
 }
 
 // Step 5 ─────────────────────────────────────────────────────────────────────
@@ -185,7 +200,7 @@ export interface GuestEntry {
 
 export interface WizardStep5 {
   generateGuestUrls: boolean
-  guestJson: string
+  guestText: string
   guests: GuestEntry[]
   parseError: string | null
 }
@@ -212,14 +227,17 @@ export interface CrearInvitacionResult {
 
 export function createInitialFormState(): WizardFormState {
   return {
-    step1: { pedidoId: '', tipoEventoId: null, templateId: null, titulo: '', colorPrimario: '' },
+    step1: {
+      pedidoId: '', tipoEventoId: null, templateId: null, titulo: '', colorPrimario: '',
+      nombreNovio1: '', nombreNovio2: '', nombreHomenajeados: '',
+    },
     step2: {
       fechaEvento: '', horaEvento: '', ubicacion: '', direccion: '',
       latitud: '', longitud: '', colorPrimario: '',
       contrasenaAsistentes: '', maxFotos: 1000, camposEspecificos: {}, ubicaciones: [],
     },
     step3: { servicios: [] },
-    step4: { fotos: [], fotosPreviews: [], musica: null, musicaNombre: '', historias: [] },
-    step5: { generateGuestUrls: false, guestJson: '', guests: [], parseError: null },
+    step4: { fotos: [], fotosPreviews: [], musica: null, musicaNombre: '', historias: [], existingFotos: [], removedFotoIds: [], existingMusica: null, removeMusica: false },
+    step5: { generateGuestUrls: false, guestText: '', guests: [], parseError: null },
   }
 }

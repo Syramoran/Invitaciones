@@ -12,13 +12,11 @@ function LocationActions({
   direccion,
   latitud,
   longitud,
-  colorAccent,
 }: {
   nombre: string
   direccion: string
   latitud: number
   longitud: number
-  colorAccent: string
 }) {
   const [copiado, setCopiado] = useState(false)
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitud},${longitud}`
@@ -74,7 +72,7 @@ function LocationActions({
   )
 }
 
-export function MapSection({ invitacion, colorAccent }: MapSectionProps) {
+export function MapSection({ invitacion }: MapSectionProps) {
   const { ubicacion, direccion, latitud, longitud } = invitacion
   const embedUrl = `https://maps.google.com/maps?q=${latitud},${longitud}&t=&z=16&ie=UTF8&iwloc=&output=embed`
 
@@ -118,7 +116,6 @@ export function MapSection({ invitacion, colorAccent }: MapSectionProps) {
           direccion={direccion}
           latitud={latitud}
           longitud={longitud}
-          colorAccent={colorAccent}
         />
       </div>
     </section>

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { X, Loader2 } from 'lucide-react'
 import { templateService, type CreateTemplatePayload } from '@/services/templateService'
-import { TIPO_LABEL } from '@/services/templateService'
 import { registeredSlugs } from '@/components/invitations/registry'
 
 const TIPO_OPTIONS = [

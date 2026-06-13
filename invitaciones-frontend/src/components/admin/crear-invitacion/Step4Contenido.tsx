@@ -21,18 +21,21 @@ function hasService(servicios: WizardStep3['servicios'], name: string) {
 // ─── Fotos del anfitrión ───────────────────────────────────────────────────────
 
 function FotosSection({
-  fotos, fotosPreviews, onChange,
-}: Pick<WizardStep4, 'fotos' | 'fotosPreviews'> & { onChange: Props['onChange'] }) {
+  fotos, fotosPreviews, existingFotos, removedFotoIds, onChange,
+}: Pick<WizardStep4, 'fotos' | 'fotosPreviews' | 'existingFotos' | 'removedFotoIds'> & { onChange: Props['onChange'] }) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const activeExisting = existingFotos.filter(f => !removedFotoIds.includes(f.id))
+  const totalCount = activeExisting.length + fotos.length
+  const canAdd = totalCount < 5
 
   function handleFiles(files: FileList | null) {
     if (!files) return
-    const newFiles = Array.from(files).slice(0, 5 - fotos.length)
+    const newFiles = Array.from(files).slice(0, 5 - totalCount)
     const newPreviews = newFiles.map(f => URL.createObjectURL(f))
     onChange({ fotos: [...fotos, ...newFiles], fotosPreviews: [...fotosPreviews, ...newPreviews] })
   }
 
-  function removePhoto(idx: number) {
+  function removeNewPhoto(idx: number) {
     URL.revokeObjectURL(fotosPreviews[idx])
     onChange({
       fotos: fotos.filter((_, i) => i !== idx),
@@ -40,11 +43,47 @@ function FotosSection({
     })
   }
 
+  function removeExistingFoto(id: number) {
+    onChange({ removedFotoIds: [...removedFotoIds, id] })
+  }
+
+  function undoRemoveExistingFoto(id: number) {
+    onChange({ removedFotoIds: removedFotoIds.filter(x => x !== id) })
+  }
+
   return (
     <div className="bg-white border border-[#f0f0f0] rounded-xl p-4 mb-4">
       <h3 className="font-semibold text-[.9rem] mb-1">📷 Fotos del Anfitrión</h3>
 
-      {fotos.length < 5 && (
+      {/* Existing (server) fotos */}
+      {existingFotos.length > 0 && (
+        <div className="flex gap-2 flex-wrap mb-3">
+          {existingFotos.map((foto, i) => {
+            const removed = removedFotoIds.includes(foto.id)
+            return (
+              <div key={foto.id} className={['relative w-20 h-20 rounded-lg overflow-hidden bg-[#f4f5f7] shrink-0', removed ? 'opacity-40' : ''].join(' ')}>
+                <img src={foto.url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                {i === 0 && !removed && (
+                  <span className="absolute bottom-0 left-0 right-0 text-[.6rem] text-center bg-black/50 text-white py-0.5">Header</span>
+                )}
+                {removed ? (
+                  <button type="button" onClick={() => undoRemoveExistingFoto(foto.id)}
+                    className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-[.6rem] font-medium">
+                    Deshacer
+                  </button>
+                ) : (
+                  <button type="button" onClick={() => removeExistingFoto(foto.id)}
+                    className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-[#dc2626] text-white flex items-center justify-center hover:bg-[#b91c1c]">
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {canAdd && (
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
@@ -52,7 +91,7 @@ function FotosSection({
         >
           <ImagePlus className="w-6 h-6 mb-1.5" />
           <span className="text-[.82rem]">Arrastrá fotos acá o hacé click para subir</span>
-          <span className="text-[.7rem] text-[#9ca3af] mt-0.5">JPG, PNG, WebP · Máx. 5 MB c/u · {5 - fotos.length} restante{5 - fotos.length !== 1 ? 's' : ''}</span>
+          <span className="text-[.7rem] text-[#9ca3af] mt-0.5">JPG, PNG, WebP · Máx. 5 MB c/u · {5 - totalCount} restante{5 - totalCount !== 1 ? 's' : ''}</span>
         </button>
       )}
 
@@ -65,16 +104,14 @@ function FotosSection({
         <div className="flex gap-2 flex-wrap">
           {fotosPreviews.map((src, i) => (
             <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden bg-[#f4f5f7] shrink-0">
-              <img src={src} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+              <img src={src} alt={`Nueva ${i + 1}`} className="w-full h-full object-cover" />
+              <span className="absolute top-0 left-0 bg-[#c5a572] text-white text-[.55rem] px-1 py-0.5">Nueva</span>
               <button
-                type="button" onClick={() => removePhoto(i)}
+                type="button" onClick={() => removeNewPhoto(i)}
                 className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-[#dc2626] text-white flex items-center justify-center hover:bg-[#b91c1c]"
               >
                 <X className="w-3 h-3" />
               </button>
-              {i === 0 && (
-                <span className="absolute bottom-0 left-0 right-0 text-[.6rem] text-center bg-black/50 text-white py-0.5">Header</span>
-              )}
             </div>
           ))}
         </div>
@@ -86,13 +123,13 @@ function FotosSection({
 // ─── Música ───────────────────────────────────────────────────────────────────
 
 function MusicaSection({
-  musica, musicaNombre, onChange,
-}: Pick<WizardStep4, 'musica' | 'musicaNombre'> & { onChange: Props['onChange'] }) {
+  musica, musicaNombre, existingMusica, removeMusica, onChange,
+}: Pick<WizardStep4, 'musica' | 'musicaNombre' | 'existingMusica' | 'removeMusica'> & { onChange: Props['onChange'] }) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   function handleFile(files: FileList | null) {
     if (!files?.[0]) return
-    onChange({ musica: files[0], musicaNombre: files[0].name })
+    onChange({ musica: files[0], musicaNombre: files[0].name, removeMusica: false })
   }
 
   return (
@@ -101,6 +138,25 @@ function MusicaSection({
       <p className="text-[.76rem] text-[#6b7280] mb-3">
         Se reproduce automáticamente al abrir la invitación. MP3 · Máx. 20 MB.
       </p>
+
+      {/* Existing music from server */}
+      {existingMusica && !removeMusica && !musica && (
+        <div className="flex items-center gap-3 px-3 py-2.5 bg-[#f4f5f7] rounded-lg mb-2">
+          <Music className="w-4 h-4 text-[#c5a572] shrink-0" />
+          <span className="text-[.82rem] flex-1 truncate text-[#2d2926]">Música actual (ya subida)</span>
+          <button type="button" onClick={() => onChange({ removeMusica: true })}
+            className="text-[#9ca3af] hover:text-[#dc2626] transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {removeMusica && !musica && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-[#fee2e2] text-[#dc2626] rounded-lg mb-2 text-[.8rem]">
+          <span className="flex-1">La música se eliminará al guardar.</span>
+          <button type="button" onClick={() => onChange({ removeMusica: false })} className="underline shrink-0">Deshacer</button>
+        </div>
+      )}
 
       {musica ? (
         <div className="flex items-center gap-3 px-3 py-2.5 bg-[#f4f5f7] rounded-lg">
@@ -115,7 +171,7 @@ function MusicaSection({
         <button type="button" onClick={() => inputRef.current?.click()}
           className="flex flex-col items-center justify-center w-full py-5 border-2 border-dashed border-[#d1d5db] rounded-lg hover:border-[#c5a572] hover:bg-[rgba(197,165,114,.03)] transition-colors text-[#6b7280]">
           <Music className="w-5 h-5 mb-1.5" />
-          <span className="text-[.82rem]">Arrastrá un archivo MP3</span>
+          <span className="text-[.82rem]">{existingMusica ? 'Reemplazar música' : 'Arrastrá un archivo MP3'}</span>
           <span className="text-[.7rem] text-[#9ca3af] mt-0.5">MP3 · Máx. 20 MB</span>
         </button>
       )}
@@ -215,8 +271,8 @@ export function Step4Contenido({ state, onChange, servicios, onNext, onPrev }: P
     <div>
       <h2 className="text-lg font-semibold mb-5">Contenido Multimedia</h2>
 
-      <FotosSection fotos={state.fotos} fotosPreviews={state.fotosPreviews} onChange={onChange} />
-      {showMusica  && <MusicaSection musica={state.musica} musicaNombre={state.musicaNombre} onChange={onChange} />}
+      <FotosSection fotos={state.fotos} fotosPreviews={state.fotosPreviews} existingFotos={state.existingFotos} removedFotoIds={state.removedFotoIds} onChange={onChange} />
+      {showMusica  && <MusicaSection musica={state.musica} musicaNombre={state.musicaNombre} existingMusica={state.existingMusica} removeMusica={state.removeMusica} onChange={onChange} />}
       {showHistoria && <HistoriaSection historias={state.historias} onChange={onChange} />}
 
       {!showMusica && !showHistoria && (

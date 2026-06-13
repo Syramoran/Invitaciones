@@ -102,8 +102,8 @@ export function Step6Revisar({ formState, templates, loading, error, onGenerate,
     { ok: step3.servicios.length > 0, text: 'Servicios configurados' },
     { ok: true, text: 'Contenido multimedia (fotos opcionales)' },
     {
-      ok: !step5.generateGuestUrls || step5.guests.length > 0,
-      text: step5.generateGuestUrls
+      ok: true,
+      text: step5.guests.length > 0
         ? `Lista de invitados cargada (${step5.guests.length})`
         : 'Sin lista de invitados (URL genérica)',
     },
@@ -128,7 +128,7 @@ export function Step6Revisar({ formState, templates, loading, error, onGenerate,
           <Row label="Tipo"     value={tipoNom} />
           <Row label="Diseño"   value={tpl?.nombre ?? '—'} />
           <Row label="Título"   value={step1.titulo || '—'} dim={!step1.titulo} />
-          {step1.pedidoId && <Row label="Pedido" value={`PED-${step1.pedidoId.padStart(3, '0')}`} />}
+          {step1.pedidoId && <Row label="Pedido" value={`PED-${String(step1.pedidoId).padStart(3, '0')}`} />}
         </ReviewCard>
 
         {/* Protagonistas */}
@@ -193,7 +193,7 @@ export function Step6Revisar({ formState, templates, loading, error, onGenerate,
 
         {/* Invitados */}
         <ReviewCard title="Invitados" step={5} onGoTo={onGoTo}>
-          {step5.generateGuestUrls
+          {step5.guests.length > 0
             ? <Row label="URLs" value={`${step5.guests.length} URLs personalizadas`} />
             : <Row label="Modo" value="URL genérica para todos" dim />
           }

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { AlertCircle, Loader2, X, Music, ImagePlus, PlusCircle, Trash2, Check, Heart, Crown, Cake, Pencil } from 'lucide-react'
 
 import { adminInvitacionService } from '@/services/adminInvitacionService'
+import apiClient from '@/services/apiClient'
 import type { HistoriaSeccionResponse, MusicaResponse } from '@/services/adminInvitacionService'
 import { templateService } from '@/services/templateService'
 import { servicioService } from '@/services/servicioService'
@@ -879,9 +880,10 @@ function Step5Guardar({
 
 // ─── Main component ────────────────────────────────────────────────────────────
 
-export default function EditarInvitacionPage() {
+export default function EditarInvitacionPage({ variant = 'admin' }: { variant?: 'admin' | 'client' } = {}) {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const backPath = variant === 'client' ? '/client/dashboard' : '/admin/invitaciones'
 
   const [loadingData, setLoadingData] = useState(true)
   const [dataError,   setDataError]   = useState<string | null>(null)
@@ -901,8 +903,11 @@ export default function EditarInvitacionPage() {
 
     async function load() {
       try {
+        const invPromise = variant === 'client'
+          ? apiClient.get<InvitacionAdmin>(`/client/invitaciones/${id!}`).then(r => r.data)
+          : adminInvitacionService.getById(id!)
         const [inv, historias, musica, tpls, svcs] = await Promise.all([
-          adminInvitacionService.getById(id!),
+          invPromise,
           adminInvitacionService.getHistorias(id!),
           adminInvitacionService.getMusica(id!),
           templateService.getAll(),
@@ -970,7 +975,7 @@ export default function EditarInvitacionPage() {
     const serviciosIds = step3.servicios.filter(s => s.enabled).map(s => s.id)
 
     try {
-      await adminInvitacionService.update(id, {
+      const updatePayload = {
         templateId:   step1.templateId!,
         tipoEventoId: step1.tipoEventoId!,
         titulo:       step1.titulo.trim(),
@@ -986,14 +991,32 @@ export default function EditarInvitacionPage() {
         camposEspecificos: Object.keys(camposFinales).length > 0 ? camposFinales : undefined,
         serviciosIds,
         activa: formState.activa,
-      })
+      }
+
+      if (variant === 'client') {
+        await apiClient.put(`/client/invitaciones/${id}`, updatePayload)
+      } else {
+        await adminInvitacionService.update(id, updatePayload)
+      }
 
       for (const fotoId of formState.removedFotoIds) {
-        await adminInvitacionService.deleteFotoAnfitrion(id, fotoId)
+        if (variant === 'client') {
+          await apiClient.delete(`/client/invitaciones/${id}/fotos-anfitrion/${fotoId}`)
+        } else {
+          await adminInvitacionService.deleteFotoAnfitrion(id, fotoId)
+        }
       }
 
       if (formState.newFotos.length > 0) {
-        await adminInvitacionService.addFotosAnfitrion(id, formState.newFotos)
+        if (variant === 'client') {
+          const fd = new FormData()
+          formState.newFotos.forEach(f => fd.append('fotos', f))
+          await apiClient.post(`/client/invitaciones/${id}/fotos-anfitrion`, fd, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
+        } else {
+          await adminInvitacionService.addFotosAnfitrion(id, formState.newFotos)
+        }
       }
 
       if (formState.removeMusica && formState.existingMusica) {
@@ -1041,23 +1064,48 @@ export default function EditarInvitacionPage() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
-  if (loadingData) {
+  // For the client variant the page renders standalone (no AdminLayout),
+  // so it provides its own top bar. For admin it renders inline as before.
+  function Shell({ children }: { children: React.ReactNode }) {
+    if (variant !== 'client') return <>{children}</>
     return (
-      <div className="flex items-center justify-center py-24 text-[#6b7280] text-[.9rem]">
-        <span className="animate-spin mr-2 inline-block w-5 h-5 border-2 border-[#c5a572] border-t-transparent rounded-full" />
-        Cargando invitación…
+      <div className="min-h-screen bg-[#fcfaf8] text-[#2d2926]">
+        <header className="bg-white border-b border-[#f3f0ea] px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+          <div className="font-display text-2xl font-semibold">
+            festejá<span className="text-[#c5a572] italic">.</span>
+          </div>
+          <button
+            onClick={() => navigate(backPath)}
+            className="text-[.9rem] font-medium text-[#6b7280] hover:text-[#2d2926] transition-colors"
+          >
+            ← Volver a mi panel
+          </button>
+        </header>
+        <main className="max-w-5xl mx-auto px-6 sm:px-8 py-10">{children}</main>
       </div>
     )
   }
 
+  if (loadingData) {
+    return (
+      <Shell>
+        <div className="flex items-center justify-center py-24 text-[#6b7280] text-[.9rem]">
+          <span className="animate-spin mr-2 inline-block w-5 h-5 border-2 border-[#c5a572] border-t-transparent rounded-full" />
+          Cargando invitación…
+        </div>
+      </Shell>
+    )
+  }
+
   if (dataError) {
-    return <div className="py-16 text-center text-[#dc2626] text-[.9rem]">{dataError}</div>
+    return <Shell><div className="py-16 text-center text-[#dc2626] text-[.9rem]">{dataError}</div></Shell>
   }
 
   if (!formState) return null
 
   if (saved) {
     return (
+      <Shell>
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <div className="w-16 h-16 rounded-full bg-[#dcfce7] flex items-center justify-center mb-4">
           <Check className="w-8 h-8 text-[#16a34a]" />
@@ -1074,17 +1122,19 @@ export default function EditarInvitacionPage() {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/admin/invitaciones')}
+            onClick={() => navigate(backPath)}
             className="px-5 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-xl text-[.88rem] font-medium hover:bg-[#4a4441] transition-colors"
           >
-            Volver al listado
+            {variant === 'client' ? 'Volver a mi panel' : 'Volver al listado'}
           </button>
         </div>
       </div>
+      </Shell>
     )
   }
 
   return (
+    <Shell>
     <div className="min-h-screen pb-24">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
@@ -1153,5 +1203,6 @@ export default function EditarInvitacionPage() {
         )}
       </div>
     </div>
+    </Shell>
   )
 }

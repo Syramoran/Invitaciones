@@ -18,6 +18,7 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
+import { RequireAdmin } from '../auth/decorators/require-admin.decorator';
 
 import { InvitacionesService } from './invitaciones.service';
 import { InvitacionesPublicService } from './invitaciones-public.service';
@@ -42,6 +43,7 @@ export class InvitacionesController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
+  @RequireAdmin()
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
     FileFieldsInterceptor(
@@ -76,6 +78,7 @@ export class InvitacionesController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @RequireAdmin()
   async listar(@Query() query: InvitacionQueryDto) {
     return this.invitacionesService.listar(query);
   }
@@ -86,6 +89,7 @@ export class InvitacionesController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
+  @RequireAdmin()
   async obtenerPorId(@Param('id', ParseUUIDPipe) id: string) {
     return this.invitacionesService.obtenerPorId(id);
   }
@@ -96,6 +100,7 @@ export class InvitacionesController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard)
+  @RequireAdmin()
   async actualizar(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateInvitacionDto,
@@ -109,6 +114,7 @@ export class InvitacionesController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
+  @RequireAdmin()
   @HttpCode(HttpStatus.NO_CONTENT)
   async eliminar(@Param('id', ParseUUIDPipe) id: string) {
     return this.invitacionesService.eliminar(id);
@@ -120,6 +126,7 @@ export class InvitacionesController {
 
   @Post(':id/fotos-anfitrion')
   @UseGuards(JwtAuthGuard)
+  @RequireAdmin()
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
     FileFieldsInterceptor(
@@ -144,6 +151,7 @@ export class InvitacionesController {
 
   @Delete(':id/fotos-anfitrion/:fotoId')
   @UseGuards(JwtAuthGuard)
+  @RequireAdmin()
   @HttpCode(HttpStatus.NO_CONTENT)
   async eliminarFotoAnfitrion(
     @Param('id', ParseUUIDPipe) id: string,

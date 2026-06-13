@@ -11,7 +11,13 @@ interface Props {
 
 // Builds the ?invitado=nombre-apellido slug
 function guestSlug(g: GuestEntry) {
-  return `${g.nombre.toLowerCase().replace(/\s+/g, '-')}-${g.apellido.toLowerCase().replace(/\s+/g, '-')}`
+  return [g.nombre, g.apellido]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
 }
 
 function guestUrl(baseUrl: string, g: GuestEntry) {

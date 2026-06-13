@@ -102,7 +102,7 @@ export default function DeleteInvitacionModal({ invitacionTitulo, onConfirm, onC
           <button
             onClick={handleConfirm}
             disabled={!isConfirmed || loading}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300 enabled:bg-red-600 enabled:hover:bg-red-700 enabled:text-white"
           >
             {loading ? (
               <>

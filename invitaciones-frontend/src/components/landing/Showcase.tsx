@@ -4,7 +4,7 @@ import { Ornament } from './Ornament'
 import { PhoneMockup } from './PhoneMockup'
 import { InvitationPreview } from './InvitationPreview'
 
-type TabType = 'boda' | 'quince' | 'cumple'
+export type TabType = 'boda' | 'quince' | 'cumple'
 
 interface TemplateOption {
   slug: string
@@ -15,13 +15,13 @@ interface TemplateOption {
   thumbnail: React.ReactNode
 }
 
-const tabs: { id: TabType; label: string }[] = [
+export const tabs: { id: TabType; label: string }[] = [
   { id: 'boda', label: 'Boda' },
   { id: 'quince', label: 'Quinceañera' },
   { id: 'cumple', label: 'Cumpleaños' },
 ]
 
-const TEMPLATES_BY_EVENT: Record<TabType, TemplateOption[]> = {
+export const TEMPLATES_BY_EVENT: Record<TabType, TemplateOption[]> = {
   boda: [
     { slug: 'boda-clasica',  label: 'Clásica',  description: 'Romántica y atemporal', bg: '#faf7f2', accent: '#BD9848', thumbnail: <img src="/fotos-stock/boda-clasica/preview.png" alt="Clásica" className="w-full h-full object-cover" /> },
     { slug: 'boda-moderna',  label: 'Moderna',  description: 'Minimalista y elegante', bg: '#111',    accent: '#c8a97e', thumbnail: <img src="/fotos-stock/boda-moderna/preview.png" alt="Moderna" className="w-full h-full object-cover" /> },

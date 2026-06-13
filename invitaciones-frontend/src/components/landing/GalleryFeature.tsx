@@ -1,4 +1,4 @@
-import { Camera, Heart, Sparkles, Upload } from 'lucide-react'
+import { Camera, Sparkles, Upload } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export function GalleryFeature() {

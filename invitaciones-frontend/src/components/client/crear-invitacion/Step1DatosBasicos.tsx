@@ -2,28 +2,9 @@ import type { WizardStep1 } from '@/types/crearInvitacion'
 import { TEMPLATE_COLORS, COLORES_PALETA, DARK_CHECKMARK_SLUGS } from '@/types/crearInvitacion'
 import type { Template } from '@/services/templateService'
 import type { Pedido } from '@/types/adminPedido'
-import { Heart, Crown, Cake, Check } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { getEventConfig } from '@/config/eventoConfig'
 import { InvitationPreview } from '@/components/landing/InvitationPreview'
-
-// Cycle through these gradients for template card previews
-const GRADIENTS = [
-  'linear-gradient(135deg,#f7ede3,#efe0cc)',
-  'linear-gradient(135deg,#e8f0e6,#d4ddd0)',
-  'linear-gradient(135deg,#fff,#f5f5f5)',
-  'linear-gradient(135deg,#fce4ec,#f8d0dc)',
-  'linear-gradient(135deg,#1a1a3a,#2a2a5a)',
-  'linear-gradient(135deg,#fef9f0,#fdf0f5)',
-  'linear-gradient(135deg,#1a1a2e,#16213e)',
-  'linear-gradient(135deg,#f5f0ea,#ebe5dd)',
-  'linear-gradient(135deg,#fff3e0,#ffe0b2)',
-]
-
-const GRADIENT_TEXT = [
-  '#2d2926', '#3a5a3a', '#2d2926', '#5a3a4a',
-  '#e0d0ff', '#6a4a5a', '#ff6fd8', '#2d2926', '#e65100',
-]
-
 
 
 interface Props {
@@ -196,7 +177,7 @@ export function Step1DatosBasicos({ state, onChange, templates, pedidos, onNext,
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {filteredTemplates.map((t, i) => {
+            {filteredTemplates.map((t) => {
               const selected = state.templateId === t.id
               return (
                 <div

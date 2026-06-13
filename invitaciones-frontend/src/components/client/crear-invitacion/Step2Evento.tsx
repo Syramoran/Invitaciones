@@ -171,7 +171,7 @@ function UbicacionCard({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function Step2Evento({ state, servicios, onChange, tipoEventoId, templateSlug, colorPrimario, onColorChange, onNext, onPrev }: Props) {
+export function Step2Evento({ state, servicios, onChange, tipoEventoId, templateSlug, onColorChange, onNext, onPrev }: Props) {
   const currentConfig = getEventConfig(tipoEventoId)
   const camposFields = currentConfig.camposEspecificos
 
@@ -257,7 +257,7 @@ export function Step2Evento({ state, servicios, onChange, tipoEventoId, template
   }
 
   function agregarUbicacion(tipo: TipoUbicacion) {
-    onChange({ ubicaciones: [...state.ubicaciones, { tipo, nombre: '', direccion: '', googleMapsUrl: '', hora: '' }] })
+    onChange({ ubicaciones: [...state.ubicaciones, { tipo, nombre: '', direccion: '', hora: '', latitud: '', longitud: '' }] })
   }
 
   function actualizarUbicacion(index: number, updates: Partial<UbicacionEvento>) {

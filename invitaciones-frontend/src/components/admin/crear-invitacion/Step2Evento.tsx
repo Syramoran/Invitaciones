@@ -692,12 +692,6 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
               className={INPUT}
             />
           </div>
-          <div className="sm:col-span-2">
-            <div className="flex items-center gap-2 px-3 py-2.5 bg-[#f4f5f7] rounded-lg text-[.78rem] text-[#6b7280]">
-              <Calendar className="w-3.5 h-3.5 text-[#9ca3af] shrink-0" />
-              Galería limitada a <strong className="text-[#4a4441] ml-1">1000 fotos máximo</strong>
-            </div>
-          </div>
         </div>
       </Section>
 

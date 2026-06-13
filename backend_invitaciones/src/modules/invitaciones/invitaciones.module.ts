@@ -6,6 +6,7 @@ import { FotoAnfitrion } from '../../entities/foto-anfitrion.entity';
 import { LogEliminacion } from '../../entities/log-eliminacion.entity';
 
 import { InvitacionesController } from './invitaciones.controller';
+import { InvitacionesClientController } from './invitaciones-client.controller';
 import { InvitacionesService } from './invitaciones.service';
 import { InvitacionesPublicService } from './invitaciones-public.service';
 
@@ -28,7 +29,7 @@ import { MusicaModule } from '../musica/musica.module';
     ServiciosModule,
     forwardRef(() => MusicaModule),
   ],
-  controllers: [InvitacionesController],
+  controllers: [InvitacionesController, InvitacionesClientController],
   providers: [InvitacionesService, InvitacionesPublicService],
   exports: [InvitacionesService, InvitacionesPublicService],
 })

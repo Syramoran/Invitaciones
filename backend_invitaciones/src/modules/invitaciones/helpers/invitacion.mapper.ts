@@ -24,6 +24,8 @@ export function mapearInvitacionResponse(
   return {
     id: invitacion.id,
     pedidoId: invitacion.pedidoId,
+    usuarioId: invitacion.usuarioId ?? null,
+    usuarioUsername: invitacion.usuario?.username ?? null,
     templateId: invitacion.templateId,
     templateNombre,
     tipoEventoId: invitacion.tipoEventoId,
@@ -41,6 +43,8 @@ export function mapearInvitacionResponse(
     camposEspecificos: invitacion.camposEspecificos,
     activa: invitacion.activa,
     fechaExpiracion: invitacion.fechaExpiracion,
+    editCount: invitacion.editCount,
+    estadoPago: invitacion.estadoPago ?? 'PENDIENTE',
     servicios,
     fotosAnfitrion,
     createdAt: invitacion.createdAt,

@@ -21,7 +21,7 @@ function formatHora(hora: string): string {
   return `${hora.slice(0, 5)} hs`
 }
 
-export function InfoSection({ invitacion, colorAccent }: InfoSectionProps) {
+export function InfoSection({ invitacion }: InfoSectionProps) {
   const { fechaEvento, horaEvento, ubicacion, direccion, camposEspecificos } = invitacion
 
   const campos = (camposEspecificos ?? {}) as CamposEspecificosCumple

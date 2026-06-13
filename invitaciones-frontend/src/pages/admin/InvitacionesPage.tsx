@@ -10,6 +10,14 @@ import {
 } from '@/components/admin/invitaciones/InvitacionesTabs'
 import { InvitacionesTable } from '@/components/admin/invitaciones/InvitacionesTable'
 
+type InvitacionOrigin = 'all' | 'mine' | 'clients'
+
+const ORIGIN_TABS: { id: InvitacionOrigin; label: string }[] = [
+  { id: 'all',     label: 'Todas' },
+  { id: 'mine',    label: 'Mías' },
+  { id: 'clients', label: 'De clientes' },
+]
+
 export default function InvitacionesPage() {
   const navigate = useNavigate()
 
@@ -17,6 +25,7 @@ export default function InvitacionesPage() {
   const [loading,      setLoading]      = useState(true)
   const [error,        setError]        = useState<string | null>(null)
   const [tab,          setTab]          = useState<InvitacionTab>('all')
+  const [origin,       setOrigin]       = useState<InvitacionOrigin>('all')
   const [deleting,     setDeleting]     = useState<Set<string>>(new Set())
 
   const fetchAll = useCallback(async () => {
@@ -36,18 +45,31 @@ export default function InvitacionesPage() {
 
   // ── Derived data ──────────────────────────────────────────────────────────
 
+  // Invitations filtered by origin (admin-created = usuarioId null; client = otherwise)
+  const byOrigin = useMemo(() => {
+    if (origin === 'mine') return invitaciones.filter(inv => inv.usuarioId == null)
+    if (origin === 'clients') return invitaciones.filter(inv => inv.usuarioId != null)
+    return invitaciones
+  }, [invitaciones, origin])
+
+  const originCounts = useMemo(() => ({
+    all: invitaciones.length,
+    mine: invitaciones.filter(inv => inv.usuarioId == null).length,
+    clients: invitaciones.filter(inv => inv.usuarioId != null).length,
+  }), [invitaciones])
+
   const counts = useMemo<Record<InvitacionTab, number>>(() => {
-    const base = { all: invitaciones.length, active: 0, expiring: 0, expired: 0 }
-    for (const inv of invitaciones) {
+    const base = { all: byOrigin.length, active: 0, expiring: 0, expired: 0 }
+    for (const inv of byOrigin) {
       base[getInvitacionStatus(inv)]++
     }
     return base
-  }, [invitaciones])
+  }, [byOrigin])
 
   const filtered = useMemo(() => {
-    if (tab === 'all') return invitaciones
-    return invitaciones.filter(inv => getInvitacionStatus(inv) === tab)
-  }, [invitaciones, tab])
+    if (tab === 'all') return byOrigin
+    return byOrigin.filter(inv => getInvitacionStatus(inv) === tab)
+  }, [byOrigin, tab])
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -125,6 +147,28 @@ export default function InvitacionesPage() {
             Nueva invitación
           </button>
         </div>
+      </div>
+
+      {/* Origin segmented control (admin vs client created) */}
+      <div className="inline-flex items-center gap-1 p-1 bg-[#f3f0ea] rounded-lg mb-4">
+        {ORIGIN_TABS.map(o => (
+          <button
+            key={o.id}
+            onClick={() => setOrigin(o.id)}
+            className={`flex items-center gap-1.5 px-4 py-1.5 text-[.8rem] font-medium rounded-md transition-colors ${
+              origin === o.id
+                ? 'bg-white text-[#2d2926] shadow-sm'
+                : 'text-[#6b7280] hover:text-[#2d2926]'
+            }`}
+          >
+            {o.label}
+            <span className={`text-[.7rem] px-1.5 py-0.5 rounded-full font-semibold ${
+              origin === o.id ? 'bg-[#c5a572] text-white' : 'bg-[#e5e7eb] text-[#6b7280]'
+            }`}>
+              {originCounts[o.id]}
+            </span>
+          </button>
+        ))}
       </div>
 
       {/* Tabs with live counts */}

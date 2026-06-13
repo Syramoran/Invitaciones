@@ -12,17 +12,10 @@ interface RsvpSectionProps {
   fechaLimite?: string | null
 }
 
-function formatFechaLimite(fechaISO: string): string {
-  const [y, m, d] = fechaISO.split("T")[0].split("-").map(Number)
-  const fecha = new Date(y, m - 1, d)
-  return fecha.toLocaleDateString("es-AR", { day: "numeric", month: "long" })
-}
-
 export function RsvpSection({
   invitacionId,
   invitadoParam,
   mostrarBoton,
-  fechaLimite,
 }: RsvpSectionProps) {
   const [estado, setEstado] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [mensaje, setMensaje] = useState("")

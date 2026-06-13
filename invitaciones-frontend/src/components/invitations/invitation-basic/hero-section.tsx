@@ -14,7 +14,7 @@ function formatFechaLarga(fechaISO: string): string {
 }
 
 function esBoda(camposEspecificos: Record<string, unknown> | null): boolean {
-  return !!(camposEspecificos?.nombreNovia && camposEspecificos?.nombreNovio)
+  return !!(camposEspecificos?.novio1 && camposEspecificos?.novio2)
 }
 
 export function HeroSection({ invitacion }: HeroSectionProps) {
@@ -29,11 +29,11 @@ export function HeroSection({ invitacion }: HeroSectionProps) {
       return (
         <>
           <h1 className="text-[44px] font-bold leading-tight text-[#1a1a1a]">
-            {campos.nombreNovia}
+            {campos.novio1}
           </h1>
           <p className="my-1 text-3xl font-light text-[#777777]">&</p>
           <h1 className="text-[44px] font-bold leading-tight text-[#1a1a1a]">
-            {campos.nombreNovio}
+            {campos.novio2}
           </h1>
         </>
       )

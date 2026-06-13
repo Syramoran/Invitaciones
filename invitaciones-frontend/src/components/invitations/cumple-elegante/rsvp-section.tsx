@@ -13,8 +13,6 @@ export function RsvpSection({ invitacionId, invitadoParam, mostrarBoton, accentC
   const [estado, setEstado] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [mensaje, setMensaje] = useState("")
 
-  const nombreMostrado = invitadoParam ? invitadoParam.replace(/-/g, " ") : ""
-
   const handleConfirmar = async () => {
     if (!invitadoParam) return
 

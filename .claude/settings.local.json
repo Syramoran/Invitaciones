@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(grep -rln \"invitados\" src/modules/ --include=*.controller.ts)",
+      "Bash(grep -rln \"req.user\\\\|@Req\\\\|createParamDecorator\" src/modules --include=*.ts)",
+      "Bash(npm install:*)",
+      "Bash(node -e \"require\\('mercadopago'\\); console.log\\('OK'\\)\")"
+    ]
+  }
+}

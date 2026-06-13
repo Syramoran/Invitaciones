@@ -77,6 +77,13 @@ export const crearInvitacionService = {
       })
     }
 
+    // Save guest list if provided
+    if (form.step5.guests.length > 0) {
+      await apiClient.post(`/invitaciones/${data.id}/invitados`, {
+        invitados: form.step5.guests,
+      })
+    }
+
     return data
   },
 }

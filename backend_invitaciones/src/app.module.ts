@@ -32,6 +32,12 @@ import { MusicaModule } from './modules/musica/musica.module';
 // ── Cron jobs ──
 import { CronJobsModule } from './modules/cron-jobs/cron-jobs.module';
 
+// ── Pagos ──
+import { PagosModule } from './modules/pagos/pagos.module';
+
+// ── Descuentos ──
+import { CodigosDescuentoModule } from './modules/codigos-descuento/codigos-descuento.module';
+
 @Module({
   imports: [
     // ── Configuración global ──
@@ -58,8 +64,13 @@ import { CronJobsModule } from './modules/cron-jobs/cron-jobs.module';
 
         // App
         FRONTEND_URL: Joi.string().default('https://invitaciones.com'),
+        BACKEND_URL: Joi.string().optional(),
         WHATSAPP_NUMBER: Joi.string().default(''),
         ADMIN_EMAIL: Joi.string().email().default('admin@invitaciones.com'),
+
+        // MercadoPago
+        MP_ACCESS_TOKEN: Joi.string().required(),
+        MP_PUBLIC_KEY: Joi.string().required(),
 
         // Rate limiting
         THROTTLE_TTL: Joi.number().default(60000),
@@ -111,6 +122,12 @@ import { CronJobsModule } from './modules/cron-jobs/cron-jobs.module';
     InvitadosModule,
     GaleriaModule,
     MusicaModule,
+
+    // ── Pagos ──
+    PagosModule,
+
+    // ── Descuentos ──
+    CodigosDescuentoModule,
 
     // ── Cron jobs ──
     CronJobsModule,

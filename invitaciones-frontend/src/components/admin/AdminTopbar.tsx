@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom'
-import { Menu, Bell, Search } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { useAuth } from '@/context/useAuth'
 
 const TITLES: Record<string, string> = {

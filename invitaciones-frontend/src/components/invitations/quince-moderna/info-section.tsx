@@ -24,9 +24,6 @@ export function InfoSection({ invitacion }: InfoSectionProps) {
   const campos = invitacion.camposEspecificos as unknown as CamposEspecificosQuince | null
   const dressCode = campos?.dressCode
   const horaPresentacion = campos?.horaPresentacion
-  const padrinos = campos?.padrinos
-  const tematica = campos?.tematica
-  const valsPareja = campos?.valsPareja
 
   const generarLinkCalendario = () => {
     const [year, month, day] = fechaEvento.split("T")[0].split("-").map(Number)

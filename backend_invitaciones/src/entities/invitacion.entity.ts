@@ -17,6 +17,7 @@ import { HistoriaSeccion } from './historia-seccion.entity';
 import { FotoAnfitrion } from './foto-anfitrion.entity';
 import { Foto } from './foto.entity';
 import { Musica } from './musica.entity';
+import { Usuario } from './usuario.entity';
 
 @Entity('invitacion')
 export class Invitacion {
@@ -25,6 +26,9 @@ export class Invitacion {
 
   @Column({ type: 'int', nullable: true, name: 'pedido_id' })
   pedidoId!: number;
+
+  @Column({ type: 'int', nullable: true, name: 'usuario_id' })
+  usuarioId!: number | null;
 
   @Column({ type: 'int', name: 'template_id' })
   templateId!: number;
@@ -79,11 +83,26 @@ export class Invitacion {
   @Column({ type: 'date', name: 'fecha_expiracion' })
   fechaExpiracion!: Date;
 
+  @Column({ type: 'int', default: 0, name: 'edit_count' })
+  editCount!: number;
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: 'PENDIENTE',
+    name: 'estado_pago',
+  })
+  estadoPago!: 'PENDIENTE' | 'PAGADO' | 'CANCELADO';
+
   // ── Relaciones ──
 
   @ManyToOne(() => Pedido, (pedido) => pedido.invitacion)
   @JoinColumn({ name: 'pedido_id' })
   pedido!: Pedido;
+
+  @ManyToOne(() => Usuario, { nullable: true })
+  @JoinColumn({ name: 'usuario_id' })
+  usuario!: Usuario | null;
 
   @ManyToOne(() => Template, (template) => template.invitaciones)
   @JoinColumn({ name: 'template_id' })

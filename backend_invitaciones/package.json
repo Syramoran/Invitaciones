@@ -40,6 +40,7 @@
     "firebase-admin": "^13.7.0",
     "helmet": "^8.1.0",
     "joi": "^18.0.2",
+    "mercadopago": "^3.1.0",
     "nodemailer": "^8.0.4",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

@@ -27,8 +27,9 @@ import { PartialType } from '@nestjs/mapped-types';
  */
 export class CreateInvitacionDto {
   @IsInt()
+  @IsOptional()
   @Type(() => Number)
-  pedidoId!: number;
+  pedidoId?: number;
 
   @IsInt()
   @Type(() => Number)
@@ -161,6 +162,8 @@ export class InvitacionQueryDto {
 export class InvitacionResponseDto {
   id!: string;
   pedidoId!: number;
+  usuarioId!: number | null;
+  usuarioUsername!: string | null;
   templateId!: number;
   templateNombre!: string;
   tipoEventoId!: number;
@@ -178,6 +181,8 @@ export class InvitacionResponseDto {
   camposEspecificos!: Record<string, any> | null;
   activa!: boolean;
   fechaExpiracion!: Date;
+  editCount!: number;
+  estadoPago!: 'PENDIENTE' | 'PAGADO' | 'CANCELADO';
   servicios!: { servicioId: number; nombre: string; habilitado: boolean }[];
   fotosAnfitrion!: { id: number; url: string; orden: number; tamano: number }[];
   createdAt!: Date;

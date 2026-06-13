@@ -5,7 +5,6 @@ import { authService } from '@/services/authService'
 import { useAuth } from '@/context/useAuth'
 
 const CODE_LENGTH = 6
-const RESEND_COOLDOWN = 0 // sin cooldown por ahora (para facilitar testeos)
 
 export default function ClientVerifyEmailPage() {
   const navigate = useNavigate()
@@ -52,11 +51,8 @@ export default function ClientVerifyEmailPage() {
       .then(() => {
         // setCountdown(RESEND_COOLDOWN) // cooldown deshabilitado para testeos
       })
-      .catch((err: any) => {
-        // const data = err?.response?.data
-        // if (data?.code === 'COOLDOWN' && data?.secondsRemaining) {
-        //   setCountdown(data.secondsRemaining)
-        // }
+      .catch(() => {
+        // cooldown handling disabled for testing
       })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, isLoading])
@@ -128,7 +124,7 @@ export default function ClientVerifyEmailPage() {
     setError(null)
     setVerifying(true)
     try {
-      const data = await authService.verifyEmail(userId, code)
+      await authService.verifyEmail(userId, code)
       setSuccess(true)
       // Pequeña pausa para mostrar el estado de éxito antes de redirigir
       setTimeout(() => {
@@ -235,7 +231,7 @@ export default function ClientVerifyEmailPage() {
                 .map((_, i) => (
                   <input
                     key={i}
-                    ref={(el) => (inputRefs.current[i] = el)}
+                    ref={(el) => { inputRefs.current[i] = el }}
                     type="text"
                     inputMode="numeric"
                     maxLength={6}

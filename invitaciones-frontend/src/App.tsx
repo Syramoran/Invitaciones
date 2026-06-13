@@ -28,9 +28,10 @@ const PedidosPage          = lazy(() => import('@/pages/admin/PedidosPage'))
 const InvitacionesPage     = lazy(() => import('@/pages/admin/InvitacionesPage'))
 const CrearInvitacionPage  = lazy(() => import('@/pages/admin/CrearInvitacionPage'))
 const EditarInvitacionPage = lazy(() => import('@/pages/admin/EditarInvitacionPage'))
-const ServiciosPage        = lazy(() => import('@/pages/admin/ServiciosPage'))
-const TemplatesPage        = lazy(() => import('@/pages/admin/TemplatesPage'))
-const ReportesPage         = lazy(() => import('@/pages/admin/ReportesPage'))
+const ServiciosPage          = lazy(() => import('@/pages/admin/ServiciosPage'))
+const TemplatesPage          = lazy(() => import('@/pages/admin/TemplatesPage'))
+const ReportesPage           = lazy(() => import('@/pages/admin/ReportesPage'))
+const CodigosDescuentoPage   = lazy(() => import('@/pages/admin/CodigosDescuentoPage'))
 
 // Cliente
 const ClientLoginPage           = lazy(() => import('@/pages/client/ClientLoginPage'))
@@ -96,6 +97,7 @@ export default function App() {
               <Route path="invitaciones/:id"       element={<EditarInvitacionPage />} />
               <Route path="servicios"              element={<ServiciosPage />} />
               <Route path="templates"              element={<TemplatesPage />} />
+              <Route path="codigos-descuento"      element={<CodigosDescuentoPage />} />
               <Route path="reportes"               element={<ReportesPage />} />
             </Route>
 
@@ -112,6 +114,10 @@ export default function App() {
             <Route
               path="/client/create-invitation"
               element={<ClientPrivateRoute><CrearInvitacionWizard /></ClientPrivateRoute>}
+            />
+            <Route
+              path="/client/edit-invitation/:id"
+              element={<ClientPrivateRoute><EditarInvitacionPage variant="client" /></ClientPrivateRoute>}
             />
 
             {/* ── INVITACIONES PÚBLICAS (al final para no capturar rutas /client) ── */}

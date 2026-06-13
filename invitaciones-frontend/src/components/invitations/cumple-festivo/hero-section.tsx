@@ -16,12 +16,11 @@ function formatFecha(fechaISO: string): string {
   return `${d} de ${MESES[m - 1]}, ${y}`
 }
 
-export function HeroSection({ invitacion, invitadoParam, colorAccent }: HeroSectionProps) {
+export function HeroSection({ invitacion, invitadoParam }: HeroSectionProps) {
   const { fotosAnfitrion, saludoPersonalizado, camposEspecificos } = invitacion
 
   const campos = (camposEspecificos ?? {}) as CamposEspecificosCumple
   const nombre = campos.nombre || invitacion.titulo
-  const edad = campos.edad
 
   const saludo =
     saludoPersonalizado ||

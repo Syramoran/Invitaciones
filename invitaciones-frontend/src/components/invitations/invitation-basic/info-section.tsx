@@ -25,9 +25,9 @@ function formatHora(hora: string): string {
 export function InfoSection({ invitacion }: InfoSectionProps) {
   const { fechaEvento, horaEvento, ubicacion, direccion, camposEspecificos } = invitacion
 
-  // Obtener vestimenta si existe en campos específicos
+  // Obtener dress code si existe en campos específicos
   const campos = camposEspecificos as unknown as CamposEspecificosBoda | null
-  const vestimenta = campos?.vestimenta || campos?.dresscode
+  const vestimenta = campos?.dressCode
 
   // Generar URL de Google Calendar
   const generarLinkCalendario = () => {

@@ -17,6 +17,8 @@ export interface FotoAnfitrionAdmin {
 export interface InvitacionAdmin {
   id: string
   pedidoId: number
+  usuarioId: number | null
+  usuarioUsername: string | null
   templateId: number
   templateNombre: string
   tipoEventoId: number

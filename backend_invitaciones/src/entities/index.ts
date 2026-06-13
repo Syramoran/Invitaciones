@@ -21,3 +21,4 @@ export { VerificacionEmail } from './verificacion-email.entity';
 export { TokenBlacklist } from './token-blacklist.entity';
 export { LoginAttempt } from './login-attempt.entity';
 export { PasswordReset } from './password-reset.entity';
+export { CodigoDescuento } from './codigo-descuento.entity';

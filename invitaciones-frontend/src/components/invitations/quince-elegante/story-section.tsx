@@ -5,7 +5,7 @@ interface StorySectionProps {
   colorAccent: string
 }
 
-export function StorySection({ historias, colorAccent }: StorySectionProps) {
+export function StorySection({ historias }: StorySectionProps) {
   if (historias.length === 0) return null
 
   const ordenadas = [...historias].sort((a, b) => a.orden - b.orden)

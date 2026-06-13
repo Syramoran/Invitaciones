@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, ClipboardList, Mail, PlusCircle,
-  Settings, Layers, BarChart2, LogOut, X,
+  Settings, Layers, BarChart2, LogOut, X, Tag,
 } from 'lucide-react'
 import { useAuth } from '@/context/useAuth'
 
@@ -18,9 +18,10 @@ const NAV_ITEMS = [
 ]
 
 const NAV_BOTTOM = [
-  { label: 'Servicios',   path: '/admin/servicios',  icon: Settings },
-  { label: 'Templates',   path: '/admin/templates',  icon: Layers },
-  { label: 'Reportes',    path: '/admin/reportes',   icon: BarChart2 },
+  { label: 'Servicios',   path: '/admin/servicios',          icon: Settings },
+  { label: 'Templates',   path: '/admin/templates',          icon: Layers },
+  { label: 'Descuentos',  path: '/admin/codigos-descuento',  icon: Tag },
+  { label: 'Reportes',    path: '/admin/reportes',           icon: BarChart2 },
 ]
 
 export function AdminSidebar({ open, onClose, pendingCount = 0 }: Props) {
