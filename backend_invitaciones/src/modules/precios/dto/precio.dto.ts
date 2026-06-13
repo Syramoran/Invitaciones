@@ -10,7 +10,7 @@ import { IsArray, IsBoolean, IsInt, IsOptional } from 'class-validator';
  * Usado por la landing page mientras el anfitrión selecciona servicios.
  * Debe responder en menos de 100ms.
  *
- * El precioBase es fijo ($30.000) — no depende del tipo de evento
+ * El precioBase es fijo ($500) — no depende del tipo de evento
  * ni del template. Solo los servicios opcionales suman al total.
  */
 export class CalcularPrecioDto {
@@ -41,7 +41,7 @@ export class DetalleServicioDto {
  * Response de POST /precios/calcular (200).
  */
 export class PrecioCalculadoResponseDto {
-  precioBase!: number; // Fijo: $30.000
+  precioBase!: number; // Fijo: $500
   servicios!: DetalleServicioDto[]; // Desglose de cada servicio
   descuento!: number; // Monto del descuento (50% de segunda tarjeta, o 0)
   precioTotal!: number; // precioBase + servicios - descuento
