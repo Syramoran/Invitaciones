@@ -16,6 +16,7 @@ interface InvitacionCliente {
   estadoPago: string
   fechaEvento: string
   editCount: number
+  servicios?: { servicioId: number; nombre: string; habilitado: boolean }[]
 }
 
 interface MetricCardProps {

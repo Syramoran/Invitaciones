@@ -97,7 +97,7 @@ interface ScrollingPreviewWrapperProps {
   cssVars?: React.CSSProperties
 }
 
-function ScrollingPreviewWrapper({
+export function ScrollingPreviewWrapper({
   children,
   bgColor = '#faf7f2',
   cssVars = {},
@@ -974,6 +974,24 @@ export const SLUG_BY_EVENT_TYPE: Record<'boda' | 'quince' | 'cumple', string> = 
   boda: 'boda-clasica',
   quince: 'quince-princesa',
   cumple: 'cumple-festivo',
+}
+
+/**
+ * Full mock invitation data keyed by template slug.
+ * Reusable by other previews (e.g. the wizard live preview) that need a fully
+ * populated InvitacionPublica object as a placeholder before the user has
+ * filled the form.
+ */
+export const MOCK_INVITACION_BY_SLUG: Record<string, InvitacionPublica> = {
+  'boda-clasica': MOCK_BODA_CLASICA,
+  'boda-moderna': MOCK_BODA_MODERNA,
+  'boda-rustica': MOCK_BODA_RUSTICA,
+  'quince-princesa': MOCK_QUINCE_PRINCESA,
+  'quince-elegante': MOCK_QUINCE_ELEGANTE,
+  'quince-moderna': MOCK_QUINCE_MODERNA,
+  'cumple-elegante': MOCK_CUMPLE_ELEGANTE,
+  'cumple-festivo': MOCK_CUMPLE_FESTIVO,
+  'cumple-infantil': MOCK_CUMPLE_INFANTIL,
 }
 
 export interface InvitationPreviewProps {

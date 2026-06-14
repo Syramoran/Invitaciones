@@ -174,8 +174,13 @@ export interface HistoriaSeccion {
   id: string            // local uuid for React keys
   texto: string
   orden: number
-  imagen: File | null
-  imagenPreview: string | null
+  imagen: File | null            // new file pending upload
+  imagenPreview: string | null   // blob URL for the new file
+  // Edit mode: present when this section was loaded from the server.
+  serverId?: number
+  // Edit mode: the image URL that was already saved on the server. Stays set
+  // until the user explicitly clears it (we then signal removeImagen on save).
+  existingImagenUrl?: string | null
 }
 
 export interface WizardStep4 {

@@ -1,10 +1,16 @@
+import { useState } from 'react'
 import type { WizardStep3, ServiceToggle } from '@/types/crearInvitacion'
+import { FieldTooltip } from './FieldTooltip'
+
+const INPUT = 'w-full px-3 py-2.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.88rem] focus:border-[#c5a572] focus:outline-none bg-white transition-colors placeholder:text-[#b0b7c3]'
 
 interface Props {
   state: WizardStep3
   onChange: (updates: Partial<WizardStep3>) => void
   onNext: () => void
   onPrev: () => void
+  contrasenaAsistentes?: string
+  onChangeContrasena?: (value: string) => void
 }
 
 function ServiceRow({ svc, onToggle }: { svc: ServiceToggle; onToggle: (id: number, val: boolean) => void }) {
@@ -66,7 +72,9 @@ function ServiceRow({ svc, onToggle }: { svc: ServiceToggle; onToggle: (id: numb
   )
 }
 
-export function Step3Servicios({ state, onChange, onNext, onPrev }: Props) {
+export function Step3Servicios({ state, onChange, onNext, onPrev, contrasenaAsistentes, onChangeContrasena }: Props) {
+  const [showPass, setShowPass] = useState(false)
+
   function handleToggle(id: number, val: boolean) {
     onChange({
       servicios: state.servicios.map(s => s.id === id ? { ...s, enabled: val } : s),
@@ -76,6 +84,11 @@ export function Step3Servicios({ state, onChange, onNext, onPrev }: Props) {
   const included  = state.servicios.filter(s => s.incluidoEnBase)
   const optional  = state.servicios.filter(s => !s.incluidoEnBase)
   const activeOpt = optional.filter(s => s.enabled).length
+
+  const confirmacionSvc = state.servicios.find(
+    s => s.nombre.toLowerCase().includes('confirmaci')
+  )
+  const tieneConfirmacion = confirmacionSvc?.enabled ?? false
 
   return (
     <div>
@@ -121,6 +134,38 @@ export function Step3Servicios({ state, onChange, onNext, onPrev }: Props) {
         <p className="text-[.78rem] text-[#6b7280] mt-3">
           {activeOpt} servicio{activeOpt !== 1 ? 's' : ''} adicional{activeOpt !== 1 ? 'es' : ''} habilitado{activeOpt !== 1 ? 's' : ''}
         </p>
+      )}
+
+      {/* Password — only when RSVP service is enabled */}
+      {tieneConfirmacion && onChangeContrasena !== undefined && (
+        <div className="mt-5 p-4 rounded-xl border border-[#c5a572]/30 bg-[rgba(197,165,114,.04)]">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <label className="text-[.75rem] font-semibold uppercase tracking-wide text-[#6b7280]">
+              Contraseña lista de asistentes
+            </label>
+            <FieldTooltip text="Si olvidás la contraseña deberás comunicarte con soporte: festeja.plataforma@gmail.com. Elegí una que no vayas a olvidar." />
+          </div>
+          <div className="relative">
+            <input
+              type={showPass ? 'text' : 'password'}
+              maxLength={255}
+              placeholder="Clave para ver quién confirmó asistencia"
+              value={contrasenaAsistentes ?? ''}
+              onChange={e => onChangeContrasena(e.target.value)}
+              className={INPUT + ' pr-10'}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass(v => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#6b7280] transition-colors text-[.72rem] font-medium"
+            >
+              {showPass ? 'Ocultar' : 'Ver'}
+            </button>
+          </div>
+          <p className="text-[.72rem] text-[#9ca3af] mt-1">
+            Esta clave la usás vos para ver las confirmaciones. No la ven los invitados.
+          </p>
+        </div>
       )}
 
       {/* Navigation */}

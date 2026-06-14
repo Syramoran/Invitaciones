@@ -1,7 +1,8 @@
-import { Pencil } from 'lucide-react'
+import { Pencil, AlertCircle } from 'lucide-react'
 import type { WizardFormState } from '@/types/crearInvitacion'
 import type { Template } from '@/services/templateService'
 import { TIPO_LABEL } from '@/services/templateService'
+import { validateWizardPayload } from '@/utils/wizardValidation'
 
 interface Props {
   formState: WizardFormState
@@ -39,11 +40,17 @@ export function Step6Revisar({ formState, templates, onNext, onPrev, onGoTo }: P
   const enabledServices = step3.servicios.filter(s => s.enabled)
   const esMultiple = step2.ubicacion === 'multiple'
 
-  const canProceed =
-    !!step1.tipoEventoId &&
-    !!step1.templateId &&
-    !!step1.titulo.trim() &&
-    !!step2.fechaEvento
+  const { isValid, errors } = validateWizardPayload(formState)
+
+  // Group errors by step for display
+  const errorsByStep = errors.reduce<Record<number, { stepLabel: string; messages: string[] }>>(
+    (acc, err) => {
+      if (!acc[err.step]) acc[err.step] = { stepLabel: err.stepLabel, messages: [] }
+      acc[err.step].messages.push(err.message)
+      return acc
+    },
+    {},
+  )
 
   return (
     <div>
@@ -101,10 +108,34 @@ export function Step6Revisar({ formState, templates, onNext, onPrev, onGoTo }: P
         />
       </div>
 
-      {!canProceed && (
-        <p className="mt-4 text-[.82rem] text-[#f59e0b] bg-[#fffbeb] rounded-xl px-4 py-2.5">
-          ⚠ Completá el tipo de evento, diseño, título y fecha antes de continuar.
-        </p>
+      {/* Validation errors */}
+      {!isValid && (
+        <div className="mt-5 rounded-2xl border border-[#fde68a] bg-[#fffbeb] p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-[#d97706] shrink-0" />
+            <span className="text-[.84rem] font-semibold text-[#92400e]">
+              Completá estos campos antes de continuar:
+            </span>
+          </div>
+          {Object.entries(errorsByStep).map(([stepNum, { stepLabel, messages }]) => (
+            <div key={stepNum}>
+              <button
+                type="button"
+                onClick={() => onGoTo(Number(stepNum))}
+                className="text-[.78rem] font-semibold text-[#c5a572] hover:text-[#9e7f4e] uppercase tracking-wide transition-colors mb-1"
+              >
+                Paso {stepNum} — {stepLabel} →
+              </button>
+              <ul className="space-y-0.5 pl-2">
+                {messages.map((msg, i) => (
+                  <li key={i} className="text-[.82rem] text-[#92400e] before:content-['·'] before:mr-1.5 before:text-[#d97706]">
+                    {msg}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       )}
 
       <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 mt-8 pt-4 border-t border-[#f0f0f0]">
@@ -112,7 +143,7 @@ export function Step6Revisar({ formState, templates, onNext, onPrev, onGoTo }: P
           className="px-6 py-3 border-[1.5px] border-[#d1d5db] rounded-full text-[.95rem] font-medium hover:bg-gray-50 transition-colors">
           ← Anterior
         </button>
-        <button type="button" onClick={onNext} disabled={!canProceed}
+        <button type="button" onClick={onNext} disabled={!isValid}
           className="px-8 py-3 bg-[#c5a572] text-white rounded-full text-[.95rem] font-semibold hover:bg-[#9e7f4e] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm">
           Continuar al pago →
         </button>

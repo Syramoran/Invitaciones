@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { X, Music, ImagePlus, PlusCircle, Trash2 } from 'lucide-react'
 import type { WizardStep4, WizardStep3, HistoriaSeccion } from '@/types/crearInvitacion'
+import { FieldTooltip } from './FieldTooltip'
 
 interface Props {
   state: WizardStep4
@@ -53,7 +54,13 @@ function FotosSection({
 
   return (
     <div className="bg-white border border-[#f0f0f0] rounded-xl p-4 mb-4">
-      <h3 className="font-semibold text-[.9rem] mb-1">📷 Fotos del Anfitrión</h3>
+      <div className="flex items-center gap-2 mb-1">
+        <h3 className="font-semibold text-[.9rem]">📷 Fotos del Anfitrión</h3>
+        <span className="text-[.63rem] px-1.5 py-0.5 rounded-full font-semibold uppercase tracking-wide bg-red-50 text-[#dc2626]">
+          Obligatorio
+        </span>
+        <FieldTooltip text="Al menos una foto del anfitrión es necesaria. La primera foto se usa como imagen principal de la invitación" />
+      </div>
 
       {/* Existing (server) fotos */}
       {existingFotos.length > 0 && (
@@ -205,7 +212,19 @@ function HistoriaSection({
     if (!files?.[0]) return
     const prev = historias.find(h => h.id === id)
     if (prev?.imagenPreview) URL.revokeObjectURL(prev.imagenPreview)
-    updateSeccion(id, { imagen: files[0], imagenPreview: URL.createObjectURL(files[0]) })
+    // Replacing image: drop any existingImagenUrl marker so save uploads the new file.
+    updateSeccion(id, {
+      imagen: files[0],
+      imagenPreview: URL.createObjectURL(files[0]),
+      existingImagenUrl: null,
+    })
+  }
+
+  function clearImage(id: string) {
+    const prev = historias.find(h => h.id === id)
+    if (prev?.imagenPreview) URL.revokeObjectURL(prev.imagenPreview)
+    // Setting existingImagenUrl to null flags "remove on save" for server-side images.
+    updateSeccion(id, { imagen: null, imagenPreview: null, existingImagenUrl: null })
   }
 
   return (
@@ -230,10 +249,10 @@ function HistoriaSection({
             className="w-full px-3 py-2 border-[1.5px] border-[#d1d5db] rounded-lg text-[.85rem] focus:border-[#c5a572] focus:outline-none resize-none bg-white transition-colors mb-2"
           />
           <div className="flex items-center gap-2">
-            {h.imagenPreview ? (
+            {(h.imagenPreview || h.existingImagenUrl) ? (
               <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#d1d5db] shrink-0">
-                <img src={h.imagenPreview} alt="preview" className="w-full h-full object-cover" />
-                <button type="button" onClick={() => updateSeccion(h.id, { imagen: null, imagenPreview: null })}
+                <img src={h.imagenPreview ?? h.existingImagenUrl!} alt="preview" className="w-full h-full object-cover" />
+                <button type="button" onClick={() => clearImage(h.id)}
                   className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity">
                   <X className="w-4 h-4 text-white" />
                 </button>
@@ -267,6 +286,12 @@ export function Step4Contenido({ state, onChange, servicios, onNext, onPrev }: P
   const showMusica  = hasService(servicios, 'musica')
   const showHistoria = hasService(servicios, 'historia')
 
+  const totalActivePhotos =
+    state.existingFotos.filter(f => !state.removedFotoIds.includes(f.id)).length +
+    state.fotos.length
+
+  const canProceed = totalActivePhotos > 0
+
   return (
     <div>
       <h2 className="text-lg font-semibold mb-5">Contenido Multimedia</h2>
@@ -281,15 +306,22 @@ export function Step4Contenido({ state, onChange, servicios, onNext, onPrev }: P
         </p>
       )}
 
-      <div className="flex justify-between mt-2 pt-4 border-t border-[#f0f0f0]">
+      <div className="flex items-center justify-between mt-2 pt-4 border-t border-[#f0f0f0]">
         <button type="button" onClick={onPrev}
           className="px-5 py-2.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.88rem] font-medium hover:border-[#2d2926] transition-colors">
           ← Anterior
         </button>
-        <button type="button" onClick={onNext}
-          className="px-5 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-lg text-[.88rem] font-medium hover:bg-[#4a4441] transition-colors">
-          Siguiente →
-        </button>
+        <div className="flex items-center gap-4">
+          {!canProceed && (
+            <span className="text-[.76rem] text-[#dc2626] hidden sm:block">
+              Subí al menos una foto del anfitrión
+            </span>
+          )}
+          <button type="button" onClick={onNext} disabled={!canProceed}
+            className="px-5 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-lg text-[.88rem] font-medium hover:bg-[#4a4441] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            Siguiente →
+          </button>
+        </div>
       </div>
     </div>
   )

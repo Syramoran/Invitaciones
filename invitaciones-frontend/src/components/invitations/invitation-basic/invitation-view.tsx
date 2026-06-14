@@ -12,6 +12,7 @@ import { RsvpSection } from "./rsvp-section"
 interface InvitationViewProps {
   invitacion: InvitacionPublica
   invitadoParam?: string // formato: "nombre-apellido" del ?invitado URL param
+  previewMode?: boolean
 }
 
 function getTituloInvitacion(invitacion: InvitacionPublica): string {
@@ -25,8 +26,8 @@ function getTituloInvitacion(invitacion: InvitacionPublica): string {
   return titulo
 }
 
-export function InvitationView({ invitacion, invitadoParam }: InvitationViewProps) {
-  const [showOverlay, setShowOverlay] = useState(true)
+export function InvitationView({ invitacion, invitadoParam, previewMode = false }: InvitationViewProps) {
+  const [showOverlay, setShowOverlay] = useState(!previewMode)
   const [autoPlayMusic, setAutoPlayMusic] = useState(false)
 
   // Extraer color primario con fallback

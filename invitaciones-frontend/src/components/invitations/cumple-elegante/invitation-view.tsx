@@ -25,6 +25,11 @@ function resolveAccent(bgColor: string | null): string {
 interface InvitationViewProps {
   invitacion: InvitacionPublica
   invitadoParam?: string
+  // Accepted for API consistency with the other templates (and the wizard live
+  // preview). This template has no envelope overlay yet, so the flag is
+  // currently a no-op — keep the prop so adding one later doesn't require a
+  // signature change.
+  previewMode?: boolean
 }
 
 export function InvitationView({ invitacion, invitadoParam }: InvitationViewProps) {

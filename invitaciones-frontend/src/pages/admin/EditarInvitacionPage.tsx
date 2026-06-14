@@ -695,6 +695,57 @@ function Step4ContenidoEdit({
   )
 }
 
+// ─── Review subcomponents (module scope to keep stable identity across renders) ─
+
+function ReviewCard({
+  title,
+  step,
+  onGoTo,
+  children,
+}: {
+  title: string
+  step: number
+  onGoTo: (step: number) => void
+  children: React.ReactNode
+}) {
+  return (
+    <div className="bg-white border border-[#f0f0f0] rounded-2xl p-4 sm:p-5">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-[.78rem] font-semibold text-[#6b7280] uppercase tracking-wider">{title}</h4>
+        <button
+          type="button"
+          onClick={() => onGoTo(step)}
+          className="flex items-center gap-1 text-[.72rem] text-[#c5a572] hover:text-[#9e7f4e] font-medium transition-colors"
+        >
+          <Pencil className="w-3 h-3" />
+          Editar
+        </button>
+      </div>
+      <div className="space-y-1.5 text-[.84rem]">{children}</div>
+    </div>
+  )
+}
+
+function Row({ label, value, dim }: { label: string; value: React.ReactNode; dim?: boolean }) {
+  return (
+    <div className="flex gap-2 flex-wrap leading-snug">
+      <span className="text-[#9ca3af] shrink-0 min-w-[80px]">{label}</span>
+      <span className={dim ? 'text-[#9ca3af] italic' : 'text-[#2d2926] font-medium'}>{value ?? '—'}</span>
+    </div>
+  )
+}
+
+function CheckItem({ ok, text }: { ok: boolean; text: string }) {
+  return (
+    <div className="flex items-center gap-2.5 text-[.84rem]">
+      <span className={['w-5 h-5 rounded-full flex items-center justify-center text-[.65rem] font-bold text-white shrink-0', ok ? 'bg-[#16a34a]' : 'bg-[#dc2626]'].join(' ')}>
+        {ok ? '✓' : '✕'}
+      </span>
+      <span className={ok ? 'text-[#2d2926]' : 'text-[#dc2626]'}>{text}</span>
+    </div>
+  )
+}
+
 // ─── Step 5 — Revisar y Guardar ───────────────────────────────────────────────
 
 function Step5Guardar({
@@ -732,45 +783,6 @@ function Step5Guardar({
   ]
   const canSave = checks.every(c => c.ok)
 
-  function ReviewCard({ title, step, children }: { title: string; step: number; children: React.ReactNode }) {
-    return (
-      <div className="bg-white border border-[#f0f0f0] rounded-2xl p-4 sm:p-5">
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="text-[.78rem] font-semibold text-[#6b7280] uppercase tracking-wider">{title}</h4>
-          <button
-            type="button"
-            onClick={() => onGoTo(step)}
-            className="flex items-center gap-1 text-[.72rem] text-[#c5a572] hover:text-[#9e7f4e] font-medium transition-colors"
-          >
-            <Pencil className="w-3 h-3" />
-            Editar
-          </button>
-        </div>
-        <div className="space-y-1.5 text-[.84rem]">{children}</div>
-      </div>
-    )
-  }
-
-  function Row({ label, value, dim }: { label: string; value: React.ReactNode; dim?: boolean }) {
-    return (
-      <div className="flex gap-2 flex-wrap leading-snug">
-        <span className="text-[#9ca3af] shrink-0 min-w-[80px]">{label}</span>
-        <span className={dim ? 'text-[#9ca3af] italic' : 'text-[#2d2926] font-medium'}>{value ?? '—'}</span>
-      </div>
-    )
-  }
-
-  function CheckItem({ ok, text }: { ok: boolean; text: string }) {
-    return (
-      <div className="flex items-center gap-2.5 text-[.84rem]">
-        <span className={['w-5 h-5 rounded-full flex items-center justify-center text-[.65rem] font-bold text-white shrink-0', ok ? 'bg-[#16a34a]' : 'bg-[#dc2626]'].join(' ')}>
-          {ok ? '✓' : '✕'}
-        </span>
-        <span className={ok ? 'text-[#2d2926]' : 'text-[#dc2626]'}>{text}</span>
-      </div>
-    )
-  }
-
   return (
     <div>
       <div className="mb-7">
@@ -781,14 +793,14 @@ function Step5Guardar({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-        <ReviewCard title="Tipo y diseño" step={1}>
+        <ReviewCard title="Tipo y diseño" step={1} onGoTo={onGoTo}>
           <Row label="Tipo"    value={TIPO_LABEL[state.step1.tipoEventoId!] ?? '—'} />
           <Row label="Diseño"  value={tpl?.nombre ?? '—'} />
           <Row label="Título"  value={state.step1.titulo || '—'} dim={!state.step1.titulo} />
           {state.step1.pedidoId && <Row label="Pedido" value={`PED-${state.step1.pedidoId.padStart(3, '0')}`} />}
         </ReviewCard>
 
-        <ReviewCard title="Fecha y lugar" step={2}>
+        <ReviewCard title="Fecha y lugar" step={2} onGoTo={onGoTo}>
           <Row label="Fecha"  value={state.step2.fechaEvento || '—'} dim={!state.step2.fechaEvento} />
           <Row label="Hora"   value={state.step2.horaEvento || '—'} dim={!state.step2.horaEvento} />
           {esMultiple
@@ -797,7 +809,7 @@ function Step5Guardar({
           }
         </ReviewCard>
 
-        <ReviewCard title="Servicios" step={3}>
+        <ReviewCard title="Servicios" step={3} onGoTo={onGoTo}>
           {enabled.length === 0
             ? <span className="text-[#9ca3af] italic text-[.84rem]">Ninguno seleccionado</span>
             : (
@@ -815,7 +827,7 @@ function Step5Guardar({
           }
         </ReviewCard>
 
-        <ReviewCard title="Contenido" step={4}>
+        <ReviewCard title="Contenido" step={4} onGoTo={onGoTo}>
           <Row label="Fotos exist."
             value={`${state.existingFotos.length - state.removedFotoIds.length} (−${state.removedFotoIds.length} eliminadas)`}
           />
@@ -874,6 +886,39 @@ function Step5Guardar({
           {loading ? 'Guardando…' : '💾 Guardar cambios'}
         </button>
       </div>
+    </div>
+  )
+}
+
+// ─── Shell wrapper ─────────────────────────────────────────────────────────────
+// MUST live at module scope (not inside EditarInvitacionPage). If defined
+// inline, every parent re-render creates a new function identity and React
+// remounts the entire subtree — including focused inputs, which lose their
+// caret on every keystroke.
+function Shell({
+  variant,
+  onBack,
+  children,
+}: {
+  variant: 'admin' | 'client'
+  onBack: () => void
+  children: React.ReactNode
+}) {
+  if (variant !== 'client') return <>{children}</>
+  return (
+    <div className="min-h-screen bg-[#fcfaf8] text-[#2d2926]">
+      <header className="bg-white border-b border-[#f3f0ea] px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+        <div className="font-display text-2xl font-semibold">
+          festejá<span className="text-[#c5a572] italic">.</span>
+        </div>
+        <button
+          onClick={onBack}
+          className="text-[.9rem] font-medium text-[#6b7280] hover:text-[#2d2926] transition-colors"
+        >
+          ← Volver a mi panel
+        </button>
+      </header>
+      <main className="max-w-5xl mx-auto px-6 sm:px-8 py-10">{children}</main>
     </div>
   )
 }
@@ -1064,31 +1109,9 @@ export default function EditarInvitacionPage({ variant = 'admin' }: { variant?: 
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
-  // For the client variant the page renders standalone (no AdminLayout),
-  // so it provides its own top bar. For admin it renders inline as before.
-  function Shell({ children }: { children: React.ReactNode }) {
-    if (variant !== 'client') return <>{children}</>
-    return (
-      <div className="min-h-screen bg-[#fcfaf8] text-[#2d2926]">
-        <header className="bg-white border-b border-[#f3f0ea] px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-          <div className="font-display text-2xl font-semibold">
-            festejá<span className="text-[#c5a572] italic">.</span>
-          </div>
-          <button
-            onClick={() => navigate(backPath)}
-            className="text-[.9rem] font-medium text-[#6b7280] hover:text-[#2d2926] transition-colors"
-          >
-            ← Volver a mi panel
-          </button>
-        </header>
-        <main className="max-w-5xl mx-auto px-6 sm:px-8 py-10">{children}</main>
-      </div>
-    )
-  }
-
   if (loadingData) {
     return (
-      <Shell>
+      <Shell variant={variant} onBack={() => navigate(backPath)}>
         <div className="flex items-center justify-center py-24 text-[#6b7280] text-[.9rem]">
           <span className="animate-spin mr-2 inline-block w-5 h-5 border-2 border-[#c5a572] border-t-transparent rounded-full" />
           Cargando invitación…
@@ -1098,14 +1121,14 @@ export default function EditarInvitacionPage({ variant = 'admin' }: { variant?: 
   }
 
   if (dataError) {
-    return <Shell><div className="py-16 text-center text-[#dc2626] text-[.9rem]">{dataError}</div></Shell>
+    return <Shell variant={variant} onBack={() => navigate(backPath)}><div className="py-16 text-center text-[#dc2626] text-[.9rem]">{dataError}</div></Shell>
   }
 
   if (!formState) return null
 
   if (saved) {
     return (
-      <Shell>
+      <Shell variant={variant} onBack={() => navigate(backPath)}>
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <div className="w-16 h-16 rounded-full bg-[#dcfce7] flex items-center justify-center mb-4">
           <Check className="w-8 h-8 text-[#16a34a]" />
@@ -1134,7 +1157,7 @@ export default function EditarInvitacionPage({ variant = 'admin' }: { variant?: 
   }
 
   return (
-    <Shell>
+    <Shell variant={variant} onBack={() => navigate(backPath)}>
     <div className="min-h-screen pb-24">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
@@ -1176,6 +1199,8 @@ export default function EditarInvitacionPage({ variant = 'admin' }: { variant?: 
             onChange={updateStep3}
             onNext={() => goTo(4)}
             onPrev={() => goTo(2)}
+            contrasenaAsistentes={formState.step2.contrasenaAsistentes}
+            onChangeContrasena={v => updateStep2({ contrasenaAsistentes: v })}
           />
         )}
 

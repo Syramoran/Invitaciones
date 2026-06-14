@@ -42,10 +42,11 @@ function SkeletonLoader() {
 interface InvitationViewProps {
   invitacion: InvitacionPublica
   invitadoParam?: string
+  previewMode?: boolean
 }
 
-export function InvitationView({ invitacion, invitadoParam }: InvitationViewProps) {
-  const [showOverlay, setShowOverlay] = useState(true)
+export function InvitationView({ invitacion, invitadoParam, previewMode = false }: InvitationViewProps) {
+  const [showOverlay, setShowOverlay] = useState(!previewMode)
   const [autoPlayMusic, setAutoPlayMusic] = useState(false)
 
   const colorAccent = invitacion?.colorPrimario || COLOR_DEFAULT

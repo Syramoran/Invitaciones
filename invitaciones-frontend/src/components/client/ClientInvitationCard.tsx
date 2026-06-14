@@ -14,6 +14,7 @@ interface InvitacionCliente {
   estadoPago: string
   fechaEvento: string
   editCount: number
+  servicios?: { servicioId: number; nombre: string; habilitado: boolean }[]
 }
 
 interface Props {
@@ -28,6 +29,9 @@ export default function ClientInvitationCard({ invitacion, onNoEditionsModal, on
   const [qrModalOpen, setQrModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const editionsRemaining = 5 - invitacion.editCount
+  const serviciosHabilitados = (invitacion.servicios ?? []).filter(s => s.habilitado)
+  const tieneConfirmacion = serviciosHabilitados.some(s => s.nombre.toLowerCase().includes('confirmaci'))
+  const tieneGaleria = serviciosHabilitados.some(s => s.nombre.toLowerCase().includes('galeria') || s.nombre.toLowerCase().includes('galería'))
   const eventDate = new Date(invitacion.fechaEvento)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -187,34 +191,40 @@ export default function ClientInvitationCard({ invitacion, onNoEditionsModal, on
           Copiar
         </button>
 
-        <Link
-          to={`/${invitacion.id}/asistentes`}
-          className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#2d2926] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]"
-        >
-          <Users className="w-3.5 h-3.5" />
-          Asistentes
-        </Link>
+        {tieneConfirmacion && (
+          <Link
+            to={`/${invitacion.id}/asistentes`}
+            className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#2d2926] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]"
+          >
+            <Users className="w-3.5 h-3.5" />
+            Asistentes
+          </Link>
+        )}
 
-        <button
-          onClick={handleDownloadLinks}
-          disabled={downloading}
-          className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#16a34a] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb] disabled:opacity-50"
-          title="Descargar enlaces de invitados (CSV)"
-        >
-          {downloading
-            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            : <FileDown className="w-3.5 h-3.5" />}
-          Enlaces
-        </button>
+        {tieneConfirmacion && (
+          <button
+            onClick={handleDownloadLinks}
+            disabled={downloading}
+            className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#16a34a] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb] disabled:opacity-50"
+            title="Descargar enlaces de invitados (CSV)"
+          >
+            {downloading
+              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              : <FileDown className="w-3.5 h-3.5" />}
+            Enlaces
+          </button>
+        )}
 
-        <button
-          onClick={() => setQrModalOpen(true)}
-          className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#6b7280] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]"
-          title="QR de la galería"
-        >
-          <QrCode className="w-3.5 h-3.5" />
-          QR
-        </button>
+        {tieneGaleria && (
+          <button
+            onClick={() => setQrModalOpen(true)}
+            className="flex items-center gap-1 text-[.8rem] font-medium bg-[#fcfaf8] hover:bg-[#f3f0ea] text-[#6b7280] px-3 py-1.5 rounded-full transition-colors border border-[#e5e7eb]"
+            title="QR de la galería"
+          >
+            <QrCode className="w-3.5 h-3.5" />
+            QR
+          </button>
+        )}
 
         <button
           onClick={() => setDeleteModalOpen(true)}

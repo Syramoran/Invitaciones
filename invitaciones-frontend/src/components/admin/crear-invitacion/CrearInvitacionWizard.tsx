@@ -13,6 +13,7 @@ import type { Pedido }               from '@/types/adminPedido'
 import type { CrearInvitacionResult } from '@/types/crearInvitacion'
 
 import { WizardStepper }    from './WizardStepper'
+import { WizardLivePreview } from './WizardLivePreview'
 import { Step1DatosBasicos } from './Step1DatosBasicos'
 import { Step2Evento }       from './Step2Evento'
 import { Step3Servicios }    from './Step3Servicios'
@@ -244,72 +245,106 @@ export function CrearInvitacionWizard() {
     )
   }
 
+  const selectedTemplate = templates.find(t => t.id === formState.step1.templateId)
+
   return (
-    <div>
-      <WizardStepper current={currentStep} onGoBack={goTo} />
+    <div className="flex gap-0 items-start">
 
-      <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-sm p-6 sm:p-8 mt-5">
-        {currentStep === 1 && (
-          <Step1DatosBasicos
-            state={formState.step1}
-            templates={templates}
-            pedidos={pedidos}
-            onChange={updateStep1}
-            onNext={() => goTo(2)}
-          />
-        )}
+      {/* Left: Form */}
+      <div className="flex-1 min-w-0">
+        <WizardStepper current={currentStep} onGoBack={goTo} />
 
-        {currentStep === 2 && (
-          <Step2Evento
-            state={formState.step2}
-            tipoEventoId={formState.step1.tipoEventoId}
-            templateSlug={templates.find(t => t.id === formState.step1.templateId)?.slug ?? null}
-            onChange={updateStep2}
-            onNext={() => goTo(3)}
-            onPrev={() => goTo(1)}
-          />
-        )}
+        <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-sm p-6 sm:p-8">
+          {currentStep === 1 && (
+            <Step1DatosBasicos
+              state={formState.step1}
+              templates={templates}
+              pedidos={pedidos}
+              onChange={updateStep1}
+              onNext={() => goTo(2)}
+            />
+          )}
 
-        {currentStep === 3 && (
-          <Step3Servicios
-            state={formState.step3}
-            onChange={updateStep3}
-            onNext={() => goTo(4)}
-            onPrev={() => goTo(2)}
-          />
-        )}
+          {currentStep === 2 && (
+            <Step2Evento
+              state={formState.step2}
+              tipoEventoId={formState.step1.tipoEventoId}
+              templateSlug={templates.find(t => t.id === formState.step1.templateId)?.slug ?? null}
+              onChange={updateStep2}
+              onNext={() => goTo(3)}
+              onPrev={() => goTo(1)}
+            />
+          )}
 
-        {currentStep === 4 && (
-          <Step4Contenido
-            state={formState.step4}
-            onChange={updateStep4}
-            servicios={formState.step3.servicios}
-            onNext={() => goTo(5)}
-            onPrev={() => goTo(3)}
-          />
-        )}
+          {currentStep === 3 && (
+            <Step3Servicios
+              state={formState.step3}
+              onChange={updateStep3}
+              onNext={() => goTo(4)}
+              onPrev={() => goTo(2)}
+              contrasenaAsistentes={formState.step2.contrasenaAsistentes}
+              onChangeContrasena={v => updateStep2({ contrasenaAsistentes: v })}
+            />
+          )}
 
-        {currentStep === 5 && (
-          <Step5Invitados
-            state={formState.step5}
-            onChange={updateStep5}
-            onNext={() => goTo(6)}
-            onPrev={() => goTo(4)}
-          />
-        )}
+          {currentStep === 4 && (
+            <Step4Contenido
+              state={formState.step4}
+              onChange={updateStep4}
+              servicios={formState.step3.servicios}
+              onNext={() => goTo(5)}
+              onPrev={() => goTo(3)}
+            />
+          )}
 
-        {currentStep === 6 && (
-          <Step6Revisar
-            formState={formState}
-            templates={templates}
-            loading={submitting}
-            error={submitError}
-            onGenerate={handleGenerate}
-            onPrev={() => goTo(5)}
-            onGoTo={goTo}
-          />
-        )}
+          {currentStep === 5 && (
+            <Step5Invitados
+              state={formState.step5}
+              onChange={updateStep5}
+              onNext={() => goTo(6)}
+              onPrev={() => goTo(4)}
+            />
+          )}
+
+          {currentStep === 6 && (
+            <Step6Revisar
+              formState={formState}
+              templates={templates}
+              loading={submitting}
+              error={submitError}
+              onGenerate={handleGenerate}
+              onPrev={() => goTo(5)}
+              onGoTo={goTo}
+            />
+          )}
+        </div>
       </div>
+
+      {/* Right: Preview panel */}
+      <div className="hidden xl:flex w-[300px] flex-shrink-0 flex-col ml-6 sticky top-0 rounded-2xl overflow-hidden border border-[#e5e7eb] bg-[#f0ede8]" style={{ maxHeight: 'calc(100vh - 5rem)' }}>
+        <div className="flex-shrink-0 px-4 py-3 bg-white border-b border-[#e5e7eb] flex items-center justify-between">
+          <span className="text-[.7rem] font-semibold uppercase tracking-widest text-[#6b7280]">
+            Vista previa en vivo
+          </span>
+          <span className="text-[.68rem] text-[#9ca3af] bg-[#fdf8f0] px-2 py-0.5 rounded-full">
+            {selectedTemplate?.nombre ?? 'Sin selección'}
+          </span>
+        </div>
+        <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+          <div
+            className="overflow-hidden shadow-2xl flex-shrink-0"
+            style={{
+              width: '210px',
+              aspectRatio: '9/16',
+              borderRadius: '20px',
+              border: '7px solid #2d2926',
+            }}
+          >
+            <WizardLivePreview formState={formState} templates={templates} />
+          </div>
+        </div>
+      </div>
+
     </div>
   )
 }

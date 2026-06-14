@@ -5,6 +5,7 @@ import type { InvitacionPublica } from '@/types/invitation'
 export interface InvitationViewProps {
   invitacion: InvitacionPublica
   invitadoParam?: string
+  previewMode?: boolean
 }
 
 // Vite discovers all invitation-view.tsx files at build time.

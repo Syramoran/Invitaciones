@@ -26,10 +26,11 @@ function resolveOuterBg(primary: string | null): string {
 interface InvitationViewProps {
   invitacion: InvitacionPublica
   invitadoParam?: string
+  previewMode?: boolean
 }
 
-export function InvitationView({ invitacion, invitadoParam }: InvitationViewProps) {
-  const [showOverlay, setShowOverlay] = useState(true)
+export function InvitationView({ invitacion, invitadoParam, previewMode = false }: InvitationViewProps) {
+  const [showOverlay, setShowOverlay] = useState(!previewMode)
   const [autoPlayMusic, setAutoPlayMusic] = useState(false)
 
   // Extraer colores con fallback a la primera paleta

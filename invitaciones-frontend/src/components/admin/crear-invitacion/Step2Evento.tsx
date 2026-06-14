@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { Check, MapPin, Calendar, Palette, Gift, Settings, Info, Users } from 'lucide-react'
+import { MapPin, Calendar, Palette, Gift, Info, Users } from 'lucide-react'
+import { FieldTooltip } from './FieldTooltip'
 import type { WizardStep2, UbicacionEvento, TipoUbicacion } from '@/types/crearInvitacion'
 import { TIPOS_UBICACION_OPTIONS as TIPOS_UBICACION, COLORES_PALETA, TEMPLATE_COLORS } from '@/types/crearInvitacion'
 import { MapPicker } from './MapPicker'
@@ -34,78 +35,21 @@ function Section({
 
 // ─── Label component ──────────────────────────────────────────────────────────
 
-function Label({ text, required }: { text: string; required?: boolean }) {
+function Label({ text, required, tooltip }: { text: string; required?: boolean; tooltip?: string }) {
   return (
-    <label className="block text-[.78rem] font-medium mb-1 text-[#4a4441]">
-      {text}
-      {required && <span className="text-[#dc2626] ml-0.5">*</span>}
-    </label>
-  )
-}
-
-// ─── Color palette picker ─────────────────────────────────────────────────────
-
-function ColorPicker({
-  value,
-  palette,
-  onChange,
-  showDefault = false,
-}: {
-  value: string
-  palette: { hex: string; label: string }[]
-  onChange: (hex: string) => void
-  showDefault?: boolean
-}) {
-  const selectedLabel = palette.find(c => c.hex.toLowerCase() === value?.toLowerCase())?.label
-
-  return (
-    <div>
-      <div className="flex flex-wrap gap-2 mt-1">
-        {showDefault && (
-          <button
-            type="button"
-            title="Predeterminado (según diseño)"
-            onClick={() => onChange('')}
-            className="relative w-9 h-9 rounded-full border-2 transition-all duration-150 hover:scale-110 bg-white overflow-hidden"
-            style={{
-              borderColor: value === '' ? '#9ca3af' : '#e5e7eb',
-              boxShadow: value === '' ? '0 0 0 2px white, 0 0 0 4px #9ca3af' : 'none',
-            }}
-          >
-            {/* Diagonal strikethrough */}
-            <span
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(135deg, transparent calc(50% - 1.5px), #dc2626 calc(50% - 1.5px), #dc2626 calc(50% + 1.5px), transparent calc(50% + 1.5px))',
-              }}
-            />
-            {value === '' && <Check className="w-3 h-3 absolute inset-0 m-auto text-gray-600 drop-shadow" />}
-          </button>
-        )}
-        {palette.map(c => (
-          <button
-            key={c.hex}
-            type="button"
-            title={c.label}
-            onClick={() => onChange(c.hex)}
-            className="relative w-9 h-9 rounded-full border-2 transition-all duration-150 hover:scale-110"
-            style={{
-              backgroundColor: c.hex,
-              borderColor: value?.toLowerCase() === c.hex.toLowerCase() ? c.hex : 'transparent',
-              boxShadow: value?.toLowerCase() === c.hex.toLowerCase()
-                ? `0 0 0 2px white, 0 0 0 4px ${c.hex}`
-                : 'none',
-            }}
-          >
-            {value?.toLowerCase() === c.hex.toLowerCase() && (
-              <Check className="w-3.5 h-3.5 absolute inset-0 m-auto drop-shadow" style={{ color: 'white' }} />
-            )}
-          </button>
-        ))}
-      </div>
-      <p className="mt-2 text-[.75rem] text-[#9ca3af]">
-        {value === '' ? 'Predeterminado (según diseño)' : (selectedLabel ?? value)}
-      </p>
+    <div className="flex items-center gap-1.5 mb-1.5">
+      <label className="text-[.75rem] font-semibold uppercase tracking-wide text-[#6b7280]">
+        {text}
+      </label>
+      {required !== undefined && (
+        <span className={[
+          'text-[.63rem] px-1.5 py-0.5 rounded-full font-semibold uppercase tracking-wide',
+          required ? 'bg-red-50 text-[#dc2626]' : 'bg-green-50 text-[#16a34a]',
+        ].join(' ')}>
+          {required ? 'Obligatorio' : 'Opcional'}
+        </span>
+      )}
+      {tooltip && <FieldTooltip text={tooltip} />}
     </div>
   )
 }
@@ -162,7 +106,7 @@ function UbicacionCard({
             value={ub.nombre} onChange={e => onUpdate(index, { nombre: e.target.value })} className={INPUT} />
         </div>
         <div>
-          <Label text="Hora (opcional)" />
+          <Label text="Hora" required={false} />
           <input type="time" value={ub.hora ?? ''}
             onChange={e => onUpdate(index, { hora: e.target.value })} className={INPUT} />
         </div>
@@ -172,7 +116,7 @@ function UbicacionCard({
             value={ub.direccion} onChange={e => onUpdate(index, { direccion: e.target.value })} className={INPUT} />
         </div>
         <div className="sm:col-span-2">
-          <Label text="Link de Google Maps" />
+          <Label text="Link de Google Maps" required={false} />
           <input type="text" placeholder="Pegá el link completo de Maps (autocompleta lat/long)…"
             value={mapsLink} onChange={e => parseMapsLink(e.target.value)} className={INPUT} />
           <p className="text-[.7rem] text-[#9ca3af] mt-0.5">
@@ -230,14 +174,6 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
   // Quinceañera: always single location
   const efectivamenteMultiple = !esQuince && modoMultiple
 
-  // Sync colorPrimario ↔ colorTematico for quinceañera
-  useEffect(() => {
-    if (esQuince) {
-      const ct = state.camposEspecificos.colorTematico || '#DC83AA'
-      if (state.colorPrimario !== ct) onChange({ colorPrimario: ct })
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tipoEventoId])
 
   // Reset color when template changes
   useEffect(() => {
@@ -312,10 +248,6 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
   const tiposUsados      = state.ubicaciones.map(u => u.tipo)
   const tiposDisponibles = TIPOS_UBICACION.filter(t => !tiposUsados.includes(t))
 
-  // ── Palette ──────────────────────────────────────────────────────────────────
-
-  const paleta = (templateSlug ? (TEMPLATE_COLORS[templateSlug] || COLORES_PALETA) : COLORES_PALETA) as { hex: string; label: string }[]
-
   // ── Validation ───────────────────────────────────────────────────────────────
 
   const ubicacionOk = efectivamenteMultiple
@@ -349,7 +281,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
             {esBoda && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label text="Nombre Novio/a 1" required />
+                  <Label text="Nombre Novio/a 1" required tooltip="Primer integrante de la pareja — aparece en el encabezado" />
                   <input
                     type="text" placeholder="Ej: Camila"
                     value={getCampo('novio1')} onChange={e => setCampo('novio1', e.target.value)}
@@ -357,7 +289,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
                   />
                 </div>
                 <div>
-                  <Label text="Nombre Novio/a 2" required />
+                  <Label text="Nombre Novio/a 2" required tooltip="Segundo integrante de la pareja — aparece en el encabezado" />
                   <input
                     type="text" placeholder="Ej: Joaquín"
                     value={getCampo('novio2')} onChange={e => setCampo('novio2', e.target.value)}
@@ -369,26 +301,13 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
 
             {/* QUINCEAÑERA */}
             {esQuince && (
-              <div className="space-y-4">
-                <div>
-                  <Label text="Nombre de la quinceañera" required />
-                  <input
-                    type="text" placeholder="Ej: Martina"
-                    value={getCampo('nombre')} onChange={e => setCampo('nombre', e.target.value)}
-                    className={INPUT}
-                  />
-                </div>
-                <div>
-                  <Label text="Color temático" />
-                  <ColorPicker
-                    value={getCampo('colorTematico', paleta[0]?.hex ?? '#DC83AA')}
-                    palette={paleta}
-                    onChange={hex => {
-                      setCampo('colorTematico', hex)
-                      setField('colorPrimario', hex)
-                    }}
-                  />
-                </div>
+              <div>
+                <Label text="Nombre de la quinceañera" required tooltip="Nombre que aparece en el encabezado de la invitación" />
+                <input
+                  type="text" placeholder="Ej: Martina"
+                  value={getCampo('nombre')} onChange={e => setCampo('nombre', e.target.value)}
+                  className={INPUT}
+                />
               </div>
             )}
 
@@ -396,7 +315,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
             {esCumple && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label text="Nombre del festejado/a" required />
+                  <Label text="Nombre del festejado/a" required tooltip="Nombre del cumpleañero/a que aparece en la invitación" />
                   <input
                     type="text" placeholder="Ej: Franco"
                     value={getCampo('nombre')} onChange={e => setCampo('nombre', e.target.value)}
@@ -404,7 +323,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
                   />
                 </div>
                 <div>
-                  <Label text="Edad que cumple" />
+                  <Label text="Edad que cumple" required={false} tooltip="Aparece junto al nombre en la invitación. Ej: '30 años'" />
                   <input
                     type="number" min={1} max={150} placeholder="Ej: 30"
                     value={getCampo('edad')} onChange={e => setCampo('edad', e.target.value)}
@@ -424,12 +343,12 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
       <Section icon={Calendar} title="Fecha y hora">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label text="Fecha del evento" required />
+            <Label text="Fecha del evento" required tooltip="Fecha en que se celebra el evento — aparece destacada en la invitación" />
             <input type="date" value={state.fechaEvento}
               onChange={e => setField('fechaEvento', e.target.value)} className={INPUT} />
           </div>
           <div>
-            <Label text="Hora del evento" required />
+            <Label text="Hora del evento" required tooltip="Hora de inicio del evento. Se muestra en la invitación junto a la fecha" />
             <input type="time" value={state.horaEvento}
               onChange={e => setField('horaEvento', e.target.value)} className={INPUT} />
           </div>
@@ -475,7 +394,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {esBoda && (
                 <div>
-                  <Label text="Tipo de lugar" />
+                  <Label text="Tipo de lugar" required={false} tooltip="Tipo de ceremonia. Ej: Iglesia, Civil, Recepción" />
                   <select
                     value={getCampo('tipoCeremonia', 'Recepción')}
                     onChange={e => setCampo('tipoCeremonia', e.target.value)}
@@ -486,19 +405,19 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
                 </div>
               )}
               <div className={esBoda ? '' : 'sm:col-span-2'}>
-                <Label text="Nombre del lugar" required />
+                <Label text="Nombre del lugar" required tooltip="Nombre del salón, iglesia u otro espacio donde se realiza el evento" />
                 <input type="text" maxLength={300} placeholder="Ej: Estancia La Primavera"
                   value={state.ubicacion} onChange={e => setField('ubicacion', e.target.value)} className={INPUT} />
               </div>
               <div className="sm:col-span-2">
-                <Label text="Dirección completa" required />
+                <Label text="Dirección completa" required tooltip="Dirección del lugar del evento — aparece en el mapa de la invitación" />
                 <input type="text" maxLength={500} placeholder="Ej: Ruta 6 Km 20, Pilar, Buenos Aires"
                   value={state.direccion} onChange={e => setField('direccion', e.target.value)} className={INPUT} />
               </div>
 
               {/* Maps link */}
               <div className="sm:col-span-2">
-                <Label text="Link de Google Maps (autocompleta latitud y longitud)" />
+                <Label text="Link de Google Maps" required={false} tooltip="Pegá el link de Google Maps para autocompletar las coordenadas. Debe ser el link largo del navegador (con @)" />
                 <input type="text"
                   placeholder="Pegá el link completo de Maps aquí…"
                   value={mapsLinkSingle}
@@ -577,22 +496,9 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
       <Section icon={Palette} title="Personalización">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-          {/* Color primario — not for Quinceañera (synced from color temático) */}
-          {!esQuince && (
-            <div className="sm:col-span-2">
-              <Label text="Color primario de la invitación" />
-              <ColorPicker
-                value={state.colorPrimario}
-                palette={paleta}
-                onChange={hex => setField('colorPrimario', hex)}
-                showDefault={!templateSlug || !TEMPLATE_COLORS[templateSlug]}
-              />
-            </div>
-          )}
-
           {/* Dress code */}
           <div>
-            <Label text="Dress code" />
+            <Label text="Dress code" required={false} tooltip="Indicación de vestimenta para los invitados. Ej: Elegante, Informal, Ropa de campo" />
             <input
               type="text" maxLength={100} placeholder="Ej: Elegante"
               value={getCampo('dressCode')} onChange={e => setCampo('dressCode', e.target.value)}
@@ -603,7 +509,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
           {/* Temática (Quinceañera) */}
           {esQuince && (
             <div>
-              <Label text="Temática" />
+              <Label text="Temática" required={false} tooltip="Estilo o temática de la celebración. Ej: París, Jardín encantado, Hollywood" />
               <input
                 type="text" maxLength={200} placeholder="Ej: Fiesta de disfraces"
                 value={getCampo('tematica')} onChange={e => setCampo('tematica', e.target.value)}
@@ -615,7 +521,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
           {/* Actividades (Cumpleaños) */}
           {esCumple && (
             <div className="sm:col-span-2">
-              <Label text="Actividades del festejo" />
+              <Label text="Actividades del festejo" required={false} tooltip="Descripción de las actividades o momentos del festejo para los invitados" />
               <textarea
                 rows={2} maxLength={500} placeholder="Ej: Cena, baile, show sorpresa…"
                 value={getCampo('actividades')} onChange={e => setCampo('actividades', e.target.value)}
@@ -659,7 +565,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
               </div>
             </div>
             <div>
-              <Label text="Alias (cuenta bancaria)" />
+              <Label text="Alias (cuenta bancaria)" required={false} tooltip="Alias de tu cuenta bancaria o Mercado Pago para recibir transferencias" />
               <input
                 type="text" maxLength={200} placeholder="Ej: nombreapellido.mp"
                 value={getCampo('alias')} onChange={e => setCampo('alias', e.target.value)}
@@ -667,7 +573,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
               />
             </div>
             <div>
-              <Label text="CBU / CVU" />
+              <Label text="CBU / CVU" required={false} tooltip="Número CBU o CVU de tu cuenta bancaria. Se muestra para facilitar transferencias" />
               <input
                 type="text" maxLength={22} placeholder="0000003100010000000000"
                 value={getCampo('cbu')} onChange={e => setCampo('cbu', e.target.value)}
@@ -679,34 +585,25 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
       )}
 
       {/* ──────────────────────────────────────────────────────────────────────── */}
-      {/* SECTION 6 · Configuración técnica                                       */}
-      {/* ──────────────────────────────────────────────────────────────────────── */}
-
-      <Section icon={Settings} title="Configuración">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2">
-            <Label text="Contraseña lista de asistentes" />
-            <input
-              type="text" maxLength={255} placeholder="Para que el anfitrión vea las confirmaciones"
-              value={state.contrasenaAsistentes} onChange={e => setField('contrasenaAsistentes', e.target.value)}
-              className={INPUT}
-            />
-          </div>
-        </div>
-      </Section>
-
-      {/* ──────────────────────────────────────────────────────────────────────── */}
       {/* SECTION 7 · Información adicional                                       */}
       {/* ──────────────────────────────────────────────────────────────────────── */}
 
       <Section icon={Info} title="Información adicional">
         <div>
           {!esQuince && (
-            <Label text={
-              esBoda ? 'Texto extra para los invitados'
-              : esCumple ? 'Notas para los invitados'
-              : 'Frase o dedicatoria'
-            } />
+            <Label
+              required={false}
+              text={
+                esBoda ? 'Texto extra para los invitados'
+                : esCumple ? 'Notas para los invitados'
+                : 'Frase o dedicatoria'
+              }
+              tooltip={
+                esBoda ? 'Mensaje adicional para los invitados. Ej: restricciones alimentarias, dress code especial'
+                : esCumple ? 'Notas o aclaraciones para los invitados. Se muestra al pie de la invitación'
+                : 'Frase o dedicatoria personal que aparece en la invitación'
+              }
+            />
           )}
           <textarea
             rows={3} maxLength={3000}

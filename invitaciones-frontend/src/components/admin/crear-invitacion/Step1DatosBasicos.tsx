@@ -6,6 +6,7 @@ import type { Template } from '@/services/templateService'
 import { TIPO_LABEL } from '@/services/templateService'
 import { TEMPLATE_COLORS, COLORES_PALETA } from '@/types/crearInvitacion'
 import { InvitationPreview } from '@/components/landing/InvitationPreview'
+import { FieldTooltip } from './FieldTooltip'
 
 // ─── Event type options ───────────────────────────────────────────────────────
 
@@ -138,7 +139,8 @@ export function Step1DatosBasicos({ state, onChange, pedidos, templates, onNext 
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[.78rem] font-semibold uppercase tracking-widest text-[#6b7280]">Tipo de evento</span>
-          <span className="text-[#dc2626] text-sm leading-none">*</span>
+          <span className="text-[.65rem] px-1.5 py-0.5 bg-red-50 text-[#dc2626] rounded-full font-semibold uppercase tracking-wide">Obligatorio</span>
+          <FieldTooltip text="Define la categoría de celebración y los diseños disponibles para elegir" />
         </div>
         <p className="text-[.76rem] text-[#9ca3af] mb-3">Seleccioná el tipo de celebración para filtrar los diseños disponibles</p>
 
@@ -193,7 +195,8 @@ export function Step1DatosBasicos({ state, onChange, pedidos, templates, onNext 
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[.78rem] font-semibold uppercase tracking-widest text-[#6b7280]">Diseño de invitación</span>
-          <span className="text-[#dc2626] text-sm leading-none">*</span>
+          <span className="text-[.65rem] px-1.5 py-0.5 bg-red-50 text-[#dc2626] rounded-full font-semibold uppercase tracking-wide">Obligatorio</span>
+          <FieldTooltip text="El diseño visual de la invitación. Hacé click para previsualizar cada opción en el panel derecho" />
         </div>
         <p className="text-[.76rem] text-[#9ca3af] mb-3">
           {state.tipoEventoId === null
@@ -233,11 +236,16 @@ export function Step1DatosBasicos({ state, onChange, pedidos, templates, onNext 
                 >
                   {/* Portrait preview area */}
                   <div className="w-full h-64 relative overflow-hidden bg-[#f5f5f5]">
-                    <InvitationPreview
-                      slug={t.slug}
-                      interactive={false}
-                      paused={true}
-                    />
+                    <div className="pointer-events-none w-full h-full">
+                      <InvitationPreview
+                        slug={t.slug}
+                        interactive={false}
+                        paused={true}
+                      />
+                    </div>
+
+                    {/* Always-present click blocker — prevents Router Links inside preview from navigating */}
+                    <div className="absolute inset-0" />
 
                     {/* Hover overlay */}
                     {!selected && (
@@ -281,6 +289,8 @@ export function Step1DatosBasicos({ state, onChange, pedidos, templates, onNext 
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[.78rem] font-semibold uppercase tracking-widest text-[#6b7280]">Color primario</span>
+            <span className="text-[.65rem] px-1.5 py-0.5 bg-green-50 text-[#16a34a] rounded-full font-semibold uppercase tracking-wide">Opcional</span>
+            <FieldTooltip text="Color temático de la invitación. Cada diseño tiene su paleta sugerida, o podés elegir otro" />
           </div>
           <p className="text-[.76rem] text-[#9ca3af] mb-3">
             Personaliza el color de la invitación. Servirá como color temático principal.
@@ -345,7 +355,8 @@ export function Step1DatosBasicos({ state, onChange, pedidos, templates, onNext 
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[.78rem] font-semibold uppercase tracking-widest text-[#6b7280]">Título del evento</span>
-          <span className="text-[#dc2626] text-sm leading-none">*</span>
+          <span className="text-[.65rem] px-1.5 py-0.5 bg-red-50 text-[#dc2626] rounded-full font-semibold uppercase tracking-wide">Obligatorio</span>
+          <FieldTooltip text="Aparece como encabezado principal en la invitación. Ej: 'Nos casamos', 'Mis quince años'" />
         </div>
         <p className="text-[.76rem] text-[#9ca3af] mb-2">
           Aparece en el encabezado de la invitación tal cual lo escribís aquí.

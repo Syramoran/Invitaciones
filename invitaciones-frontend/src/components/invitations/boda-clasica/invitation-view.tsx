@@ -25,6 +25,7 @@ function hexToRgba(hex: string, alpha: number): string {
 interface InvitationViewProps {
   invitacion: InvitacionPublica
   invitadoParam?: string
+  previewMode?: boolean
 }
 
 function getTituloOverlay(invitacion: InvitacionPublica): string {
@@ -87,8 +88,8 @@ function SkeletonLoader() {
 
 // ─── Main view ───────────────────────────────────────────────────────────────
 
-export function InvitationView({ invitacion, invitadoParam }: InvitationViewProps) {
-  const [showOverlay, setShowOverlay] = useState(true)
+export function InvitationView({ invitacion, invitadoParam, previewMode = false }: InvitationViewProps) {
+  const [showOverlay, setShowOverlay] = useState(!previewMode)
   const [autoPlayMusic, setAutoPlayMusic] = useState(false)
 
   // Color de acento: el del pedido si existe, sino gris oscuro para títulos variables

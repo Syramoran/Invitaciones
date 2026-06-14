@@ -201,6 +201,8 @@ export function Step1DatosBasicos({ state, onChange, templates, pedidos, onNext,
                         paused={!selected}
                       />
                     </div>
+                    {/* Block clicks — prevents Router Links inside InvitationPreview from navigating */}
+                    <div className="absolute inset-0" />
                   </div>
                   <div className="px-3 py-2.5 text-sm font-medium text-[#2d2926] text-center border-t border-gray-100 truncate">
                     {t.nombre}

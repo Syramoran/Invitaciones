@@ -18,6 +18,7 @@ const COLOR_VERDE = "#465E38"
 interface InvitationViewProps {
   invitacion: InvitacionPublica
   invitadoParam?: string
+  previewMode?: boolean
 }
 
 function getTituloOverlay(invitacion: InvitacionPublica): string {
@@ -78,8 +79,8 @@ function SkeletonLoader() {
 
 // ─── Main view ───────────────────────────────────────────────────────────────
 
-export function InvitationView({ invitacion, invitadoParam }: InvitationViewProps) {
-  const [showOverlay, setShowOverlay] = useState(true)
+export function InvitationView({ invitacion, invitadoParam, previewMode = false }: InvitationViewProps) {
+  const [showOverlay, setShowOverlay] = useState(!previewMode)
   const [autoPlayMusic, setAutoPlayMusic] = useState(false)
 
   // Color primario: el del pedido si existe, sino el verde rústico fijo
