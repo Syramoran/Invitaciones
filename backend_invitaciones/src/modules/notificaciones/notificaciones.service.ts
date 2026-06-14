@@ -61,6 +61,7 @@ export class NotificacionesService implements OnModuleInit {
       port,
       secure: port === 465,
       auth: { user, pass },
+      family: 4, // forzar IPv4 (Railway no soporta IPv6 para SMTP)
     });
 
     this.transporter
