@@ -6,8 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
-import { Transporter } from 'nodemailer';
+import { Resend } from 'resend';
 
 import {
   Notificacion,
@@ -23,7 +22,7 @@ import {
 @Injectable()
 export class NotificacionesService implements OnModuleInit {
   private readonly logger = new Logger(NotificacionesService.name);
-  private transporter!: Transporter;
+  private resend: Resend | null = null;
   private fromEmail!: string;
 
   constructor(
@@ -33,45 +32,25 @@ export class NotificacionesService implements OnModuleInit {
   ) {}
 
   // ═══════════════════════════════════════════
-  // Inicialización — Configurar transporter de nodemailer
+  // Inicialización — Configurar cliente Resend
   // ═══════════════════════════════════════════
 
   onModuleInit() {
-    const host = this.configService.get<string>('SMTP_HOST');
-    const portRaw = this.configService.get<string | number>('SMTP_PORT', 587);
-    const port = typeof portRaw === 'string' ? parseInt(portRaw, 10) : portRaw;
-    const user = this.configService.get<string>('SMTP_USER');
-    const pass = this.configService.get<string>('SMTP_PASS');
-
+    const apiKey = this.configService.get<string>('RESEND_API_KEY');
     this.fromEmail = this.configService.get<string>(
-      'SMTP_FROM',
-      `"Invitaciones Digitales" <${user}>`,
+      'RESEND_FROM',
+      'Festeja Invitaciones Digitales <onboarding@resend.dev>',
     );
 
-    if (!host || !user || !pass) {
+    if (!apiKey) {
       this.logger.warn(
-        '⚠️ SMTP no configurado (faltan SMTP_HOST, SMTP_USER o SMTP_PASS). ' +
-        'Las notificaciones se registrarán en BD pero NO se enviarán por email.',
+        '⚠️ Resend no configurado (falta RESEND_API_KEY). Los emails NO se enviarán.',
       );
       return;
     }
 
-    this.transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
-      auth: { user, pass },
-      family: 4, // forzar IPv4 (Railway no soporta IPv6 para SMTP)
-    } as any);
-
-    this.transporter
-      .verify()
-      .then(() =>
-        this.logger.log(`📧 SMTP conectado — ${host}:${port} (${user})`),
-      )
-      .catch((err) =>
-        this.logger.error(`❌ SMTP falló verificación: ${err.message}`),
-      );
+    this.resend = new Resend(apiKey);
+    this.logger.log(`📧 Resend listo — desde: ${this.fromEmail}`);
   }
 
   // ═══════════════════════════════════════════
@@ -241,6 +220,7 @@ export class NotificacionesService implements OnModuleInit {
     });
   }
 
+  // ═══════════════════════════════════════════
   // Reset de contraseña
   // Destinatario: email del usuario que solicitó reset
   // ═══════════════════════════════════════════
@@ -308,7 +288,8 @@ export class NotificacionesService implements OnModuleInit {
     });
   }
 
-
+  // ═══════════════════════════════════════════
+  // EXPIRACION_PROXIMA
   // Llamar desde: CronJobsService.notificarExpiracionProxima()
   // Destinatario: email del anfitrión (pedido.email)
   // ═══════════════════════════════════════════
@@ -384,8 +365,7 @@ export class NotificacionesService implements OnModuleInit {
   }
 
   // ═══════════════════════════════════════════
-  // Método privado — Crear registro + enviar email
-  // El email se intenta enviar SIEMPRE, incluso si falla el registro en BD.
+  // Método privado — Crear registro + enviar email via Resend
   // ═══════════════════════════════════════════
 
   private async crearYEnviar(datos: {
@@ -395,7 +375,7 @@ export class NotificacionesService implements OnModuleInit {
     mensaje: string;
     html?: string;
   }): Promise<NotificacionResponseDto> {
-    // 1. Intentar persistir en BD (puede fallar si la constraint está desactualizada)
+    // 1. Persistir en BD
     let guardada: Notificacion | null = null;
     try {
       guardada = await this.notificacionRepo.save(
@@ -414,33 +394,35 @@ export class NotificacionesService implements OnModuleInit {
       );
     }
 
-    // 2. Enviar email independientemente de si el registro en BD falló
+    // 2. Enviar via Resend
     try {
-      if (this.transporter) {
-        this.logger.log(`📧 Intentando sendMail [${datos.tipo}] → ${datos.destinatarioEmail}`);
-        await this.transporter.sendMail({
+      if (this.resend) {
+        this.logger.log(`📧 Enviando via Resend [${datos.tipo}] → ${datos.destinatarioEmail}`);
+
+        const { error } = await this.resend.emails.send({
           from: this.fromEmail,
-          to: datos.destinatarioEmail,
+          to: [datos.destinatarioEmail],
           subject: datos.asunto,
           text: datos.mensaje,
           html: datos.html ?? datos.mensaje.replace(/\n/g, '<br>'),
         });
-        this.logger.log(`✅ Email enviado correctamente [${datos.tipo}] → ${datos.destinatarioEmail}`);
 
-        // Actualizar estado en BD si el registro existe
+        if (error) throw new Error(error.message);
+
+        this.logger.log(`✅ Email enviado via Resend [${datos.tipo}] → ${datos.destinatarioEmail}`);
+
         if (guardada) {
           guardada.enviada = true;
           guardada.fechaEnvio = new Date();
-          await this.notificacionRepo.save(guardada).catch(() => {/* ignorar error de update */});
+          await this.notificacionRepo.save(guardada).catch(() => { /* ignorar */ });
         }
       } else {
-        this.logger.warn(`⚠️ SMTP transporter es NULL — email NO enviado [${datos.tipo}] → ${datos.destinatarioEmail}`);
+        this.logger.warn(`⚠️ Resend no inicializado — email NO enviado [${datos.tipo}] → ${datos.destinatarioEmail}`);
       }
     } catch (emailError: any) {
-      this.logger.error(`❌ Error en sendMail [${datos.tipo}] → ${datos.destinatarioEmail}: ${emailError.message}`);
+      this.logger.error(`❌ Error Resend [${datos.tipo}] → ${datos.destinatarioEmail}: ${emailError.message}`);
     }
 
-    // Retornar un objeto válido aunque no haya registro en BD
     if (guardada) return this.mapearResponse(guardada);
 
     return {
