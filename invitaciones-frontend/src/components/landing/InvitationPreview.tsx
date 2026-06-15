@@ -370,7 +370,7 @@ const MOCK_BODA_MODERNA: InvitacionPublica = {
 const COLOR_RUSTICA = '#465E38'
 const MOCK_BODA_RUSTICA: InvitacionPublica = {
   id: 'preview-rustica',
-  titulo: 'Florencia & Ignacio',
+  titulo: '¡Nos casamos!',
   fechaEvento: '2026-12-09T00:00:00.000Z',
   horaEvento: '18:30',
   ubicacion: 'multiple',

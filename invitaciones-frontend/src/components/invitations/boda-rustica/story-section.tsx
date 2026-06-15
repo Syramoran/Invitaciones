@@ -29,7 +29,7 @@ export function StorySection({ historias }: StorySectionProps) {
       <div className="self-stretch flex flex-col gap-9">
         {ordenadas.map((historia) => (
           <div key={historia.id} className="flex flex-col gap-4">
-            {historia.imagenUrl ? (
+            {historia.imagenUrl && (
               <div className="self-stretch h-[13.75rem] overflow-hidden rounded-[1px]">
                 <img
                   src={historia.imagenUrl}
@@ -37,10 +37,6 @@ export function StorySection({ historias }: StorySectionProps) {
                   className="h-full w-full object-cover"
                   loading="lazy"
                 />
-              </div>
-            ) : (
-              <div className="self-stretch h-[13.75rem] rounded-[1px] bg-[#d9d9d9] flex items-center justify-center">
-                <span className="text-xs text-[#787878]">Foto {historia.orden}</span>
               </div>
             )}
 

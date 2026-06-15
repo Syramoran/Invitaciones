@@ -189,6 +189,7 @@ export function CrearInvitacionWizard() {
     if (step >= 1 && step <= 6) {
       setCurrentStep(step)
       setSubmitError(null)
+      window.scrollTo({ top: 0, behavior: 'instant' })
     }
   }
 
@@ -321,7 +322,7 @@ export function CrearInvitacionWizard() {
       </div>
 
       {/* Right: Preview panel */}
-      <div className="hidden xl:flex w-[300px] flex-shrink-0 flex-col ml-6 sticky top-0 rounded-2xl overflow-hidden border border-[#e5e7eb] bg-[#f0ede8]" style={{ maxHeight: 'calc(100vh - 5rem)' }}>
+      <div className="hidden xl:flex w-[380px] flex-shrink-0 flex-col ml-6 sticky top-0 rounded-2xl overflow-hidden border border-[#e5e7eb] bg-[#f0ede8]" style={{ maxHeight: 'calc(100vh - 5rem)' }}>
         <div className="flex-shrink-0 px-4 py-3 bg-white border-b border-[#e5e7eb] flex items-center justify-between">
           <span className="text-[.7rem] font-semibold uppercase tracking-widest text-[#6b7280]">
             Vista previa en vivo
@@ -330,14 +331,14 @@ export function CrearInvitacionWizard() {
             {selectedTemplate?.nombre ?? 'Sin selección'}
           </span>
         </div>
-        <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="flex-1 flex items-center justify-center p-3 overflow-y-auto">
           <div
             className="overflow-hidden shadow-2xl flex-shrink-0"
             style={{
-              width: '210px',
+              width: '300px',
               aspectRatio: '9/16',
-              borderRadius: '20px',
-              border: '7px solid #2d2926',
+              borderRadius: '24px',
+              border: '8px solid #2d2926',
             }}
           >
             <WizardLivePreview formState={formState} templates={templates} />

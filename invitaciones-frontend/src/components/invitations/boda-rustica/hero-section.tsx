@@ -60,7 +60,7 @@ export function HeroSection({ invitacion, invitadoParam }: HeroSectionProps) {
             className="mb-2 text-[1.5rem] font-semibold uppercase text-[#333]"
             style={{ fontFamily: "Quicksand, sans-serif" }}
           >
-            {esBoda ? "NOS CASAMOS" : titulo}
+            {titulo}
           </h2>
 
           {/* Nombres con Dancing Script */}

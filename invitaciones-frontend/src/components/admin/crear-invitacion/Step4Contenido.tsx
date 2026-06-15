@@ -36,6 +36,17 @@ function FotosSection({
     onChange({ fotos: [...fotos, ...newFiles], fotosPreviews: [...fotosPreviews, ...newPreviews] })
   }
 
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    handleFiles(e.dataTransfer.files)
+  }
+
   function removeNewPhoto(idx: number) {
     URL.revokeObjectURL(fotosPreviews[idx])
     onChange({
@@ -94,6 +105,8 @@ function FotosSection({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
           className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-[#d1d5db] rounded-lg hover:border-[#c5a572] hover:bg-[rgba(197,165,114,.03)] transition-colors text-[#6b7280] mb-3"
         >
           <ImagePlus className="w-6 h-6 mb-1.5" />
@@ -139,6 +152,17 @@ function MusicaSection({
     onChange({ musica: files[0], musicaNombre: files[0].name, removeMusica: false })
   }
 
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    handleFile(e.dataTransfer.files)
+  }
+
   return (
     <div className="bg-white border border-[#f0f0f0] rounded-xl p-4 mb-4">
       <h3 className="font-semibold text-[.9rem] mb-1">🎵 Música</h3>
@@ -176,6 +200,8 @@ function MusicaSection({
         </div>
       ) : (
         <button type="button" onClick={() => inputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
           className="flex flex-col items-center justify-center w-full py-5 border-2 border-dashed border-[#d1d5db] rounded-lg hover:border-[#c5a572] hover:bg-[rgba(197,165,114,.03)] transition-colors text-[#6b7280]">
           <Music className="w-5 h-5 mb-1.5" />
           <span className="text-[.82rem]">{existingMusica ? 'Reemplazar música' : 'Arrastrá un archivo MP3'}</span>

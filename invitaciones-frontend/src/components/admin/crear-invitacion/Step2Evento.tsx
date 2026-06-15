@@ -20,7 +20,7 @@ function Section({
   className?: string
 }) {
   return (
-    <div className={`mb-7 ${className}`}>
+    <div className={`mb-10 ${className}`}>
       <div className="flex items-center gap-2.5 mb-4">
         <div className="w-7 h-7 rounded-lg bg-[#f4f0ea] flex items-center justify-center shrink-0">
           <Icon className="w-3.5 h-3.5 text-[#c5a572]" />

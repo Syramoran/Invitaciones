@@ -152,19 +152,42 @@ export function EnvelopeOverlayRustica({
 
             {/* Nombres */}
             {parts ? (
-              <p className="mb-7 leading-tight">
+              <div className="mb-7 flex flex-col items-center leading-tight">
                 <span
                   style={{
                     fontFamily: "'Dancing Script', cursive",
-                    fontSize: "2.4rem",
+                    fontSize: "2.2rem",
                     color: "#333",
-                    lineHeight: 1.1,
-                    display: "inline",
+                    lineHeight: 1.2,
+                    wordBreak: "break-word",
+                    textAlign: "center",
                   }}
                 >
-                  {parts[0].trim()} &amp; {parts[1].trim()}
+                  {parts[0].trim()}
                 </span>
-              </p>
+                <span
+                  style={{
+                    fontFamily: "'Dancing Script', cursive",
+                    fontSize: "1.5rem",
+                    color: "#aaa",
+                    lineHeight: 1.0,
+                  }}
+                >
+                  &amp;
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Dancing Script', cursive",
+                    fontSize: "2.2rem",
+                    color: "#333",
+                    lineHeight: 1.2,
+                    wordBreak: "break-word",
+                    textAlign: "center",
+                  }}
+                >
+                  {parts[1].trim()}
+                </span>
+              </div>
             ) : (
               <p
                 className="mb-7 leading-tight"
