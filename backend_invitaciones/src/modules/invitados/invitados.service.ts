@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 
 import { Invitado } from '../../entities/invitado.entity';
@@ -178,14 +178,19 @@ export class InvitadosService {
 
     // Reconstruir nombre y apellido desde el slug del parámetro URL
     // El slug es: `${nombre}-${apellido}`.toLowerCase().sin-acentos.espacios→guiones
-    // Como no hay lista previa, usamos el slug directamente para identificar al invitado
     const partes = dto.invitadoSlug.split('-');
-    const nombre = partes[0] ?? dto.invitadoSlug;
-    const apellido = partes.slice(1).join(' ') || nombre;
+    const nombreSlug = partes[0] ?? dto.invitadoSlug;
+    const apellidoSlug = partes.slice(1).join(' ') || nombreSlug;
 
-    // Buscar si ya existe un registro para este invitado
+    // Buscar usando ILike para ignorar diferencias de mayúsculas/minúsculas.
+    // Esto evita duplicados cuando el slug viene en minúsculas pero el invitado
+    // fue cargado con la primera letra en mayúscula (ej: "alejo" vs "Alejo").
     let invitado = await this.invitadoRepo.findOne({
-      where: { invitacionId, nombre, apellido },
+      where: {
+        invitacionId,
+        nombre: ILike(nombreSlug),
+        apellido: ILike(apellidoSlug),
+      },
     });
 
     // Si ya confirmó, retornar sin modificar (idempotente)
@@ -201,7 +206,12 @@ export class InvitadosService {
 
     // Crear o actualizar el registro con la confirmación
     if (!invitado) {
-      invitado = this.invitadoRepo.create({ invitacionId, nombre, apellido });
+      // Invitado que no estaba en la lista previa (auto-registro)
+      invitado = this.invitadoRepo.create({
+        invitacionId,
+        nombre: nombreSlug,
+        apellido: apellidoSlug,
+      });
     }
     invitado.confirmado = true;
     invitado.fechaConfirmacion = new Date();
