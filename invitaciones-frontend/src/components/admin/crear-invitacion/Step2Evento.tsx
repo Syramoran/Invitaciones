@@ -3,7 +3,7 @@ import { MapPin, Calendar, Palette, Gift, Info, Users } from 'lucide-react'
 import { FieldTooltip } from './FieldTooltip'
 import type { WizardStep2, UbicacionEvento, TipoUbicacion } from '@/types/crearInvitacion'
 import { TIPOS_UBICACION_OPTIONS as TIPOS_UBICACION, COLORES_PALETA, TEMPLATE_COLORS } from '@/types/crearInvitacion'
-import { MapPicker } from './MapPicker'
+import { MapPicker } from '@/components/shared/crear-invitacion/MapPicker'
 
 // ─── Shared input style ───────────────────────────────────────────────────────
 
@@ -65,6 +65,7 @@ function UbicacionCard({
   onRemove: (index: number) => void
 }) {
   const [mapsLink, setMapsLink] = useState('')
+  const [mapsLinkOpen, setMapsLinkOpen] = useState(false)
 
   function extractCoordsFromMapsLink(url: string): { lat: string; lng: string } | null {
     if (!url) return null
@@ -115,14 +116,6 @@ function UbicacionCard({
           <input type="text" maxLength={500} placeholder="Ej: Av. Corrientes 1234, CABA"
             value={ub.direccion} onChange={e => onUpdate(index, { direccion: e.target.value })} className={INPUT} />
         </div>
-        <div className="sm:col-span-2">
-          <Label text="Link de Google Maps" required={false} />
-          <input type="text" placeholder="Pegá el link completo de Maps (autocompleta lat/long)…"
-            value={mapsLink} onChange={e => parseMapsLink(e.target.value)} className={INPUT} />
-          <p className="text-[.7rem] text-[#9ca3af] mt-0.5">
-            Usa el link largo desde el navegador — debe contener el símbolo @
-          </p>
-        </div>
 
         {/* Map picker */}
         <div className="sm:col-span-2">
@@ -143,6 +136,40 @@ function UbicacionCard({
           <Label text="Longitud" required />
           <input type="number" step="any" placeholder="-58.6796"
             value={ub.longitud} onChange={e => onUpdate(index, { longitud: e.target.value })} className={INPUT} />
+        </div>
+
+        {/* Collapsible Maps link */}
+        <div className="sm:col-span-2">
+          <button
+            type="button"
+            onClick={() => setMapsLinkOpen(o => !o)}
+            className="flex items-center gap-2 text-[.78rem] text-[#9ca3af] hover:text-[#c5a572] transition-colors py-1"
+          >
+            <span
+              style={{
+                display: 'inline-block',
+                transition: 'transform 0.2s',
+                transform: mapsLinkOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+              }}
+            >
+              ▶
+            </span>
+            Autocompletar coordenadas desde link de Google Maps
+          </button>
+          {mapsLinkOpen && (
+            <div className="mt-2">
+              <input
+                type="text"
+                placeholder="Pegá el link completo de Maps (autocompleta lat/long)…"
+                value={mapsLink}
+                onChange={e => parseMapsLink(e.target.value)}
+                className={INPUT}
+              />
+              <p className="text-[.7rem] text-[#9ca3af] mt-0.5">
+                Usa el link largo desde el navegador — debe contener el símbolo @
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -165,6 +192,7 @@ interface Props {
 export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNext, onPrev }: Props) {
   const [modoMultiple, setModoMultiple] = useState(() => state.ubicaciones.length > 0)
   const [mapsLinkSingle, setMapsLinkSingle] = useState('')
+  const [mapsLinkSingleOpen, setMapsLinkSingleOpen] = useState(false)
   const prevSlugRef = useRef(templateSlug)
 
   const esBoda     = tipoEventoId === 1
@@ -415,20 +443,6 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
                   value={state.direccion} onChange={e => setField('direccion', e.target.value)} className={INPUT} />
               </div>
 
-              {/* Maps link */}
-              <div className="sm:col-span-2">
-                <Label text="Link de Google Maps" required={false} tooltip="Pegá el link de Google Maps para autocompletar las coordenadas. Debe ser el link largo del navegador (con @)" />
-                <input type="text"
-                  placeholder="Pegá el link completo de Maps aquí…"
-                  value={mapsLinkSingle}
-                  onChange={e => handleMapsLinkSingle(e.target.value)}
-                  className={INPUT}
-                />
-                <p className="text-[.72rem] text-[#9ca3af] mt-0.5">
-                  Usa el link largo desde el navegador — debe contener el símbolo @
-                </p>
-              </div>
-
               {/* Map picker */}
               <div className="sm:col-span-2">
                 <Label text="Ubicación en el mapa" required />
@@ -452,6 +466,40 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
                 <Label text="Longitud" required />
                 <input type="number" step="any" placeholder="-58.6796"
                   value={state.longitud || ''} onChange={e => setField('longitud', e.target.value)} className={INPUT} />
+              </div>
+
+              {/* Collapsible Maps link */}
+              <div className="sm:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => setMapsLinkSingleOpen(o => !o)}
+                  className="flex items-center gap-2 text-[.78rem] text-[#9ca3af] hover:text-[#c5a572] transition-colors py-1"
+                >
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      transition: 'transform 0.2s',
+                      transform: mapsLinkSingleOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                    }}
+                  >
+                    ▶
+                  </span>
+                  Autocompletar coordenadas desde link de Google Maps
+                </button>
+                {mapsLinkSingleOpen && (
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      placeholder="Pegá el link completo de Maps aquí…"
+                      value={mapsLinkSingle}
+                      onChange={e => handleMapsLinkSingle(e.target.value)}
+                      className={INPUT}
+                    />
+                    <p className="text-[.72rem] text-[#9ca3af] mt-0.5">
+                      Usa el link largo desde el navegador — debe contener el símbolo @
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

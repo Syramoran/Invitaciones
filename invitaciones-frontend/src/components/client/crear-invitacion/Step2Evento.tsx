@@ -5,6 +5,7 @@ import { TIPOS_UBICACION_OPTIONS as TIPOS_UBICACION, COLORES_PALETA, TEMPLATE_CO
 import apiClient from '@/services/apiClient'
 import { getEventConfig } from '@/config/eventoConfig'
 import type { FieldDef } from '@/config/eventoConfig'
+import { MapPicker } from '@/components/shared/crear-invitacion/MapPicker'
 
 // ─── Shared input classes ─────────────────────────────────────────────────────
 
@@ -85,6 +86,7 @@ function UbicacionCard({
   isResolving: boolean
 }) {
   const [localLink, setLocalLink] = useState('')
+  const [mapsLinkOpen, setMapsLinkOpen] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -140,27 +142,67 @@ function UbicacionCard({
             className={INPUT_CLS}
           />
         </div>
+
+        {/* Map picker */}
         <div className="sm:col-span-2">
-          <Label text="Link de Google Maps (largo o corto)" />
+          <Label text="Ubicación en el mapa" required />
+          <MapPicker
+            latitud={ub.latitud}
+            longitud={ub.longitud}
+            onChange={(lat, lng) => onUpdate(index, { latitud: lat, longitud: lng })}
+          />
+        </div>
+
+        <div>
+          <Label text="Latitud" />
           <input
-            type="text"
-            placeholder="Pega el link de Maps aquí..."
-            value={localLink}
-            onChange={e => setLocalLink(e.target.value)}
+            type="number" step="any" placeholder="-34.5888"
+            value={ub.latitud}
+            onChange={e => onUpdate(index, { latitud: e.target.value })}
             className={INPUT_CLS}
           />
-          {isResolving && <p className="text-[.75rem] text-[#c5a572] mt-1">Cargando mapa...</p>}
-          {!isResolving && ub.latitud && ub.longitud && (
-            <div className="mt-3 h-48 w-full overflow-hidden rounded-xl border border-[#e5e7eb]">
-              <iframe
-                src={`https://maps.google.com/maps?q=${ub.latitud},${ub.longitud}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                title="Vista previa del mapa"
+        </div>
+        <div>
+          <Label text="Longitud" />
+          <input
+            type="number" step="any" placeholder="-58.6796"
+            value={ub.longitud}
+            onChange={e => onUpdate(index, { longitud: e.target.value })}
+            className={INPUT_CLS}
+          />
+        </div>
+
+        {/* Collapsible Maps link */}
+        <div className="sm:col-span-2">
+          <button
+            type="button"
+            onClick={() => setMapsLinkOpen(o => !o)}
+            className="flex items-center gap-2 text-[.78rem] text-[#9ca3af] hover:text-[#c5a572] transition-colors py-1"
+          >
+            <span
+              style={{
+                display: 'inline-block',
+                transition: 'transform 0.2s',
+                transform: mapsLinkOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+              }}
+            >
+              ▶
+            </span>
+            Autocompletar coordenadas desde link de Google Maps
+          </button>
+          {mapsLinkOpen && (
+            <div className="mt-2">
+              <input
+                type="text"
+                placeholder="Pegá el link de Maps (largo o corto)..."
+                value={localLink}
+                onChange={e => setLocalLink(e.target.value)}
+                className={INPUT_CLS}
               />
+              {isResolving && <p className="text-[.75rem] text-[#c5a572] mt-1">Cargando coordenadas...</p>}
+              <p className="text-[.72rem] text-[#9ca3af] mt-0.5">
+                Usa el link largo desde el navegador — debe contener el símbolo @
+              </p>
             </div>
           )}
         </div>
@@ -181,6 +223,7 @@ export function Step2Evento({ state, servicios, onChange, tipoEventoId, template
   )) ?? false;
 
   const [mapsLinkInput, setMapsLinkInput] = useState('')
+  const [mapsLinkSingleOpen, setMapsLinkSingleOpen] = useState(false)
   const [resolviendoUrl, setResolviendoUrl] = useState(false)
   const [modoMultiple, setModoMultiple] = useState(() => state.ubicaciones.length > 0)
 
@@ -355,27 +398,67 @@ export function Step2Evento({ state, servicios, onChange, tipoEventoId, template
             <input type="text" maxLength={500} placeholder="Ej: Ruta 6 Km 20, Pilar"
               value={state.direccion} onChange={e => setField('direccion', e.target.value)} className={INPUT_CLS} />
           </div>
+
+          {/* Map picker */}
           <div className="sm:col-span-2">
-            <Label text="Link de Google Maps (largo o corto)" />
-            <input
-              type="text"
-              placeholder="Pega el link de Maps aquí..."
-              value={mapsLinkInput}
-              onChange={e => setMapsLinkInput(e.target.value)}
+            <Label text="Ubicación en el mapa" required />
+            <MapPicker
+              latitud={state.latitud}
+              longitud={state.longitud}
+              onChange={(lat, lng) => {
+                onChange({ latitud: lat, longitud: lng } as Partial<WizardStep2>)
+              }}
+            />
+          </div>
+
+          <div>
+            <Label text="Latitud" />
+            <input type="number" step="any" placeholder="-34.5888"
+              value={state.latitud || ''}
+              onChange={e => onChange({ latitud: e.target.value } as Partial<WizardStep2>)}
               className={INPUT_CLS}
             />
-            {resolviendoUrl && <p className="text-[.75rem] text-[#c5a572] mt-1">Cargando mapa...</p>}
-            {!resolviendoUrl && state.latitud && state.longitud && (
-              <div className="mt-3 h-48 w-full overflow-hidden rounded-xl border border-[#e5e7eb]">
-                <iframe
-                  src={`https://maps.google.com/maps?q=${state.latitud},${state.longitud}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  title="Vista previa del mapa"
+          </div>
+          <div>
+            <Label text="Longitud" />
+            <input type="number" step="any" placeholder="-58.6796"
+              value={state.longitud || ''}
+              onChange={e => onChange({ longitud: e.target.value } as Partial<WizardStep2>)}
+              className={INPUT_CLS}
+            />
+          </div>
+
+          {/* Collapsible Maps link */}
+          <div className="sm:col-span-2">
+            <button
+              type="button"
+              onClick={() => setMapsLinkSingleOpen(o => !o)}
+              className="flex items-center gap-2 text-[.78rem] text-[#9ca3af] hover:text-[#c5a572] transition-colors py-1"
+            >
+              <span
+                style={{
+                  display: 'inline-block',
+                  transition: 'transform 0.2s',
+                  transform: mapsLinkSingleOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                }}
+              >
+                ▶
+              </span>
+              Autocompletar coordenadas desde link de Google Maps
+            </button>
+            {mapsLinkSingleOpen && (
+              <div className="mt-2">
+                <input
+                  type="text"
+                  placeholder="Pegá el link de Maps (largo o corto)..."
+                  value={mapsLinkInput}
+                  onChange={e => setMapsLinkInput(e.target.value)}
+                  className={INPUT_CLS}
                 />
+                {resolviendoUrl && <p className="text-[.75rem] text-[#c5a572] mt-1">Cargando coordenadas...</p>}
+                <p className="text-[.72rem] text-[#9ca3af] mt-0.5">
+                  Usa el link largo desde el navegador — debe contener el símbolo @
+                </p>
               </div>
             )}
           </div>
