@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 
 import { Invitado } from '../../entities/invitado.entity';
@@ -176,22 +176,16 @@ export class InvitadosService {
   ): Promise<ConfirmacionResponseDto> {
     await this.invitacionesService.buscarInvitacionOFail(invitacionId);
 
-    // Reconstruir nombre y apellido desde el slug del parámetro URL
-    // El slug es: `${nombre}-${apellido}`.toLowerCase().sin-acentos.espacios→guiones
-    const partes = dto.invitadoSlug.split('-');
-    const nombreSlug = partes[0] ?? dto.invitadoSlug;
-    const apellidoSlug = partes.slice(1).join(' ') || nombreSlug;
+    // Normalizar el slug entrante (ya viene sin acentos ni mayúsculas, pero lo aseguramos)
+    const slugEntrada = this.toSlug(dto.invitadoSlug);
 
-    // Buscar usando ILike para ignorar diferencias de mayúsculas/minúsculas.
-    // Esto evita duplicados cuando el slug viene en minúsculas pero el invitado
-    // fue cargado con la primera letra en mayúscula (ej: "alejo" vs "Alejo").
-    let invitado = await this.invitadoRepo.findOne({
-      where: {
-        invitacionId,
-        nombre: ILike(nombreSlug),
-        apellido: ILike(apellidoSlug),
-      },
-    });
+    // Traer todos los invitados de la invitación y buscar por slug generado.
+    // Esto resuelve tanto diferencias de mayúsculas ("Alejo" vs "alejo")
+    // como de tildes ("José" → slug "jose" == slug entrante "jose").
+    const todos = await this.invitadoRepo.find({ where: { invitacionId } });
+    let invitado = todos.find(
+      (inv) => this.toSlug(`${inv.nombre}-${inv.apellido}`) === slugEntrada,
+    ) ?? null;
 
     // Si ya confirmó, retornar sin modificar (idempotente)
     if (invitado?.confirmado) {
@@ -206,12 +200,12 @@ export class InvitadosService {
 
     // Crear o actualizar el registro con la confirmación
     if (!invitado) {
-      // Invitado que no estaba en la lista previa (auto-registro)
-      invitado = this.invitadoRepo.create({
-        invitacionId,
-        nombre: nombreSlug,
-        apellido: apellidoSlug,
-      });
+      // Invitado que no estaba en la lista previa (auto-registro).
+      // Reconstruimos nombre/apellido desde el slug para guardar algo legible.
+      const partes = slugEntrada.split('-');
+      const nombre = partes[0] ?? slugEntrada;
+      const apellido = partes.slice(1).join(' ') || nombre;
+      invitado = this.invitadoRepo.create({ invitacionId, nombre, apellido });
     }
     invitado.confirmado = true;
     invitado.fechaConfirmacion = new Date();
@@ -275,6 +269,20 @@ export class InvitadosService {
   // ═══════════════════════════════════════════
 
   /**
+   * Normaliza un texto a slug: minúsculas, sin acentos, espacios → guiones.
+   * Mismo algoritmo que se aplica al parámetro ?invitado= en la URL.
+   * Ejemplo: "José Echevarría" → "jose-echevarria"
+   */
+  private toSlug(text: string): string {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+      .replace(/\s+/g, '-')            // Espacios → guiones
+      .trim();
+  }
+
+  /**
    * Genera la URL personalizada para un invitado.
    * Formato: https://dominio.com/{invitacionId}?invitado=nombre-apellido
    */
@@ -288,11 +296,7 @@ export class InvitadosService {
       'https://invitaciones.com',
     );
 
-    const invitadoParam = `${nombre}-${apellido}`
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
-      .replace(/\s+/g, '-');           // Espacios → guiones
+    const invitadoParam = this.toSlug(`${nombre}-${apellido}`);
 
     return `${baseUrl}/${invitacionId}?invitado=${encodeURIComponent(invitadoParam)}`;
   }
