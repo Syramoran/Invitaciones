@@ -35,6 +35,10 @@ export class CreateTemplateDto {
   @IsString()
   @IsOptional()
   descripcion?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  publico?: boolean;
 }
 
 
@@ -60,6 +64,10 @@ export class UpdateTemplateDto {
   @IsString()
   @IsOptional()
   descripcion?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  publico?: boolean;
 }
 
 /**
@@ -93,6 +101,7 @@ export class TemplateResponseDto {
   thumbnailUrl!: string | null;
   descripcion!: string | null;
   activo!: boolean;
+  publico!: boolean;
 }
 
 /**

@@ -15,12 +15,19 @@ export class TemplatesService {
 
     // Lectura (públicos)
 
-    async findAll(query: TemplateQueryDto): Promise<TemplateResponseDto[]> {
+    async findAll(query: TemplateQueryDto, esAdmin = false): Promise<TemplateResponseDto[]> {
         const where: any = {};
 
 
         if (query.tipoEventoId) {
             where.tipoEventoId = query.tipoEventoId;
+        }
+
+        // Los templates privados (hechos a medida para un cliente puntual) no
+        // se muestran en el catálogo general — solo un ADMIN logueado los ve,
+        // para poder armar la invitación de ese cliente específico.
+        if (!esAdmin) {
+            where.publico = true;
         }
 
         const templates = await this.templateRepository.find({
@@ -36,6 +43,7 @@ export class TemplatesService {
             thumbnailUrl: template.thumbnailUrl,
             descripcion: template.descripcion,
             activo: template.activo,
+            publico: template.publico,
         }));
     }
 
@@ -56,6 +64,7 @@ export class TemplatesService {
             thumbnailUrl: template.thumbnailUrl,
             descripcion: template.descripcion,
             activo: template.activo,
+            publico: template.publico,
         };
     }
 
@@ -119,6 +128,7 @@ export class TemplatesService {
             thumbnailUrl: updated.thumbnailUrl,
             descripcion: updated.descripcion,
             activo: updated.activo,
+            publico: updated.publico,
         };
     }
 

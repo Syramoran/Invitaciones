@@ -20,6 +20,7 @@ const EMPTY: CreateTemplatePayload = {
   slug: registeredSlugs[0] ?? '',
   thumbnailUrl: '',
   descripcion: '',
+  publico: true,
 }
 
 export function CreateTemplateModal({ onClose, onCreated }: Props) {
@@ -41,6 +42,7 @@ export function CreateTemplateModal({ onClose, onCreated }: Props) {
         tipoEventoId: form.tipoEventoId,
         nombre: form.nombre.trim(),
         slug: form.slug,
+        publico: form.publico,
         ...(form.thumbnailUrl?.trim() ? { thumbnailUrl: form.thumbnailUrl.trim() } : {}),
         ...(form.descripcion?.trim() ? { descripcion: form.descripcion.trim() } : {}),
       }
@@ -158,6 +160,22 @@ export function CreateTemplateModal({ onClose, onCreated }: Props) {
               className="w-full border border-[#d1d5db] rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#c5a572]/40 focus:border-[#c5a572]"
             />
           </div>
+
+          {/* Privada / pública */}
+          <label className="flex items-start gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={!form.publico}
+              onChange={e => set('publico', !e.target.checked)}
+              className="mt-0.5"
+            />
+            <span className="text-sm text-[#374151]">
+              Template privada
+              <span className="block text-[0.72rem] text-[#9ca3af] font-normal">
+                Hecha a medida para un cliente puntual — no aparece en el catálogo al crear invitaciones nuevas para otra gente.
+              </span>
+            </span>
+          </label>
 
           {/* Error */}
           {error && (

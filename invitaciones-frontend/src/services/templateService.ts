@@ -8,6 +8,8 @@ export interface Template {
   thumbnailUrl: string | null
   descripcion: string | null
   activo: boolean
+  /** false = template privada, hecha a medida para un cliente puntual (no aparece en el catálogo público) */
+  publico: boolean
 }
 
 // tipoEventoId → label legible
@@ -23,6 +25,7 @@ export interface CreateTemplatePayload {
   slug: string
   thumbnailUrl?: string
   descripcion?: string
+  publico?: boolean
 }
 
 export const templateService = {

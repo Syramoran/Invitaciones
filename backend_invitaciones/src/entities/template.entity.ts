@@ -30,6 +30,9 @@ export class Template {
   @Column({ type: 'boolean', default: true })
   activo!: boolean;
 
+  @Column({ type: 'boolean', default: true })
+  publico!: boolean;
+
   @Column({ type: 'varchar', length: 100, unique: true })
   slug!: string
 
