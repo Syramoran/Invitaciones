@@ -11,6 +11,7 @@ export { PedidoServicio } from './pedido-servicio.entity';
 export { Invitacion } from './invitacion.entity';
 export { InvitacionServicio } from './invitacion-servicio.entity';
 export { Invitado } from './invitado.entity';
+export { Grupo } from './grupo.entity';
 export { HistoriaSeccion } from './historia-seccion.entity';
 export { FotoAnfitrion } from './foto-anfitrion.entity';
 export { Foto } from './foto.entity';

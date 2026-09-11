@@ -26,6 +26,7 @@ import { PreciosModule } from './modules/precios/precios.module';
 import { InvitacionesModule } from './modules/invitaciones/invitaciones.module';
 import { HistoriasModule } from './modules/historia/historia.module';
 import { InvitadosModule } from './modules/invitados/invitados.module';
+import { GruposModule } from './modules/grupos/grupos.module';
 import { GaleriaModule } from './modules/galeria/galeria.module';
 import { MusicaModule } from './modules/musica/musica.module';
 
@@ -120,6 +121,7 @@ import { CodigosDescuentoModule } from './modules/codigos-descuento/codigos-desc
     InvitacionesModule,
     HistoriasModule,
     InvitadosModule,
+    GruposModule,
     GaleriaModule,
     MusicaModule,
 

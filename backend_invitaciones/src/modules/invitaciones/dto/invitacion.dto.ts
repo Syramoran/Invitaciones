@@ -234,6 +234,23 @@ export class InvitacionPublicDto {
   saludoPersonalizado!: string | null;
   tieneConfirmacion!: boolean;
   mostrarBotonConfirmar!: boolean;
+
+  // ── Plus-one / grupos (presentes solo con ?invitado= o ?grupo=) ──
+
+  /** Solo aplica al flujo ?invitado=; ausente en el flujo ?grupo= */
+  puedeAgregarPlusOne?: boolean;
+  plusOneExistente?: { nombre: string; apellido: string; confirmado: boolean } | null;
+  restriccionAlimentariaExistente?: string | null;
+  yaConfirmado?: boolean;
+
+  /** Presente solo con ?grupo=slug */
+  grupo?: {
+    nombre: string;
+    slug: string;
+    maxIntegrantesEfectivo: number | null;
+    restriccionAlimentaria: string | null;
+    integrantes: { id: number; nombre: string; apellido: string; confirmado: boolean }[];
+  };
 }
 
 /**

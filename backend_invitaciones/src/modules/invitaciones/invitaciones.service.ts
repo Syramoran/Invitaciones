@@ -346,6 +346,28 @@ export class InvitacionesService {
     return invitacion;
   }
 
+  /**
+   * PATCH /invitaciones/:id/asistentes/settings — usado por el panel de
+   * contraseña, no por el flujo admin/JWT. Solo toca permitirPlusOne y
+   * maxIntegrantesDefault, sin la lógica de edición completa de actualizar()
+   * (límite de ediciones, validación de template, etc.).
+   */
+  async actualizarSettingsAsistentes(
+    id: string,
+    cambios: { permitirPlusOne?: boolean; maxIntegrantesDefault?: number | null },
+  ): Promise<Invitacion> {
+    const invitacion = await this.buscarInvitacionOFail(id);
+
+    if (cambios.permitirPlusOne !== undefined) {
+      invitacion.permitirPlusOne = cambios.permitirPlusOne;
+    }
+    if (cambios.maxIntegrantesDefault !== undefined) {
+      invitacion.maxIntegrantesDefault = cambios.maxIntegrantesDefault;
+    }
+
+    return this.invitacionRepo.save(invitacion);
+  }
+
   // ═══════════════════════════════════════════
   // GET /client/invitaciones — Listar invitaciones del usuario (JWT)
   // ═══════════════════════════════════════════
