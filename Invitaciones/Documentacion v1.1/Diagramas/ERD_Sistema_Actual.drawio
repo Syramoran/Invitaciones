@@ -1,0 +1,197 @@
+<mxfile host="app.diagrams.net" agent="Claude Code" version="24.0.0">
+  <diagram name="ERD Sistema Actual + Plan Invitados" id="erd-sistema-actual">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Invitaciones Digitales — Modelo de datos actual + plan de Plus-one / Grupos / Restricción alimentaria&lt;br&gt;&lt;font style=&quot;font-size:11px;color:#666666;&quot;&gt;Base: backend_invitaciones/src/entities. Revisado 2026-08-05 (Familia renombrada a Grupo; restricción alimentaria: una por titular/grupo, no por persona). &lt;/font&gt;&lt;font style=&quot;font-size:11px;color:#b85450;&quot;&gt;&lt;b&gt;En rojo / punteado: entidades y columnas a agregar para implementar Plan_Invitados_PlusOne_Familias.md&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="-80" width="1400" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════ ROW 1: Catálogo / referencia ══════════ -->
+
+        <mxCell id="n_tipoEvento" value="&lt;b&gt;TipoEvento&lt;/b&gt; (tipo_evento)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;nombre: varchar(100) UQ&lt;br&gt;descripcion: text (null)&lt;br&gt;campos_especificos: jsonb (null)&lt;br&gt;activo: boolean = true" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="260" height="124" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_template" value="&lt;b&gt;Template&lt;/b&gt; (template)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;FK tipo_evento_id: int&lt;br&gt;nombre: varchar(150)&lt;br&gt;thumbnail_url: varchar(500) (null)&lt;br&gt;descripcion: text (null)&lt;br&gt;activo: boolean = true&lt;br&gt;slug: varchar(100) UQ" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="340" y="40" width="260" height="156" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_servicio" value="&lt;b&gt;Servicio&lt;/b&gt; (servicio)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;nombre: varchar(100)&lt;br&gt;descripcion: text (null)&lt;br&gt;precio: decimal(12,2)&lt;br&gt;incluido_en_base: boolean = false&lt;br&gt;activo: boolean = true" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="640" y="40" width="260" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_usuario" value="&lt;b&gt;Usuario&lt;/b&gt; (usuario)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;username: varchar(100) UQ&lt;br&gt;email: varchar(255) UQ&lt;br&gt;password_hash: varchar(255)&lt;br&gt;role: varchar(20) = 'ADMIN'&lt;br&gt;email_verificado: boolean = false&lt;br&gt;created_at: timestamp" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="940" y="40" width="260" height="156" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════ ROW 2: Pedido flow + Invitacion (hub) ══════════ -->
+
+        <mxCell id="n_pedido" value="&lt;b&gt;Pedido&lt;/b&gt; (pedido)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;FK tipo_evento_id: int&lt;br&gt;FK template_id: int&lt;br&gt;nombre_cliente: varchar(200)&lt;br&gt;telefono: varchar(30)&lt;br&gt;email: varchar(255)&lt;br&gt;precio_base: decimal(12,2)&lt;br&gt;precio_total: decimal(12,2)&lt;br&gt;estado: varchar(20) enum&lt;br&gt;created_at: timestamp" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="40" y="280" width="260" height="204" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_pedidoServicio" value="&lt;b&gt;PedidoServicio&lt;/b&gt; (pedido_servicio)&lt;br&gt;──────────────&lt;br&gt;PK,FK pedido_id: int&lt;br&gt;PK,FK servicio_id: int&lt;br&gt;precio_al_momento: decimal(12,2)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#ffe6cc;strokeColor=#d79b00;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="340" y="280" width="260" height="92" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_invitacion" value="&lt;b&gt;Invitacion&lt;/b&gt; (invitacion)  ★ hub central&lt;br&gt;──────────────&lt;br&gt;PK id: uuid&lt;br&gt;FK pedido_id: int (null)&lt;br&gt;FK usuario_id: int (null)&lt;br&gt;FK template_id: int&lt;br&gt;FK tipo_evento_id: int&lt;br&gt;titulo: varchar(200)&lt;br&gt;fecha_evento: date&lt;br&gt;hora_evento: time&lt;br&gt;ubicacion: varchar(300)&lt;br&gt;direccion: varchar(500)&lt;br&gt;latitud: decimal(10,7)&lt;br&gt;longitud: decimal(10,7)&lt;br&gt;color_primario: varchar(7) (null)&lt;br&gt;contrasena_asistentes: varchar(255) (null)&lt;br&gt;max_fotos: int = 1000&lt;br&gt;campos_especificos: jsonb (null)&lt;br&gt;activa: boolean = true&lt;br&gt;created_at: timestamp&lt;br&gt;fecha_expiracion: date&lt;br&gt;edit_count: int = 0&lt;br&gt;estado_pago: varchar(50) = 'PENDIENTE'&lt;br&gt;&lt;font color=&quot;#b85450&quot;&gt;&lt;b&gt;— NUEVO (plan invitados) —&lt;/b&gt;&lt;br&gt;permitir_plus_one: boolean = false&lt;br&gt;max_integrantes_default: int (null)&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#d5e8d4;strokeColor=#2d7600;strokeWidth=2;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="680" y="280" width="300" height="428" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_invitacionServicio" value="&lt;b&gt;InvitacionServicio&lt;/b&gt; (invitacion_servicio)&lt;br&gt;──────────────&lt;br&gt;PK,FK invitacion_id: uuid&lt;br&gt;PK,FK servicio_id: int&lt;br&gt;habilitado: boolean = true" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="280" width="260" height="92" as="geometry" />
+        </mxCell>
+
+        <mxCell id="note_pedido" value="Nota (código actual): Invitacion.pedido es @ManyToOne pero Pedido.invitacion está modelado como @OneToOne. El comentario del código aclara que conceptualmente un Pedido podría tener varias Invitaciones (ej. dos horarios) — hoy no se usa esa navegación." style="text;html=1;align=left;verticalAlign=top;fontSize=10;fontStyle=2;fontColor=#666666;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="340" y="392" width="260" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════ ROW 3: Hijos de Invitacion + entidad nueva Grupo ══════════ -->
+
+        <mxCell id="n_invitado" value="&lt;b&gt;Invitado&lt;/b&gt; (invitado)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;FK invitacion_id: uuid&lt;br&gt;nombre: varchar(100)&lt;br&gt;apellido: varchar(100)&lt;br&gt;confirmado: boolean = false&lt;br&gt;fecha_confirmacion: timestamp (null)&lt;br&gt;&lt;s&gt;UQ (invitacion_id, nombre, apellido) — se elimina&lt;/s&gt;&lt;br&gt;&lt;font color=&quot;#b85450&quot;&gt;&lt;b&gt;— NUEVO (plan invitados) —&lt;/b&gt;&lt;br&gt;slug: varchar(150) (null, solo individuales)&lt;br&gt;FK grupo_id: int (null) → grupo&lt;br&gt;FK invitado_principal_id: int (null, self-FK)&lt;br&gt;restriccion_alimentaria: varchar(500) (null, solo fila titular)&lt;br&gt;puede_agregar_plus_one: boolean (null=hereda global)&lt;br&gt;invitacion_enviada: boolean = false&lt;br&gt;UQ (invitacion_id, slug)&lt;br&gt;CHECK: grupo_id IS NULL OR invitado_principal_id IS NULL&lt;br&gt;IDX grupo_id · IDX invitado_principal_id&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="40" y="760" width="260" height="316" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_historiaSeccion" value="&lt;b&gt;HistoriaSeccion&lt;/b&gt; (historia_seccion)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;FK invitacion_id: uuid&lt;br&gt;texto: varchar(3000)&lt;br&gt;imagen_url: varchar(500) (null)&lt;br&gt;orden: smallint" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="340" y="760" width="260" height="124" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_fotoAnfitrion" value="&lt;b&gt;FotoAnfitrion&lt;/b&gt; (foto_anfitrion)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;FK invitacion_id: uuid&lt;br&gt;url: varchar(500)&lt;br&gt;orden: smallint&lt;br&gt;tamano: int" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="640" y="760" width="260" height="124" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_foto" value="&lt;b&gt;Foto&lt;/b&gt; (foto)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;FK invitacion_id: uuid&lt;br&gt;url: varchar(500)&lt;br&gt;tamano: int&lt;br&gt;mime_type: varchar(50)&lt;br&gt;created_at: timestamp" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="940" y="760" width="260" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_musica" value="&lt;b&gt;Musica&lt;/b&gt; (musica)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;FK invitacion_id: uuid UQ&lt;br&gt;archivo_url: varchar(500)&lt;br&gt;tamano: int&lt;br&gt;mime_type: varchar(50) = 'audio/mpeg'" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="760" width="260" height="124" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_grupo" value="&lt;b&gt;🆕 Grupo&lt;/b&gt; (grupo) — ENTIDAD NUEVA (ex &quot;Familia&quot;)&lt;br&gt;──────────────&lt;br&gt;PK id: serial&lt;br&gt;FK invitacion_id: uuid → invitacion (cascade)&lt;br&gt;nombre: varchar(150)&lt;br&gt;slug: varchar(150)&lt;br&gt;max_integrantes: int (null=usa default global)&lt;br&gt;restriccion_alimentaria: varchar(500) (null) — una nota para todo el grupo&lt;br&gt;invitacion_enviada: boolean = false&lt;br&gt;UQ (invitacion_id, slug)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;dashed=1;fontFamily=Helvetica;fontColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="760" width="260" height="172" as="geometry" />
+        </mxCell>
+
+        <mxCell id="note_plan" value="Detalle completo (DDL exacto, orden de migración, endpoints nuevos por consumidor, backfill de slug, compatibilidad con links ya enviados) en Plan_Invitados_PlusOne_Familias.md, misma carpeta." style="text;html=1;align=left;verticalAlign=top;fontSize=10;fontStyle=2;fontColor=#b85450;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="944" width="260" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════ ROW 4: Auth / seguridad (ligado a Usuario) ══════════ -->
+
+        <mxCell id="n_verificacionEmail" value="&lt;b&gt;VerificacionEmail&lt;/b&gt; (verificacion_email)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;FK usuario_id: int&lt;br&gt;codigo: varchar(6)&lt;br&gt;expires_at: timestamp&lt;br&gt;usado: boolean = false&lt;br&gt;created_at: timestamp" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1140" width="260" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_passwordReset" value="&lt;b&gt;PasswordReset&lt;/b&gt; (password_reset)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;FK usuario_id: int&lt;br&gt;token: varchar(255) UQ&lt;br&gt;expires_at: timestamp&lt;br&gt;used: boolean = false&lt;br&gt;created_at: timestamp" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1140" width="260" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_tokenBlacklist" value="&lt;b&gt;TokenBlacklist&lt;/b&gt; (token_blacklist)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;token: text UQ&lt;br&gt;expires_at: timestamp (idx)&lt;br&gt;created_at: timestamp&lt;br&gt;— standalone, sin FK —" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1140" width="260" height="108" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_loginAttempt" value="&lt;b&gt;LoginAttempt&lt;/b&gt; (login_attempt)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;ip: varchar(45) UQ&lt;br&gt;attempt_count: int = 1&lt;br&gt;locked_until: timestamp (null)&lt;br&gt;created_at: timestamp&lt;br&gt;updated_at: timestamp&lt;br&gt;— standalone, sin FK —" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="940" y="1140" width="260" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════ ROW 5: Standalone / misc ══════════ -->
+
+        <mxCell id="n_notificacion" value="&lt;b&gt;Notificacion&lt;/b&gt; (notificacion)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;tipo: varchar(30) enum&lt;br&gt;destinatario_email: varchar(255)&lt;br&gt;asunto: varchar(255)&lt;br&gt;mensaje: text&lt;br&gt;enviada: boolean = false&lt;br&gt;fecha_envio: timestamp (null)&lt;br&gt;created_at: timestamp&lt;br&gt;— standalone, sin FK —" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1360" width="260" height="172" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_logEliminacion" value="&lt;b&gt;LogEliminacion&lt;/b&gt; (log_eliminacion)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;invitacion_id_ref: uuid (ref. blanda, sin FK)&lt;br&gt;fecha_eliminacion: timestamp&lt;br&gt;fotos_eliminadas: int = 0&lt;br&gt;detalles: text (null)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1360" width="260" height="124" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_codigoDescuento" value="&lt;b&gt;CodigoDescuento&lt;/b&gt; (codigos_descuento)&lt;br&gt;──────────────&lt;br&gt;PK id: int&lt;br&gt;codigo: varchar(50) UQ&lt;br&gt;porcentaje: decimal(5,2)&lt;br&gt;activo: boolean = true&lt;br&gt;descripcion: varchar(255) (null)&lt;br&gt;fecha_expiracion: date (null)&lt;br&gt;limite_usos: int (null)&lt;br&gt;usos_actuales: int = 0&lt;br&gt;created_at: timestamp&lt;br&gt;— standalone, validado por código en /pagos —" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#fff2cc;strokeColor=#d6b656;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1360" width="260" height="188" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════ EDGES existentes ══════════ -->
+
+        <mxCell id="e1" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_tipoEvento" target="n_template">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_tipoEvento" target="n_pedido">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_tipoEvento" target="n_invitacion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_template" target="n_pedido">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_template" target="n_invitacion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="1     0..N (usuario_id nullable)" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERzeroToMany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_usuario" target="n_invitacion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_usuario" target="n_verificacionEmail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_usuario" target="n_passwordReset">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_pedido" target="n_pedidoServicio">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_servicio" target="n_pedidoServicio">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_servicio" target="n_invitacionServicio">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="1     0..N (pedido_id nullable, ver nota)" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERzeroToMany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_pedido" target="n_invitacion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_invitacion" target="n_invitacionServicio">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="1     N (cascade)" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_invitacion" target="n_invitado">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="1     N (cascade)" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_invitacion" target="n_historiaSeccion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="1     N (cascade)" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_invitacion" target="n_fotoAnfitrion">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" value="1     N" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_invitacion" target="n_foto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" value="1     1 (cascade)" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERone;startArrow=ERone;rounded=0;" edge="1" parent="1" source="n_invitacion" target="n_musica">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════ EDGES nuevas (plan invitados) ══════════ -->
+
+        <mxCell id="e19" value="1     N (cascade) — NUEVO" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;strokeColor=#b85450;fontColor=#b85450;dashed=1;" edge="1" parent="1" source="n_invitacion" target="n_grupo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" value="1     N (integrantes, grupo_id) — NUEVO" style="edgeStyle=entityRelationEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;strokeColor=#b85450;fontColor=#b85450;dashed=1;" edge="1" parent="1" source="n_grupo" target="n_invitado">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" value="1     0..N (plus-ones, invitado_principal_id) — NUEVO / self-FK" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;html=1;endArrow=ERmany;startArrow=ERone;rounded=0;strokeColor=#b85450;fontColor=#b85450;dashed=1;exitX=0.2;exitY=0;exitDx=0;exitDy=0;entryX=0.8;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="n_invitado" target="n_invitado">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="92" y="700" />
+              <mxPoint x="248" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ══════════ Leyenda ══════════ -->
+
+        <mxCell id="legend" value="&lt;b&gt;Leyenda&lt;/b&gt;&lt;br&gt;──────────────&lt;br&gt;🟦 Catálogo / referencia&lt;br&gt;🟪 Usuario y autenticación&lt;br&gt;🟧 Flujo de Pedido&lt;br&gt;🟩 Invitacion (hub) e hijos&lt;br&gt;🟨 Standalone / misc&lt;br&gt;──────────────&lt;br&gt;PK = clave primaria&lt;br&gt;FK = clave foránea&lt;br&gt;UQ = unique constraint&lt;br&gt;(null) = columna nullable&lt;br&gt;──────────────&lt;br&gt;&lt;font color=&quot;#b85450&quot;&gt;&lt;b&gt;🔴 Rojo + borde punteado&lt;/b&gt;&lt;br&gt;= agregar (plan invitados)&lt;br&gt;&lt;s&gt;tachado&lt;/s&gt; = constraint que se elimina&lt;/font&gt;&lt;br&gt;──────────────&lt;br&gt;Restricción alimentaria: UNA por titular individual o por Grupo, no por cada plus-one/integrante." style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=8;spacingTop=6;spacingRight=6;fillColor=#f5f5f5;strokeColor=#666666;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="40" width="240" height="330" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
