@@ -10,25 +10,23 @@ interface Props {
 
 export function Step5Invitados({ state, onChange, onNext, onPrev }: Props) {
   function handleGuestsChange(guests: GuestEntry[]) {
-    const guestText = guests
-      .filter(g => g.nombre.trim() || g.apellido.trim())
-      .map(g => `${g.nombre} ${g.apellido}`.trim())
-      .join(', ')
-    onChange({ guests, guestText })
+    onChange({ guests })
   }
 
-  const hasAny = state.guests.some(g => g.nombre.trim() || g.apellido.trim())
+  const hasAny = state.guests.some(g => g.nombre.trim() || g.apellido.trim()) || !!state.bulkFile
 
   return (
     <div>
       <h2 className="text-lg font-semibold mb-1">Invitados</h2>
       <p className="text-[.82rem] text-[#6b7280] mb-5">
-        Opcional: cargá un invitado por fila o usá la carga masiva para personalizar la URL de cada uno.
+        Opcional: subí un archivo con la lista completa o cargá un invitado por fila.
       </p>
 
       <GuestListEditor
         guests={state.guests}
         onChange={handleGuestsChange}
+        bulkFile={state.bulkFile}
+        onBulkFileChange={(bulkFile) => onChange({ bulkFile })}
         variant="admin"
       />
 

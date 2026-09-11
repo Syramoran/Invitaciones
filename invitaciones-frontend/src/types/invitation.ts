@@ -86,4 +86,17 @@ export interface InvitacionPublica {
   saludoPersonalizado: string | null
   tieneConfirmacion: boolean
   mostrarBotonConfirmar: boolean
+
+  // ── Plus-one / grupos (presentes solo con ?invitado= o ?grupo=) ──
+  puedeAgregarPlusOne?: boolean
+  plusOneExistente?: { nombre: string; apellido: string; confirmado: boolean } | null
+  restriccionAlimentariaExistente?: string | null
+  yaConfirmado?: boolean
+  grupo?: {
+    nombre: string
+    slug: string
+    maxIntegrantesEfectivo: number | null
+    restriccionAlimentaria: string | null
+    integrantes: { id: number; nombre: string; apellido: string; confirmado: boolean }[]
+  }
 }

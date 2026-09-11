@@ -1,42 +1,38 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Copy, Check, ExternalLink, MessageCircle, Download } from 'lucide-react'
-import type { CrearInvitacionResult, GuestEntry } from '@/types/crearInvitacion'
+import { Copy, Check, ExternalLink, MessageCircle, Download, Loader2 } from 'lucide-react'
+import type { CrearInvitacionResult } from '@/types/crearInvitacion'
+import { invitadosAdminService } from '@/services/invitadosAdminService'
+import type { InvitadosListado } from '@/services/invitadosAdminService'
 
 interface Props {
   result: CrearInvitacionResult
-  guests: GuestEntry[]
   onCreateAnother: () => void
 }
 
-// Builds the ?invitado=nombre-apellido slug
-function guestSlug(g: GuestEntry) {
-  return [g.nombre, g.apellido]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '-')
-}
-
-function guestUrl(baseUrl: string, g: GuestEntry) {
-  return `${baseUrl}?invitado=${guestSlug(g)}`
-}
-
-export function ResultScreen({ result, guests, onCreateAnother }: Props) {
+export function ResultScreen({ result, onCreateAnother }: Props) {
   const navigate  = useNavigate()
   const [copied, setCopied] = useState(false)
+  const [listado, setListado] = useState<InvitadosListado | null>(null)
+  const [loadingListado, setLoadingListado] = useState(true)
 
   // Public URL follows the /:eventoId route defined in App.tsx
   const publicUrl = `${window.location.origin}/${result.id}`
 
-  // ── Personalised URL list ─────────────────────────────────────────────────
+  // Trae el listado real (individuales + grupos) con sus slugs/URLs ya
+  // persistidos por el backend — nada se recalcula acá.
+  useEffect(() => {
+    let cancelado = false
+    invitadosAdminService.listarInvitados(result.id)
+      .then(data => { if (!cancelado) setListado(data) })
+      .catch(() => { if (!cancelado) setListado({ individuales: [], grupos: [] }) })
+      .finally(() => { if (!cancelado) setLoadingListado(false) })
+    return () => { cancelado = true }
+  }, [result.id])
 
-  const guestUrls = useMemo(
-    () => guests.map(g => ({ ...g, url: guestUrl(publicUrl, g) })),
-    [guests, publicUrl],
-  )
+  const individuales = listado?.individuales ?? []
+  const grupos = listado?.grupos ?? []
+  const totalLinks = individuales.length + grupos.length
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
@@ -54,14 +50,19 @@ export function ResultScreen({ result, guests, onCreateAnother }: Props) {
   }
 
   function handleDownloadCsv() {
-    const header = 'Nombre,Apellido,URL'
-    const rows   = guestUrls.map(g => `${g.nombre},${g.apellido},${g.url}`)
-    const csv    = [header, ...rows].join('\n')
-    const blob   = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const href   = URL.createObjectURL(blob)
-    const a      = document.createElement('a')
-    a.href       = href
-    a.download   = `invitados-${result.id}.csv`
+    const header = 'Tipo,Nombre,URL'
+    const filasIndividuales = individuales.map(
+      i => `Individual,"${i.nombre} ${i.apellido}",${i.urlPersonalizada}`,
+    )
+    const filasGrupos = grupos.map(
+      g => `Grupo,"${g.nombre}",${publicUrl}?grupo=${g.slug}`,
+    )
+    const csv = [header, ...filasIndividuales, ...filasGrupos].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const href = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = href
+    a.download = `invitados-${result.id}.csv`
     a.click()
     URL.revokeObjectURL(href)
   }
@@ -98,17 +99,24 @@ export function ResultScreen({ result, guests, onCreateAnother }: Props) {
       </div>
 
       {/* Guest URL summary */}
-      {guestUrls.length > 0 && (
+      {loadingListado ? (
+        <div className="flex items-center justify-center gap-2 text-[.82rem] text-[#9ca3af] mb-6">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Cargando invitados...
+        </div>
+      ) : totalLinks > 0 ? (
         <div className="bg-[#dcfce7] text-[#166534] rounded-xl px-4 py-3 text-[.82rem] mb-6 text-left">
           <p className="font-semibold mb-0.5">
-            ✓ {guestUrls.length} URL{guestUrls.length !== 1 ? 's' : ''} personalizadas generadas
+            ✓ {individuales.length > 0 && `${individuales.length} invitado${individuales.length !== 1 ? 's' : ''}`}
+            {individuales.length > 0 && grupos.length > 0 && ' y '}
+            {grupos.length > 0 && `${grupos.length} grupo${grupos.length !== 1 ? 's' : ''}`}
+            {' '}con link personalizado
           </p>
           <p className="text-[#166534]/80">
-            Cada invitado tiene su link con el parámetro <code className="bg-[#bbf7d0] px-1 rounded">?invitado=</code>.
-            La entidad se crea recién cuando el invitado confirme asistencia.
+            Cada invitado tiene su link (<code className="bg-[#bbf7d0] px-1 rounded">?invitado=</code>) y cada grupo el suyo (<code className="bg-[#bbf7d0] px-1 rounded">?grupo=</code>).
           </p>
         </div>
-      )}
+      ) : null}
 
       {/* Action buttons */}
       <div className="flex flex-wrap justify-center gap-3">
@@ -121,7 +129,7 @@ export function ResultScreen({ result, guests, onCreateAnother }: Props) {
           Enviar por WhatsApp
         </button>
 
-        {guestUrls.length > 0 && (
+        {totalLinks > 0 && (
           <button
             type="button"
             onClick={handleDownloadCsv}

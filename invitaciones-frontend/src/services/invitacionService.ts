@@ -23,8 +23,11 @@ export function getCachedInvitacion(id: string): InvitacionPublica | null {
 export async function getInvitacionPublica(
   id: string,
   invitado?: string,
+  grupo?: string,
 ): Promise<InvitacionPublica> {
-  const params = invitado ? { invitado } : {}
+  const params: Record<string, string> = {}
+  if (invitado) params.invitado = invitado
+  if (grupo) params.grupo = grupo
   const { data } = await apiClient.get<InvitacionPublica>(
     `/invitaciones/${id}/public`,
     { params },
@@ -35,6 +38,8 @@ export async function getInvitacionPublica(
 
 interface ConfirmarAsistenciaDto {
   invitadoSlug: string
+  restriccionAlimentaria?: string
+  plusOne?: { nombre: string; apellido: string }
 }
 
 interface ConfirmacionResponse {
@@ -45,26 +50,11 @@ interface ConfirmacionResponse {
   fechaConfirmacion: string | null
 }
 
-export interface AsistenteItem {
-  nombre: string
-  apellido: string
-  fechaConfirmacion: string | null
-}
-
-export interface AsistentesResponse {
-  totalConfirmados: number
-  invitados: AsistenteItem[]
-}
-
-export async function getAsistentes(
-  invitacionId: string,
-  password: string,
-): Promise<AsistentesResponse> {
-  const { data } = await apiClient.get<AsistentesResponse>(
-    `/invitaciones/${invitacionId}/asistentes`,
-    { headers: { 'x-event-password': password } },
-  )
-  return data
+export interface ConfirmarGrupoDto {
+  grupoSlug: string
+  integrantesConfirmados?: number[]
+  integrantesNuevos?: { nombre: string; apellido: string }[]
+  restriccionAlimentaria?: string
 }
 
 export async function confirmarAsistencia(
@@ -73,6 +63,30 @@ export async function confirmarAsistencia(
 ): Promise<ConfirmacionResponse> {
   const { data } = await apiClient.post<ConfirmacionResponse>(
     `/invitaciones/${invitacionId}/confirmar`,
+    dto,
+  )
+  return data
+}
+
+export interface ConfirmacionGrupoResponse {
+  mensaje: string
+  grupo: {
+    id: number
+    nombre: string
+    slug: string
+    maxIntegrantes: number | null
+    restriccionAlimentaria: string | null
+    invitacionEnviada: boolean
+    integrantes: { id: number; nombre: string; apellido: string; confirmado: boolean }[]
+  }
+}
+
+export async function confirmarGrupo(
+  invitacionId: string,
+  dto: ConfirmarGrupoDto,
+): Promise<ConfirmacionGrupoResponse> {
+  const { data } = await apiClient.post<ConfirmacionGrupoResponse>(
+    `/invitaciones/${invitacionId}/grupos/confirmar`,
     dto,
   )
   return data

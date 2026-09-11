@@ -204,10 +204,9 @@ export interface GuestEntry {
 }
 
 export interface WizardStep5 {
-  generateGuestUrls: boolean
-  guestText: string
   guests: GuestEntry[]
-  parseError: string | null
+  /** Archivo .xlsx/.csv de carga masiva (individuales + grupos) */
+  bulkFile: File | null
 }
 
 // Full wizard form state ───────────────────────────────────────────────────────
@@ -243,6 +242,6 @@ export function createInitialFormState(): WizardFormState {
     },
     step3: { servicios: [] },
     step4: { fotos: [], fotosPreviews: [], musica: null, musicaNombre: '', historias: [], existingFotos: [], removedFotoIds: [], existingMusica: null, removeMusica: false },
-    step5: { generateGuestUrls: false, guestText: '', guests: [], parseError: null },
+    step5: { guests: [], bulkFile: null },
   }
 }

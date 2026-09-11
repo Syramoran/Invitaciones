@@ -8,6 +8,7 @@ import { useAuth } from '@/context/useAuth'
 import type { WizardFormState, ServiceToggle, HistoriaSeccion } from '@/types/crearInvitacion'
 import { createInitialFormState, INITIAL_CAMPOS } from '@/types/crearInvitacion'
 import { adminInvitacionService } from '@/services/adminInvitacionService'
+import { invitadosAdminService } from '@/services/invitadosAdminService'
 import { templateService } from '@/services/templateService'
 import { servicioService } from '@/services/servicioService'
 import type { Template } from '@/services/templateService'
@@ -308,6 +309,10 @@ export default function CrearInvitacionWizard() {
       await apiClient.post(`/invitaciones/${currentId}/invitados`, {
         invitados: formState.step5.guests,
       })
+    }
+
+    if (formState.step5.bulkFile) {
+      await invitadosAdminService.importarInvitados(currentId!, formState.step5.bulkFile)
     }
 
     return currentId!

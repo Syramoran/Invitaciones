@@ -240,7 +240,6 @@ export function CrearInvitacionWizard() {
     return (
       <ResultScreen
         result={result}
-        guests={formState.step5.guests}
         onCreateAnother={handleCreateAnother}
       />
     )
