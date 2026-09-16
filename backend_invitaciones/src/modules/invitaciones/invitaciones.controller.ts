@@ -105,7 +105,7 @@ export class InvitacionesController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateInvitacionDto,
   ) {
-    return this.invitacionesService.actualizar(id, dto);
+    return this.invitacionesService.actualizar(id, dto, true);
   }
 
   // ═══════════════════════════════════════════

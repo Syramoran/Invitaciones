@@ -18,7 +18,7 @@ export interface InvitadoIndividual {
   slug: string | null
   urlPersonalizada: string
   invitacionEnviada: boolean
-  /** null = hereda el permitirPlusOne global de la invitación */
+  /** null se trata igual que false: sin plus-one salvo que se habilite explícitamente */
   puedeAgregarPlusOne: boolean | null
   restriccionAlimentaria: string | null
   plusOne: PlusOneAsistente | null
@@ -38,14 +38,13 @@ export interface Grupo {
   maxIntegrantes: number | null
   restriccionAlimentaria: string | null
   invitacionEnviada: boolean
+  urlPersonalizada: string
   integrantes: IntegranteGrupo[]
 }
 
 export interface AsistentesResponse {
   totalEsperados: number
   totalConfirmados: number
-  permitirPlusOne: boolean
-  maxIntegrantesDefault: number | null
   individuales: InvitadoIndividual[]
   grupos: Grupo[]
 }
@@ -58,13 +57,8 @@ export interface CrearInvitadoAsistenteDto {
 
 export interface ActualizarInvitadoAsistenteDto {
   invitacionEnviada?: boolean
-  puedeAgregarPlusOne?: boolean
+  puedeAgregarPlusOne?: boolean | null
   restriccionAlimentaria?: string
-}
-
-export interface ActualizarSettingsDto {
-  permitirPlusOne?: boolean
-  maxIntegrantesDefault?: number | null
 }
 
 export interface IntegranteGrupoDto {

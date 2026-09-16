@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 
 import { Grupo } from '../../entities/grupo.entity';
 import { Invitado } from '../../entities/invitado.entity';
-import { InvitacionesService } from '../invitaciones/invitaciones.service';
 import { toSlug, generarSlugUnico } from '../../common/utils/slug.util';
 
 import {
@@ -33,7 +33,7 @@ export class GruposService {
     @InjectRepository(Invitado)
     private readonly invitadoRepo: Repository<Invitado>,
 
-    private readonly invitacionesService: InvitacionesService,
+    private readonly configService: ConfigService,
   ) {}
 
   // ═══════════════════════════════════════════
@@ -64,9 +64,7 @@ export class GruposService {
   // ═══════════════════════════════════════════
 
   async crear(invitacionId: string, dto: CrearGrupoDto): Promise<GrupoResponseDto> {
-    const invitacion = await this.invitacionesService.buscarInvitacionOFail(invitacionId);
-
-    const maxEfectivo = dto.maxIntegrantes ?? invitacion.maxIntegrantesDefault ?? null;
+    const maxEfectivo = dto.maxIntegrantes ?? null;
     if (dto.integrantes?.length && maxEfectivo !== null && dto.integrantes.length > maxEfectivo) {
       throw new BadRequestException(
         `El grupo no puede tener más de ${maxEfectivo} integrantes.`,
@@ -165,9 +163,8 @@ export class GruposService {
     dto: IntegranteGrupoDto,
   ): Promise<IntegranteResponseDto> {
     const grupo = await this.buscarGrupoOFail(invitacionId, grupoId);
-    const invitacion = await this.invitacionesService.buscarInvitacionOFail(invitacionId);
 
-    const maxEfectivo = grupo.maxIntegrantes ?? invitacion.maxIntegrantesDefault ?? null;
+    const maxEfectivo = grupo.maxIntegrantes ?? null;
     const cantidadActual = await this.invitadoRepo.count({ where: { grupoId } });
 
     if (maxEfectivo !== null && cantidadActual >= maxEfectivo) {
@@ -229,8 +226,6 @@ export class GruposService {
     invitacionId: string,
     dto: ConfirmarGrupoDto,
   ): Promise<ConfirmacionGrupoResponseDto> {
-    const invitacion = await this.invitacionesService.buscarInvitacionOFail(invitacionId);
-
     const grupo = await this.grupoRepo.findOne({
       where: { invitacionId, slug: toSlug(dto.grupoSlug) },
     });
@@ -254,7 +249,7 @@ export class GruposService {
       }
     }
 
-    const maxEfectivo = grupo.maxIntegrantes ?? invitacion.maxIntegrantesDefault ?? null;
+    const maxEfectivo = grupo.maxIntegrantes ?? null;
     const totalFinal = integrantesActuales.length + nuevos.length;
     if (maxEfectivo !== null && totalFinal > maxEfectivo) {
       throw new BadRequestException(
@@ -342,8 +337,21 @@ export class GruposService {
       maxIntegrantes: grupo.maxIntegrantes,
       restriccionAlimentaria: grupo.restriccionAlimentaria,
       invitacionEnviada: grupo.invitacionEnviada,
+      urlPersonalizada: this.generarUrlPersonalizada(grupo.invitacionId, grupo.slug),
       integrantes: integrantes.map((i) => this.mapearIntegrante(i)),
     };
+  }
+
+  /**
+   * URL pública del grupo (?grupo=slug) — mismo formato que
+   * InvitadosService.generarUrlPersonalizada para individuales (?invitado=slug).
+   */
+  private generarUrlPersonalizada(invitacionId: string, slug: string): string {
+    const baseUrl = this.configService.get<string>(
+      'FRONTEND_URL',
+      'https://invitaciones.com',
+    );
+    return `${baseUrl}/${invitacionId}?grupo=${encodeURIComponent(slug)}`;
   }
 
   private mapearIntegrante(invitado: Invitado): IntegranteResponseDto {

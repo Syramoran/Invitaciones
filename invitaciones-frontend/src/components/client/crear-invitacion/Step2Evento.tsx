@@ -321,7 +321,7 @@ export function Step2Evento({ state, servicios, onChange, tipoEventoId, template
       ? state.ubicaciones.length >= 1 &&
         state.ubicaciones.every(u => u.nombre.trim() && u.direccion.trim())
       : !!(state.ubicacion.trim() && state.direccion.trim())
-  )
+  ) && (!showSeguridad || !!state.contrasenaAsistentes.trim())
 
   return (
     <div>
@@ -511,11 +511,11 @@ export function Step2Evento({ state, servicios, onChange, tipoEventoId, template
           </h3>
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <Label text="Contraseña para ver asistentes" />
-              <input type="text" maxLength={255} placeholder="Ej: mis15sofi (opcional)"
+              <Label text="Contraseña para ver asistentes" required />
+              <input type="text" maxLength={255} placeholder="Ej: mis15sofi"
                 value={state.contrasenaAsistentes} onChange={e => setField('contrasenaAsistentes', e.target.value)}
                 className={INPUT_CLS + " max-w-sm"} />
-              <p className="text-[.75rem] text-[#6b7280] mt-1">Dejalo vacío si querés que la lista sea pública para los invitados.</p>
+              <p className="text-[.75rem] text-[#6b7280] mt-1">La vas a necesitar para gestionar tus invitados y ver quién confirmó.</p>
             </div>
           </div>
         </div>

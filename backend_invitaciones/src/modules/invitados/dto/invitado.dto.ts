@@ -7,8 +7,6 @@ import {
   MaxLength,
   IsOptional,
   IsBoolean,
-  IsInt,
-  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { GrupoResponseDto } from '../../grupos/dto/grupo.dto';
@@ -112,27 +110,12 @@ export class ActualizarInvitadoAsistenteDto {
 
   @IsOptional()
   @IsBoolean()
-  puedeAgregarPlusOne?: boolean;
+  puedeAgregarPlusOne?: boolean | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(500)
   restriccionAlimentaria?: string;
-}
-
-/**
- * PATCH /invitaciones/:id/asistentes/settings
- * maxIntegrantesDefault: null = sin límite.
- */
-export class ActualizarSettingsDto {
-  @IsOptional()
-  @IsBoolean()
-  permitirPlusOne?: boolean;
-
-  @IsOptional()
-  @IsInt()
-  @Min(1, { message: 'maxIntegrantesDefault no puede ser 0' })
-  maxIntegrantesDefault?: number | null;
 }
 
 // ═══════════════════════════════════════════
@@ -199,7 +182,7 @@ export class InvitadoIndividualResponseDto {
   slug!: string | null;
   urlPersonalizada!: string;
   invitacionEnviada!: boolean;
-  /** null = hereda el permitirPlusOne global de la invitación */
+  /** null se trata igual que false: sin plus-one salvo que se habilite explícitamente */
   puedeAgregarPlusOne!: boolean | null;
   restriccionAlimentaria!: string | null;
   plusOne!: PlusOneResponseDto | null;
@@ -229,22 +212,11 @@ export class ConfirmacionResponseDto {
 /**
  * GET /invitaciones/:id/asistentes
  * Panel de gestión completo (protegido por contraseña del evento):
- * individuales+plusOne, grupos+integrantes, settings globales y conteos
- * (confirmados y pendientes).
+ * individuales+plusOne, grupos+integrantes y conteos (confirmados y pendientes).
  */
 export class AsistentesResponseDto {
   totalEsperados!: number;
   totalConfirmados!: number;
-  permitirPlusOne!: boolean;
-  maxIntegrantesDefault!: number | null;
   individuales!: InvitadoIndividualResponseDto[];
   grupos!: GrupoResponseDto[];
-}
-
-/**
- * PATCH /invitaciones/:id/asistentes/settings (200)
- */
-export class SettingsResponseDto {
-  permitirPlusOne!: boolean;
-  maxIntegrantesDefault!: number | null;
 }

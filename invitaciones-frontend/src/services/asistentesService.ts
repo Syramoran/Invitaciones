@@ -6,7 +6,6 @@ import type {
   IntegranteGrupo,
   CrearInvitadoAsistenteDto,
   ActualizarInvitadoAsistenteDto,
-  ActualizarSettingsDto,
   CrearGrupoDto,
   ActualizarGrupoDto,
   IntegranteGrupoDto,
@@ -61,19 +60,6 @@ export const asistentesService = {
       `/invitaciones/${invitacionId}/asistentes/invitados/${invitadoId}`,
       headers(password),
     )
-  },
-
-  async actualizarSettings(
-    invitacionId: string,
-    password: string,
-    dto: ActualizarSettingsDto,
-  ): Promise<{ permitirPlusOne: boolean; maxIntegrantesDefault: number | null }> {
-    const { data } = await apiClient.patch(
-      `/invitaciones/${invitacionId}/asistentes/settings`,
-      dto,
-      headers(password),
-    )
-    return data
   },
 
   async crearGrupo(

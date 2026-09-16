@@ -127,6 +127,7 @@ export class GrupoResponseDto {
   maxIntegrantes!: number | null;
   restriccionAlimentaria!: string | null;
   invitacionEnviada!: boolean;
+  urlPersonalizada!: string;
   integrantes!: IntegranteResponseDto[];
 }
 

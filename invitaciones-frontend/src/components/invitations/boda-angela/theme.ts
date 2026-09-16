@@ -89,7 +89,7 @@ export const TYPO: Record<TypoName, CSSProperties> = {
   h2: {
     fontFamily: FONT.serif,
     fontWeight: 500,
-    fontSize: 22,
+    fontSize: 28,
     lineHeight: 'normal',
     letterSpacing: '0.3em',
     textTransform: 'uppercase',
@@ -107,7 +107,7 @@ export const TYPO: Record<TypoName, CSSProperties> = {
   h4: {
     fontFamily: FONT.sans,
     fontWeight: 300,
-    fontSize: 18,
+    fontSize: 15,
     lineHeight: '28px',
     letterSpacing: '0.08em',
     textTransform: 'uppercase',
@@ -122,11 +122,9 @@ export const TYPO: Record<TypoName, CSSProperties> = {
   /** Text2 — montserrat 400 · 12 / 28 · tracking 10% · UPPERCASE */
   text2: {
     fontFamily: FONT.sans,
-    fontWeight: 400,
-    fontSize: 12,
+    fontWeight: 300,
+    fontSize: 16,
     lineHeight: '28px',
-    letterSpacing: '0.1em',
-    textTransform: 'uppercase',
   },
   /** Text3 — montserrat 400 · 12 / 21 · tracking 8% · UPPERCASE */
   text3: {
@@ -148,7 +146,7 @@ export const TYPO: Record<TypoName, CSSProperties> = {
   detailsH: {
     fontFamily: FONT.serif,
     fontWeight: 500,
-    fontSize: 14,
+    fontSize: 24,
     lineHeight: 'normal',
     letterSpacing: '0.15em',
     textTransform: 'uppercase',

@@ -88,6 +88,8 @@ export interface InvitacionPublica {
   mostrarBotonConfirmar: boolean
 
   // ── Plus-one / grupos (presentes solo con ?invitado= o ?grupo=) ──
+  invitadoNombre?: string | null
+  invitadoApellido?: string | null
   puedeAgregarPlusOne?: boolean
   plusOneExistente?: { nombre: string; apellido: string; confirmado: boolean } | null
   restriccionAlimentariaExistente?: string | null

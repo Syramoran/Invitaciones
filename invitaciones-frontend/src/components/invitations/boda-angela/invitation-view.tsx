@@ -3,14 +3,13 @@ import type { InvitacionPublica, CamposEspecificosBoda } from '@/types/invitatio
 import { EnvelopeOverlayAngela } from './envelope-overlay-angela'
 import { MusicPlayer } from '../invitation-basic/music-player'
 import { Reveal } from './reveal'
+import { useRevealOnScroll } from './use-reveal-on-scroll'
 import { HeroSection } from './hero-section'
 import { CountdownSection } from './countdown-section'
-import { EventInfoSection } from './event-info-section'
-import { LocationsSection } from './locations-section'
-import { MapSection } from './map-section'
-import { NoteSection } from './note-section'
-import { DresscodeSection } from './dresscode-section'
-import { GiftSection } from './gift-section'
+import { CeremoniaSection } from './ceremonia-section'
+import { CenaSection } from './cena-section'
+import { DetallesSection } from './detalles-section'
+import { FechaLimiteSection } from './fecha-limite-section'
 import { RsvpSection } from './rsvp-section'
 import { COLOR, TYPO } from './theme'
 
@@ -29,7 +28,20 @@ function getTituloOverlay(invitacion: InvitacionPublica): string {
 }
 
 function Divisor() {
-  return <div aria-hidden="true" className="mx-auto h-px w-[90%] sm:w-[75%]" style={{ backgroundColor: COLOR.brown }} />
+  const { ref, inView } = useRevealOnScroll<HTMLDivElement>()
+  return (
+    <div
+      ref={ref}
+      aria-hidden="true"
+      className="mx-auto w-[90%] sm:w-[75%] origin-center"
+      style={{
+        borderTop: `1px solid ${COLOR.brown}`,
+        transform: inView ? 'scaleX(1)' : 'scaleX(0)',
+        opacity: inView ? 1 : 0,
+        transition: 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease',
+      }}
+    />
+  )
 }
 
 function SkeletonLoader() {
@@ -81,14 +93,15 @@ export function InvitationView({
   const fechaLimiteConfirmacion = (campos.fechaLimiteConfirmacion as string) || null
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden" style={{ backgroundColor: COLOR.crema }}>
+    <div className="relative min-h-screen w-full overflow-hidden" style={{ backgroundColor: COLOR.parchment }}>
       <img
         src="/boda-angela/textura-inv.jpg"
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 w-full h-auto select-none"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover select-none"
         style={{
           opacity: 0.7,
+          mixBlendMode: 'multiply',
         }}
       />
       {/* Fondo mobile — solo visible en pantallas pequeñas */}
@@ -96,7 +109,7 @@ export function InvitationView({
         src="/boda-angela/sections-bg-mobile2.jpg"
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 w-full h-full object-cover select-none sm:hidden"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover select-none sm:hidden"
       />
       {showOverlay && (
         <EnvelopeOverlayAngela
@@ -125,37 +138,37 @@ export function InvitationView({
             </Reveal>
           )}
 
+          <Divisor />
 
-          {/* <LocationsSection invitacion={invitacion} />
+          <Reveal>
+            <CeremoniaSection invitacion={invitacion} />
+          </Reveal>
 
-          <MapSection invitacion={invitacion} />
+          <Divisor /> 
+
+          <Reveal>
+            <CenaSection invitacion={invitacion} />
+          </Reveal>
 
           <Divisor />
-          <NoteSection invitacion={invitacion} />
+
+          <Reveal>
+            <DetallesSection invitacion={invitacion} />
+          </Reveal>
 
           <Divisor />
-          <DresscodeSection />
+
+          <Reveal>
+            <FechaLimiteSection invitacion={invitacion} />
+          </Reveal>
 
           <Divisor />
-          <GiftSection invitacion={invitacion} />
 
-          {fechaLimiteConfirmacion && (
-            <>
-              <Divisor />
-              <CountdownSection fechaObjetivo={fechaLimiteConfirmacion} label="Faltan" />
-            </>
-          )}
+          <Reveal>
+            <RsvpSection invitacion={invitacion} invitadoParam={invitadoParam} />
+          </Reveal>
 
-          {invitacion.tieneConfirmacion && (
-            <>
-              <Divisor />
-              <RsvpSection
-                invitacionId={invitacion.id}
-                invitadoParam={invitadoParam ?? null}
-                mostrarBoton={invitacion.mostrarBotonConfirmar}
-              />
-            </>
-          )} */}
+          <Divisor />
 
           <footer
             className="px-7 pb-10 pt-6 text-center"

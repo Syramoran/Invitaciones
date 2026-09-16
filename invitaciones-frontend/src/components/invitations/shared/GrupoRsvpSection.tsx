@@ -1,6 +1,5 @@
-import { useState } from "react"
-import { confirmarGrupo } from "@/services/invitacionService"
 import type { InvitacionPublica } from "@/types/invitation"
+import { useRsvpConfirmacionGrupo } from "./useRsvpConfirmacionGrupo"
 
 interface GrupoRsvpSectionProps {
   invitacionId: string
@@ -10,69 +9,29 @@ interface GrupoRsvpSectionProps {
   colorPrimario?: string
 }
 
-interface IntegranteNuevo {
-  nombre: string
-  apellido: string
-}
-
 /**
  * Variante de RSVP para el link de grupo (?grupo=slug). Reutilizable entre
  * templates: no trae estilos hardcodeados de ningún template puntual más
  * allá de clases utilitarias neutras, para poder conectarse en varios.
  */
 export function GrupoRsvpSection({ invitacionId, grupo, mostrarBoton }: GrupoRsvpSectionProps) {
-  const [seleccionados, setSeleccionados] = useState<Set<number>>(
-    () => new Set(grupo.integrantes.filter((i) => i.confirmado).map((i) => i.id)),
-  )
-  const [nuevos, setNuevos] = useState<IntegranteNuevo[]>([])
-  const [nombreNuevo, setNombreNuevo] = useState("")
-  const [apellidoNuevo, setApellidoNuevo] = useState("")
-  const [restriccionAlimentaria, setRestriccionAlimentaria] = useState(
-    grupo.restriccionAlimentaria ?? "",
-  )
-  const [estado, setEstado] = useState<"idle" | "loading" | "success" | "error">("idle")
-  const [mensaje, setMensaje] = useState("")
-
-  const totalActual = seleccionados.size + nuevos.length
-  const llegoAlTope = grupo.maxIntegrantesEfectivo !== null && totalActual >= grupo.maxIntegrantesEfectivo
-
-  function toggleIntegrante(id: number) {
-    setSeleccionados((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
-  function agregarNuevo() {
-    if (!nombreNuevo.trim() || !apellidoNuevo.trim() || llegoAlTope) return
-    setNuevos((prev) => [...prev, { nombre: nombreNuevo.trim(), apellido: apellidoNuevo.trim() }])
-    setNombreNuevo("")
-    setApellidoNuevo("")
-  }
-
-  function quitarNuevo(index: number) {
-    setNuevos((prev) => prev.filter((_, i) => i !== index))
-  }
-
-  async function confirmar() {
-    setEstado("loading")
-    try {
-      const response = await confirmarGrupo(invitacionId, {
-        grupoSlug: grupo.slug,
-        integrantesConfirmados: Array.from(seleccionados),
-        integrantesNuevos: nuevos,
-        restriccionAlimentaria: restriccionAlimentaria.trim() || undefined,
-      })
-      setEstado("success")
-      setMensaje(response.mensaje || "¡Gracias por confirmar!")
-      setNuevos([])
-    } catch {
-      setEstado("error")
-      setMensaje("No se pudo registrar la confirmación. Intentá de nuevo.")
-    }
-  }
+  const {
+    seleccionados,
+    toggleIntegrante,
+    nuevos,
+    agregarNuevo,
+    quitarNuevo,
+    nombreNuevo,
+    setNombreNuevo,
+    apellidoNuevo,
+    setApellidoNuevo,
+    restriccionAlimentaria,
+    setRestriccionAlimentaria,
+    estado,
+    mensaje,
+    confirmar,
+    llegoAlTope,
+  } = useRsvpConfirmacionGrupo({ invitacionId, grupo })
 
   if (!mostrarBoton) return null
 

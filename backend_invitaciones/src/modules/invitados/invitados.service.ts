@@ -31,8 +31,6 @@ import {
   ImportarInvitadosResponseDto,
   CrearInvitadoAsistenteDto,
   ActualizarInvitadoAsistenteDto,
-  ActualizarSettingsDto,
-  SettingsResponseDto,
 } from './dto/invitado.dto';
 
 @Injectable()
@@ -141,7 +139,7 @@ export class InvitadosService {
     invitacionId: string,
     file: Express.Multer.File,
   ): Promise<ImportarInvitadosResponseDto> {
-    const invitacion = await this.invitacionesService.buscarInvitacionOFail(invitacionId);
+    await this.invitacionesService.buscarInvitacionOFail(invitacionId);
 
     let filas;
     try {
@@ -222,7 +220,7 @@ export class InvitadosService {
           continue;
         }
 
-        const maxEfectivo = grupo.maxIntegrantes ?? invitacion.maxIntegrantesDefault ?? null;
+        const maxEfectivo = grupo.maxIntegrantes ?? null;
         const cantidadActual = cantidadPorGrupo.get(grupo.id) ?? 0;
         if (maxEfectivo !== null && cantidadActual >= maxEfectivo) {
           errores.push({
@@ -337,7 +335,7 @@ export class InvitadosService {
     invitacionId: string,
     dto: ConfirmarAsistenciaDto,
   ): Promise<ConfirmacionResponseDto> {
-    const invitacion = await this.invitacionesService.buscarInvitacionOFail(invitacionId);
+    await this.invitacionesService.buscarInvitacionOFail(invitacionId);
 
     // Normalizar el slug entrante (ya viene sin acentos ni mayúsculas, pero lo aseguramos)
     const slugEntrada = toSlug(dto.invitadoSlug);
@@ -373,7 +371,7 @@ export class InvitadosService {
       const elegible =
         invitado.grupoId === null &&
         invitado.invitadoPrincipalId === null &&
-        (invitado.puedeAgregarPlusOne ?? invitacion.permitirPlusOne);
+        (invitado.puedeAgregarPlusOne ?? false);
 
       if (!elegible) {
         throw new BadRequestException('Este invitado no puede agregar un acompañante.');
@@ -437,13 +435,12 @@ export class InvitadosService {
 
   // ═══════════════════════════════════════════
   // GET /invitaciones/:id/asistentes — Panel de gestión (contraseña del evento)
-  // Requiere header X-Event-Password, validado por EventPasswordGuard
-  // Individuales+plusOne, grupos+integrantes, settings globales, confirmados y pendientes
+  // Requiere header X-Event-Password, validado por EventPasswordGuard (ya
+  // valida que la invitación exista, no hace falta volver a buscarla acá).
+  // Individuales+plusOne, grupos+integrantes, confirmados y pendientes
   // ═══════════════════════════════════════════
 
   async obtenerAsistentes(invitacionId: string): Promise<AsistentesResponseDto> {
-    const invitacion = await this.invitacionesService.buscarInvitacionOFail(invitacionId);
-
     const individuales = await this.listarIndividuales(invitacionId);
     const grupos = await this.gruposService.listarPorInvitacion(invitacionId);
 
@@ -455,8 +452,6 @@ export class InvitadosService {
     return {
       totalEsperados,
       totalConfirmados,
-      permitirPlusOne: invitacion.permitirPlusOne,
-      maxIntegrantesDefault: invitacion.maxIntegrantesDefault,
       individuales,
       grupos,
     };
@@ -598,27 +593,6 @@ export class InvitadosService {
     this.logger.log(
       `🗑️ Invitado eliminado desde /asistentes — Invitación: ${invitacionId} | Invitado: #${invitadoId}`,
     );
-  }
-
-  // ═══════════════════════════════════════════
-  // PATCH /invitaciones/:id/asistentes/settings
-  // ═══════════════════════════════════════════
-
-  async actualizarSettings(
-    invitacionId: string,
-    dto: ActualizarSettingsDto,
-  ): Promise<SettingsResponseDto> {
-    const invitacion = await this.invitacionesService.actualizarSettingsAsistentes(
-      invitacionId,
-      dto,
-    );
-
-    this.logger.log(`⚙️ Settings actualizados — Invitación: ${invitacionId}`);
-
-    return {
-      permitirPlusOne: invitacion.permitirPlusOne,
-      maxIntegrantesDefault: invitacion.maxIntegrantesDefault,
-    };
   }
 
   // ═══════════════════════════════════════════

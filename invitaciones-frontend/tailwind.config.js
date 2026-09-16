@@ -133,6 +133,30 @@ export default {
             transform: 'scale(1.02)',
           },
         },
+        // Línea que se expande desde el centro hacia los lados
+        expandFromCenter: {
+          '0%': { transform: 'scaleX(0)', opacity: '0' },
+          '100%': { transform: 'scaleX(1)', opacity: '1' },
+        },
+        // Escala + subida combinada (para ilustraciones)
+        scaleUpIn: {
+          '0%': { opacity: '0', transform: 'scale(0.82) translateY(28px)' },
+          '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
+        // Péndulo suave infinito
+        pendulum: {
+          '0%':   { transform: 'rotate(0deg)' },
+          '25%':  { transform: 'rotate(-1.5deg)' },
+          '75%':  { transform: 'rotate(1.5deg)' },
+          '100%': { transform: 'rotate(0deg)' },
+        },
+        // Péndulo más pronunciado (para ilustraciones de brindis, etc)
+        pendulumStrong: {
+          '0%':   { transform: 'rotate(0deg)' },
+          '25%':  { transform: 'rotate(-6deg)' },
+          '75%':  { transform: 'rotate(6deg)' },
+          '100%': { transform: 'rotate(0deg)' },
+        },
       },
       animation: {
         // Animaciones de entrada más largas, pausadas y elegantes (curvas cubic-bezier de desaceleración suave)
@@ -158,6 +182,10 @@ export default {
 
         'float-subtle': 'floatSubtle 4s ease-in-out infinite',
         'pulse-subtle': 'pulseSubtle 3s ease-in-out infinite',
+        'expand-from-center': 'expandFromCenter 1.2s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'scale-up-in': 'scaleUpIn 1.8s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'pendulum': 'pendulum 5s ease-in-out infinite',
+        'pendulum-strong': 'pendulumStrong 3.5s ease-in-out infinite',
       },
       transitionTimingFunction: {
         'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',

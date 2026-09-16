@@ -26,7 +26,6 @@ import {
   ConfirmarAsistenciaDto,
   CrearInvitadoAsistenteDto,
   ActualizarInvitadoAsistenteDto,
-  ActualizarSettingsDto,
 } from './dto/invitado.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { EventPasswordGuard } from './guards/event-password.guard';
@@ -197,19 +196,5 @@ export class InvitadosController {
     @Param('invitadoId', ParseIntPipe) invitadoId: number,
   ) {
     await this.invitadosService.eliminarIndividualAsistente(invitacionId, invitadoId);
-  }
-
-  // ═══════════════════════════════════════════
-  // PATCH /invitaciones/:id/asistentes/settings
-  // ═══════════════════════════════════════════
-
-  @Patch('asistentes/settings')
-  @Public()
-  @UseGuards(EventPasswordGuard)
-  async actualizarSettings(
-    @Param('id', ParseUUIDPipe) invitacionId: string,
-    @Body() dto: ActualizarSettingsDto,
-  ) {
-    return this.invitadosService.actualizarSettings(invitacionId, dto);
   }
 }

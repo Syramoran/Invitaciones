@@ -84,6 +84,8 @@ export function mapearInvitacionPublica(
   let saludoPersonalizado: string | null = null;
   let mostrarBotonConfirmar = false;
 
+  let invitadoNombre: string | null | undefined;
+  let invitadoApellido: string | null | undefined;
   let puedeAgregarPlusOne: boolean | undefined;
   let plusOneExistente: { nombre: string; apellido: string; confirmado: boolean } | null | undefined;
   let restriccionAlimentariaExistente: string | null | undefined;
@@ -96,9 +98,10 @@ export function mapearInvitacionPublica(
     if (invitadoEncontrado) {
       // Invitado real ya precargado — usamos su nombre de verdad, no el del slug
       saludoPersonalizado = `¡Hola ${capitalizarNombre(invitadoEncontrado.nombre)}!`;
+      invitadoNombre = capitalizarNombre(invitadoEncontrado.nombre);
+      invitadoApellido = capitalizarNombre(invitadoEncontrado.apellido);
       yaConfirmado = invitadoEncontrado.confirmado;
-      puedeAgregarPlusOne =
-        invitadoEncontrado.puedeAgregarPlusOne ?? invitacion.permitirPlusOne;
+      puedeAgregarPlusOne = invitadoEncontrado.puedeAgregarPlusOne ?? false;
       restriccionAlimentariaExistente = invitadoEncontrado.restriccionAlimentaria;
       plusOneExistente = plusOneEncontrado
         ? {
@@ -108,12 +111,13 @@ export function mapearInvitacionPublica(
           }
         : null;
     } else {
-      // Sin match (invitado aún no precargado): fallback al saludo por slug
-      // y a la config global de plus-one.
+      // Sin match (invitado aún no precargado): fallback al saludo por slug.
       const [nombre] = invitadoParam.split('-');
       saludoPersonalizado = nombre ? `¡Hola ${capitalizarNombre(nombre)}!` : null;
+      invitadoNombre = nombre ? capitalizarNombre(nombre) : null;
+      invitadoApellido = null;
       yaConfirmado = false;
-      puedeAgregarPlusOne = invitacion.permitirPlusOne;
+      puedeAgregarPlusOne = false;
       restriccionAlimentariaExistente = null;
       plusOneExistente = null;
     }
@@ -123,8 +127,7 @@ export function mapearInvitacionPublica(
     grupoDto = {
       nombre: grupoEncontrado.nombre,
       slug: grupoEncontrado.slug,
-      maxIntegrantesEfectivo:
-        grupoEncontrado.maxIntegrantes ?? invitacion.maxIntegrantesDefault ?? null,
+      maxIntegrantesEfectivo: grupoEncontrado.maxIntegrantes ?? null,
       restriccionAlimentaria: grupoEncontrado.restriccionAlimentaria,
       integrantes: (integrantesGrupo ?? []).map((i) => ({
         id: i.id,
@@ -195,6 +198,8 @@ export function mapearInvitacionPublica(
     saludoPersonalizado,
     tieneConfirmacion,
     mostrarBotonConfirmar: mostrarBotonConfirmar && tieneConfirmacion,
+    invitadoNombre,
+    invitadoApellido,
     puedeAgregarPlusOne,
     plusOneExistente,
     restriccionAlimentariaExistente,

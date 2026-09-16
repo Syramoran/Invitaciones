@@ -237,6 +237,10 @@ export class InvitacionPublicDto {
 
   // ── Plus-one / grupos (presentes solo con ?invitado= o ?grupo=) ──
 
+  /** Nombre del invitado titular; solo aplica al flujo ?invitado= */
+  invitadoNombre?: string | null;
+  /** Apellido del invitado titular; null si no se pudo derivar (invitado sin precargar) */
+  invitadoApellido?: string | null;
   /** Solo aplica al flujo ?invitado=; ausente en el flujo ?grupo= */
   puedeAgregarPlusOne?: boolean;
   plusOneExistente?: { nombre: string; apellido: string; confirmado: boolean } | null;
