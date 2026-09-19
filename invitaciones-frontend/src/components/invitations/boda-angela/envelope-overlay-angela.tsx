@@ -1,108 +1,151 @@
-import { useState, useEffect } from "react"
-import { Music } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import type { InvitacionPublica } from "@/types/invitation"
 import { COLOR, TYPO } from "./theme"
 
 interface EnvelopeOverlayAngelaProps {
-  titulo: string
+  invitacion: InvitacionPublica
   onOpen: () => void
-  tieneMusica: boolean
+  /** Se dispara apenas arranca la apertura, para que el hero empiece a
+   * aparecer en simultáneo con las piezas del sobre alejándose. */
+  onRevealStart: () => void
 }
 
-export function EnvelopeOverlayAngela({ titulo, onOpen, tieneMusica }: EnvelopeOverlayAngelaProps) {
-  const [isOpening, setIsOpening] = useState(false)
-  const [isLoaded, setIsLoaded] = useState(false)
+/** Tiempo hasta avisarle al padre que ya puede desmontar el overlay (sobre ya invisible). */
+const ANIM_MS = 1200
+const AUTO_OPEN_MS = 10000
 
+interface TitularInfo {
+  nombre: string
+  cantidad: string | null
+}
+
+/** Titular de la tarjeta (grupo tiene prioridad, igual que en RsvpSection) + cantidad de invitados que le corresponde. */
+function getTitularInfo(invitacion: InvitacionPublica): TitularInfo | null {
+  if (invitacion.grupo) {
+    const cantidad = invitacion.grupo.maxIntegrantesEfectivo ?? invitacion.grupo.integrantes.length
+    return {
+      nombre: invitacion.grupo.nombre,
+      cantidad: cantidad > 0 ? `${cantidad} invitado${cantidad === 1 ? "" : "s"}` : null,
+    }
+  }
+  if (invitacion.invitadoNombre || invitacion.invitadoApellido) {
+    return {
+      nombre: [invitacion.invitadoNombre, invitacion.invitadoApellido].filter(Boolean).join(" "),
+      cantidad: invitacion.puedeAgregarPlusOne ? "2 personas" : null,
+    }
+  }
+  return null
+}
+
+export function EnvelopeOverlayAngela({ invitacion, onOpen, onRevealStart }: EnvelopeOverlayAngelaProps) {
+  const titular = getTitularInfo(invitacion)
+  const [isOpening, setIsOpening] = useState(false)
+  const hasTriggeredRef = useRef(false)
+
+  // Bloquea el scroll de fondo mientras el sobre está en pantalla, para que las
+  // secciones con reveal-on-scroll no se disparen antes de que se vea la invitación.
   useEffect(() => {
-    let cancelled = false
-    document.fonts.ready.then(() => {
-      if (!cancelled) setIsLoaded(true)
-    })
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
     return () => {
-      cancelled = true
+      document.body.style.overflow = prev
     }
   }, [])
 
-  const handleOpen = () => {
+  const handleOpenClick = () => {
+    if (hasTriggeredRef.current) return
+    hasTriggeredRef.current = true
     setIsOpening(true)
-    setTimeout(() => onOpen(), 350)
+    onRevealStart()
+    setTimeout(() => onOpen(), ANIM_MS)
   }
 
-  const parts = titulo.includes(" y ") ? titulo.split(" y ") : null
+  // Si nadie tocó el sobre, se abre solo a los 10s.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (hasTriggeredRef.current) return
+      hasTriggeredRef.current = true
+      setIsOpening(true)
+      onRevealStart()
+      setTimeout(() => onOpen(), ANIM_MS)
+    }, AUTO_OPEN_MS)
+    return () => clearTimeout(t)
+  }, [onOpen, onRevealStart])
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-500 ${
-        isOpening ? "opacity-0" : "opacity-100"
-      }`}
-      style={{ backgroundColor: "rgba(59,51,43,0.55)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
+      style={{
+        backgroundColor: COLOR.crema,
+        opacity: isOpening ? 0 : 1,
+        transition: "opacity 1s ease 0.12s",
+        pointerEvents: isOpening ? "none" : "auto",
+      }}
     >
-      {!isLoaded && (
-        <div className="relative z-10 flex items-center justify-center">
-          <div
-            className="h-12 w-12 rounded-full border-4 animate-spin"
-            style={{ borderColor: "rgba(103,89,76,0.2)", borderTopColor: COLOR.brown }}
-          />
-        </div>
-      )}
-
-      {isLoaded && (
-        <div
-          className="relative z-10 w-[300px] overflow-hidden rounded-2xl text-center shadow-xl"
+      <button
+        type="button"
+        onClick={handleOpenClick}
+        disabled={isOpening}
+        aria-label="Abrir invitación"
+        className="relative aspect-[720/950] h-dvh w-auto cursor-pointer appearance-none border-0 bg-transparent p-0 disabled:cursor-default sm:h-auto sm:w-[440px]"
+      >
+        <img
+          src="/boda-angela/sobre/bottom.png"
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="pointer-events-none absolute inset-0 h-full w-full select-none"
           style={{
-            backgroundColor: COLOR.parchment,
-            animation: "boda-angela-fadein 0.45s ease forwards",
+            transform: isOpening ? "translateY(38%)" : "translateY(0)",
+            opacity: isOpening ? 0 : 1,
+            transition: "transform 1s cubic-bezier(0.4,0,0.2,1) 0.12s, opacity 1s ease 0.12s",
           }}
-        >
-          <style>{`@keyframes boda-angela-fadein{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}`}</style>
+        />
+        <img
+          src="/boda-angela/sobre/top.png"
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="pointer-events-none absolute inset-0 h-full w-full select-none"
+          style={{
+            transform: isOpening ? "translateY(-38%)" : "translateY(0)",
+            opacity: isOpening ? 0 : 1,
+            transition: "transform 1s cubic-bezier(0.4,0,0.2,1) 0.12s, opacity 1s ease 0.12s",
+          }}
+        />
 
-          <div className="relative px-7 pb-9 pt-10">
-            <p
-              className="mb-4"
-              style={{ ...TYPO.h3, color: COLOR.brown }}
-            >
-              Recibiste una invitación
-            </p>
-
-            <div className="mx-auto mb-5 h-px w-12" style={{ backgroundColor: `${COLOR.brown}70` }} />
-
-            {parts ? (
-              <div className="mb-8 flex flex-col items-center leading-none">
-                <span style={{ ...TYPO.h1, fontSize: 42, color: COLOR.negro, lineHeight: 1 }}>
-                  {parts[0].trim()}
-                </span>
-                <span style={{ ...TYPO.h1, fontSize: 24, color: COLOR.brown, lineHeight: 1 }}>
-                  y
-                </span>
-                <span style={{ ...TYPO.h1, fontSize: 42, color: COLOR.negro, lineHeight: 1 }}>
-                  {parts[1].trim()}
-                </span>
-              </div>
-            ) : (
-              <p className="mb-8" style={{ ...TYPO.h1, fontSize: 40, color: COLOR.negro, lineHeight: 1 }}>
-                {titulo}
-              </p>
-            )}
-
-            <button
-              onClick={handleOpen}
-              className="inline-block w-full cursor-pointer rounded-[4px] py-3.5 transition-opacity hover:opacity-85 active:scale-95"
-              style={{ ...TYPO.text2, backgroundColor: COLOR.crema, color: COLOR.negro }}
-            >
-              Abrir invitación
-            </button>
-
-            {tieneMusica && (
-              <p
-                className="mt-4 flex items-center justify-center gap-1.5"
-                style={{ ...TYPO.text3, color: COLOR.brown }}
-              >
-                <Music className="h-3 w-3" />
-                Se reproducirá música al abrir
-              </p>
-            )}
+        {titular && (
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              transform: isOpening ? "translateY(-38%)" : "translateY(0)",
+              opacity: isOpening ? 0 : 1,
+              transition: "transform 1s cubic-bezier(0.4,0,0.2,1) 0.12s, opacity 1s ease 0.12s",
+            }}
+          >
+            <div className="absolute inset-x-0 top-[25%] -translate-y-1/2 px-8 text-center">
+              <p style={{ ...TYPO.timer, fontSize: 26, color: COLOR.darkBrown }}>{titular.nombre}</p>
+              {titular.cantidad && (
+                <p className="mt-1" style={{ ...TYPO.h3, fontSize: 14, color: COLOR.brown }}>
+                  {titular.cantidad}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        <img
+          src="/boda-angela/sobre/sello.png"
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="pointer-events-none absolute inset-0 h-full w-full select-none"
+          style={{
+            opacity: isOpening ? 0 : 1,
+            transition: "opacity 0.45s ease-in",
+          }}
+        />
+      </button>
     </div>
   )
 }
