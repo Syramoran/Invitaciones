@@ -12,7 +12,7 @@ interface EnvelopeOverlayAngelaProps {
 
 /** Tiempo hasta avisarle al padre que ya puede desmontar el overlay (sobre ya invisible). */
 const ANIM_MS = 1200
-const AUTO_OPEN_MS = 10000
+const AUTO_OPEN_MS = 20000
 
 interface TitularInfo {
   nombre: string
@@ -87,7 +87,7 @@ export function EnvelopeOverlayAngela({ invitacion, onOpen, onRevealStart }: Env
         onClick={handleOpenClick}
         disabled={isOpening}
         aria-label="Abrir invitación"
-        className="relative aspect-[720/950] h-dvh w-auto cursor-pointer appearance-none border-0 bg-transparent p-0 disabled:cursor-default sm:h-auto sm:w-[440px]"
+        className="relative aspect-[720/950] h-dvh w-auto cursor-pointer appearance-none border-0 bg-transparent p-0 disabled:cursor-default sm:h-auto sm:w-[440px] shadow-md drop-shadow-md"
       >
         <img
           src="/boda-angela/sobre/bottom.png"
@@ -134,6 +134,17 @@ export function EnvelopeOverlayAngela({ invitacion, onOpen, onRevealStart }: Env
           </div>
         )}
 
+        <style>{`
+          @keyframes selloPulse {
+            0%, 100% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.06);
+            }
+          }
+        `}</style>
+
         <img
           src="/boda-angela/sobre/sello.png"
           alt=""
@@ -143,6 +154,7 @@ export function EnvelopeOverlayAngela({ invitacion, onOpen, onRevealStart }: Env
           style={{
             opacity: isOpening ? 0 : 1,
             transition: "opacity 0.45s ease-in",
+            animation: isOpening ? "none" : "selloPulse 2s ease-in-out infinite",
           }}
         />
       </button>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { InvitacionPublica } from '@/types/invitation'
 import { EnvelopeOverlayAngela } from './envelope-overlay-angela'
-import { MusicPlayer } from '../invitation-basic/music-player'
+import { MusicPlayerAngela } from './music-player-angela'
 import { Reveal } from './reveal'
 import { useRevealOnScroll } from './use-reveal-on-scroll'
 import { HeroSection } from './hero-section'
@@ -115,7 +115,7 @@ export function InvitationView({
       )}
 
       {invitacion.musica && !showOverlay && (
-        <MusicPlayer musica={invitacion.musica} autoPlay={autoPlayMusic} />
+        <MusicPlayerAngela musica={invitacion.musica} autoPlay={autoPlayMusic} />
       )}
 
       <div className="relative mx-auto min-h-screen overflow-hidden ">
