@@ -2,7 +2,7 @@
 
 > Doc de trabajo. Vamos anotando acá las decisiones clave, el estado de cada
 > componente y lo que queda pendiente mientras revisamos la template de a poco.
-> Última actualización: 2026-09-15.
+> Última actualización: 2026-09-19.
 
 ---
 
@@ -50,7 +50,7 @@ Marco interno: `mx-auto max-w-[430px] sm:max-w-[900px] overflow-hidden`.
 | #  | Componente              | Archivo                        | Condición para mostrarse |
 |----|-------------------------|--------------------------------|--------------------------|
 | 0  | `EnvelopeOverlayAngela` | `envelope-overlay-angela.tsx`  | `!previewMode` (sobre de bienvenida, `position: fixed`) |
-| 0b | `MusicPlayer`           | `../invitation-basic/music-player` | `invitacion.musica && !showOverlay` |
+| 0b | `MusicPlayerAngela`     | `music-player-angela.tsx`      | `invitacion.musica && !showOverlay` |
 | 1  | `HeroSection`           | `hero-section.tsx`             | siempre |
 | 2  | `CountdownSection`      | `countdown-section.tsx`        | si hay servicio con nombre que incluye "cuenta regresiva" o "countdown" |
 | 3  | `EventInfoSection`      | `event-info-section.tsx`       | siempre |
@@ -395,6 +395,7 @@ Figma.
 |--------------------------|--------|-------|
 | `invitation-view.tsx`    | ⏳ por revisar | orden de secciones, fondo, marco, divisores |
 | `envelope-overlay-angela.tsx` | ⏳ | tipografías del overlay, animación, "y" en nombres |
+| `music-player-angela.tsx` | ✅ (2026-09-19) | FAB + reproductor propios (antes usaba el `MusicPlayer` genérico de `invitation-basic`, con colores/fuente ajenos a la template). Reusa la misma lógica (autoplay al abrir el sobre, loop, seek, skip ±10s) pero re-skinneado 100% con `COLOR`/`TYPO` de `theme.ts`: FAB y chip ícono en `crema`/`darkBrown` (mismo tono que "Agendar en calendario"), panel en `parchment` con borde `brown` al 20% de opacidad, botón play/pausa invertido (`darkBrown` sobre `parchment`), barras de progreso/volumen `darkBrown` sobre track `crema`, label "MÚSICA" con `TYPO.text3`. Volumen inicial 20% (`audio.volume = 0.2`), el slider deja subirlo. Verificado en vivo contra la invitación real de Angela (tiene música cargada): autoplay a 20% al abrir el sobre, pausa, subida de volumen a 75% y apertura/cierre del panel confirmados por estado real del `<audio>` + estilos computados, y por screenshot en viewport mobile. |
 | `hero-section.tsx`       | 🔧 en progreso | ✅ imágenes responsive (`<picture>`) · ✅ fuentes vía `theme.ts` (`TYPO.h1/h2`, `FONT.serif/garamond/sans`) · ⏳ falta: colores → `COLOR`, fecha dinámica, botón "Agendar" sin acción, `<p>Save the date</p>` vs SVG, ajustes de fondo (ver TODO Hero) |
 | `countdown-section.tsx`  | ⏳ | estilo de cajas, tipografía Timer, doble uso |
 | `event-info-section.tsx` | ⏳ | usa data real, link de calendario OK |

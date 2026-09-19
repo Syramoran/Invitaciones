@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import type { InvitacionPublica, CamposEspecificosBoda } from '@/types/invitation'
+import type { InvitacionPublica } from '@/types/invitation'
 import { EnvelopeOverlayAngela } from './envelope-overlay-angela'
-import { MusicPlayer } from '../invitation-basic/music-player'
+import { MusicPlayerAngela } from './music-player-angela'
 import { Reveal } from './reveal'
 import { useRevealOnScroll } from './use-reveal-on-scroll'
 import { HeroSection } from './hero-section'
@@ -17,14 +17,6 @@ interface InvitationViewProps {
   invitacion: InvitacionPublica
   invitadoParam?: string
   previewMode?: boolean
-}
-
-function getTituloOverlay(invitacion: InvitacionPublica): string {
-  const campos = invitacion.camposEspecificos as unknown as CamposEspecificosBoda | null
-  if (campos?.novio1 && campos?.novio2) {
-    return `${campos.novio1} y ${campos.novio2}`
-  }
-  return invitacion.titulo
 }
 
 function Divisor() {
@@ -65,6 +57,10 @@ export function InvitationView({
   previewMode = false,
 }: InvitationViewProps) {
   const [showOverlay, setShowOverlay] = useState(!previewMode)
+  // Separado de showOverlay a propósito: se activa apenas arranca la animación
+  // de apertura del sobre, para que el hero empiece a aparecer en simultáneo
+  // con las piezas del sobre alejándose (no recién cuando el sobre termina de desmontarse).
+  const [heroRevealed, setHeroRevealed] = useState(previewMode)
   const [autoPlayMusic, setAutoPlayMusic] = useState(false)
 
   useEffect(() => {
@@ -80,6 +76,8 @@ export function InvitationView({
     setShowOverlay(false)
     if (invitacion?.musica) setAutoPlayMusic(true)
   }
+
+  const handleRevealStart = () => setHeroRevealed(true)
 
   if (!invitacion) return <SkeletonLoader />
 
@@ -110,22 +108,22 @@ export function InvitationView({
       />
       {showOverlay && (
         <EnvelopeOverlayAngela
-          titulo={getTituloOverlay(invitacion)}
+          invitacion={invitacion}
           onOpen={handleOpenInvitation}
-          tieneMusica={!!invitacion.musica}
+          onRevealStart={handleRevealStart}
         />
       )}
 
       {invitacion.musica && !showOverlay && (
-        <MusicPlayer musica={invitacion.musica} autoPlay={autoPlayMusic} />
+        <MusicPlayerAngela musica={invitacion.musica} autoPlay={autoPlayMusic} />
       )}
 
       <div className="relative mx-auto min-h-screen overflow-hidden ">
         <div
           className="group/invitation relative z-10 flex flex-col items-center md:mt-4 mx-auto w-full max-w-[750px] bg-transparent "
-          data-opened={String(!showOverlay)}
+          data-opened={String(heroRevealed)}
         >
-          <HeroSection invitacion={invitacion} isOpened={!showOverlay} />
+          <HeroSection invitacion={invitacion} isOpened={heroRevealed} />
           {tieneCountdown && (
             <Reveal>
               <CountdownSection
@@ -171,13 +169,13 @@ export function InvitationView({
             className="px-7 pb-10 pt-6 text-center"
             style={{ ...TYPO.text3, color: COLOR.brown }}
           >
-            <span>Hecho con </span>
+            {/* <span>Hecho con </span> */}
             <a
               href="https://festeja.com.ar"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:underline"
-              style={{ color: COLOR.darkBrown }}
+              style={{ color: COLOR.brown }}
             >
               festeja.com.ar
             </a>

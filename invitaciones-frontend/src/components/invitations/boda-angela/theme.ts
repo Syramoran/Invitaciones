@@ -82,14 +82,14 @@ export const TYPO: Record<TypoName, CSSProperties> = {
   h1: {
     fontFamily: FONT.script,
     fontWeight: 700,
-    fontSize: 90,
+    fontSize: 80,
     lineHeight: '54px',
   },
   /** H2 — cormorant-garamond 500 · 22 / auto · tracking 30% · UPPERCASE */
   h2: {
     fontFamily: FONT.serif,
     fontWeight: 500,
-    fontSize: 28,
+    fontSize: 26,
     lineHeight: 'normal',
     letterSpacing: '0.3em',
     textTransform: 'uppercase',
@@ -146,7 +146,7 @@ export const TYPO: Record<TypoName, CSSProperties> = {
   detailsH: {
     fontFamily: FONT.serif,
     fontWeight: 500,
-    fontSize: 24,
+    fontSize: 20,
     lineHeight: 'normal',
     letterSpacing: '0.15em',
     textTransform: 'uppercase',

@@ -49,7 +49,7 @@ export function HeroSection({
   }
 
   return (
-    <section className="relative z-10 flex w-full flex-col items-center gap-4 bg-transparent shadow-md text-center md:max-w-[620px] md:shadow-none pb-8">
+    <section className="relative z-10 flex w-full flex-col items-center gap-2 bg-transparent shadow-md text-center md:max-w-[620px] md:shadow-none pb-8">
       {/* Fondo responsive */}
       <picture className="pointer-events-none absolute inset-0 -z-10 block h-full w-full select-none">
         <source media="(min-width: 768px)" srcSet="/boda-angela/s-t-d/std-bg.png" />
@@ -61,7 +61,7 @@ export function HeroSection({
         />
       </picture>
 
-      <div className="mt-6 w-[260px] max-w-[75%] aspect-[291.77/97.96] -rotate-[-7deg] md:rotate-0 md:m-6 md:mb-0 md:self-start md:ml-8 md:w-[280px]">
+      <div className="mt-6 w-[200px] max-w-[75%] aspect-[291.77/97.96] -rotate-[-7deg] md:rotate-0 md:mt-6 md:mb-0 md:self-start md:ml-8 md:w-[250px]">
         {isOpened && animKey ? (
           <img
             key={animKey}
@@ -72,7 +72,7 @@ export function HeroSection({
         ) : null}
       </div>
 
-      <div className="opacity-0 group-data-[opened=true]/invitation:animate-fade-in-up md:mt-2 w-[370px] max-w-full" style={{ animationDelay: '0.3s' }}>
+      <div className="opacity-0 group-data-[opened=true]/invitation:animate-fade-in-up md:mt-2 w-[340px] max-w-[85%]" style={{ animationDelay: '0.3s' }}>
         <picture>
           <source media="(min-width: 640px)" srcSet="/boda-angela/s-t-d/std_web.png" />
           <img
@@ -108,17 +108,17 @@ export function HeroSection({
       >
         <div className="flex items-center gap-2">
           <span
-            style={{ ...TYPO.h2, color: COLOR.darkBrown, fontSize: 24, letterSpacing: 'normal', lineHeight: 1 }}
+            style={{ ...TYPO.h2, color: COLOR.darkBrown, fontSize: 22, letterSpacing: 'normal', lineHeight: 1 }}
           >
             SÁBADO
           </span>
           <span
-            style={{ ...TYPO.numero, fontSize: 64, color: COLOR.brown, lineHeight: 1 }}
+            style={{ ...TYPO.numero, fontSize: 62, color: COLOR.brown, lineHeight: 1 }}
           >
             20
           </span>
           <span
-            style={{ ...TYPO.h2, color: COLOR.darkBrown, fontSize: 24, letterSpacing: 'normal', lineHeight: 1 }}
+            style={{ ...TYPO.h2, color: COLOR.darkBrown, fontSize: 22, letterSpacing: 'normal', lineHeight: 1 }}
           >
             FEBRERO
           </span>

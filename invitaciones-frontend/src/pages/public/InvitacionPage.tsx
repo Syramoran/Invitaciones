@@ -4,6 +4,7 @@ import { isAxiosError } from 'axios'
 import type { InvitacionPublica } from '@/types/invitation'
 import { getInvitacionPublica, getCachedInvitacion } from '@/services/invitacionService'
 import { getInvitationComponent } from '@/components/invitations/registry'
+import { COLOR as BODA_ANGELA_COLOR } from '@/components/invitations/boda-angela/theme'
 
 function LoadingScreen() {
   return (
@@ -12,6 +13,30 @@ function LoadingScreen() {
         <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-600" />
         <p className="text-sm text-gray-500">Cargando invitación...</p>
       </div>
+    </div>
+  )
+}
+
+/** Pantalla de carga de `boda-angela`: liso color crema, sin texto, solo un pulso sutil hasta que se muestra el sobre. */
+function BodaAngelaLoadingScreen() {
+  return (
+    <div
+      className="flex min-h-screen items-center justify-center"
+      style={{ backgroundColor: BODA_ANGELA_COLOR.crema }}
+    >
+      <style>{`
+        @keyframes boda-angela-loading-pulse {
+          0%, 100% { opacity: 0.35; transform: scale(1); }
+          50% { opacity: 0.9; transform: scale(1.2); }
+        }
+      `}</style>
+      <div
+        className="h-3 w-3 rounded-full"
+        style={{
+          backgroundColor: BODA_ANGELA_COLOR.brown,
+          animation: 'boda-angela-loading-pulse 1.6s ease-in-out infinite',
+        }}
+      />
     </div>
   )
 }
@@ -104,6 +129,9 @@ export default function InvitacionPage() {
 
   const [invitacion, setInvitacion] = useState<InvitacionPublica | null>(null)
   const [status, setStatus] = useState<'loading' | 'success' | 'cached' | 'server-down' | 'error'>('loading')
+  // Última visita cacheada de este mismo link, solo para saber qué pantalla de
+  // carga mostrar antes de que responda el fetch (si ya se visitó antes).
+  const [cachedSlug] = useState(() => (eventoId ? getCachedInvitacion(eventoId)?.template.slug ?? null : null))
 
   useEffect(() => {
     if (!eventoId) {
@@ -149,14 +177,17 @@ export default function InvitacionPage() {
     [invitacion?.template.slug],
   )
 
-  if (status === 'loading') return <LoadingScreen />
+  const loadingSlug = invitacion?.template.slug ?? cachedSlug
+  const LoadingFallback = loadingSlug === 'boda-angela' ? BodaAngelaLoadingScreen : LoadingScreen
+
+  if (status === 'loading') return <LoadingFallback />
   if (status === 'server-down') return <ServerDownScreen />
   if (!invitacion || !InvitationComponent) return null
 
   return (
     <>
       {status === 'cached' && <CachedVersionBanner />}
-      <Suspense fallback={<LoadingScreen />}>
+      <Suspense fallback={<LoadingFallback />}>
         <InvitationComponent invitacion={invitacion} invitadoParam={invitado} />
       </Suspense>
     </>
