@@ -1,4 +1,6 @@
 import { Invitacion } from '../../../entities/invitacion.entity';
+import { Invitado } from '../../../entities/invitado.entity';
+import { Grupo } from '../../../entities/grupo.entity';
 import {
   InvitacionResponseDto,
   InvitacionPublicDto,
@@ -55,20 +57,74 @@ export function mapearInvitacionResponse(
 // Mapeo: Invitación → Response público (invitado)
 // ═══════════════════════════════════════════
 
+export interface ContextoInvitadoPublico {
+  invitadoParam?: string;
+  /** Fila real ya resuelta por slug persistido. El caller (InvitacionesPublicService)
+   *  tira NotFoundException antes de llegar acá si invitadoParam no matcheó a nadie. */
+  invitadoEncontrado?: Invitado | null;
+  plusOneEncontrado?: Invitado | null;
+  grupoParam?: string;
+  grupoEncontrado?: Grupo | null;
+  integrantesGrupo?: Invitado[];
+}
+
 export function mapearInvitacionPublica(
   invitacion: Invitacion,
-  invitadoParam?: string,
+  contexto: ContextoInvitadoPublico = {},
 ): InvitacionPublicDto {
-  // Saludo personalizado si viene ?invitado=nombre-apellido
+  const {
+    invitadoParam,
+    invitadoEncontrado,
+    plusOneEncontrado,
+    grupoParam,
+    grupoEncontrado,
+    integrantesGrupo,
+  } = contexto;
+
+  // Saludo personalizado si viene ?invitado= o ?grupo=
   let saludoPersonalizado: string | null = null;
   let mostrarBotonConfirmar = false;
 
-  if (invitadoParam) {
-    const [nombre] = invitadoParam.split('-');
-    saludoPersonalizado = nombre
-      ? `¡Hola ${capitalizarNombre(nombre)}!`
-      : null;
+  let invitadoNombre: string | null | undefined;
+  let invitadoApellido: string | null | undefined;
+  let puedeAgregarPlusOne: boolean | undefined;
+  let plusOneExistente: { nombre: string; apellido: string; confirmado: boolean } | null | undefined;
+  let restriccionAlimentariaExistente: string | null | undefined;
+  let yaConfirmado: boolean | undefined;
+  let grupoDto: InvitacionPublicDto['grupo'];
+
+  if (invitadoParam && invitadoEncontrado) {
+    // El service ya tiró NotFoundException si el slug no matcheaba ningún
+    // invitado precargado — acá invitadoEncontrado siempre está resuelto.
     mostrarBotonConfirmar = true;
+    saludoPersonalizado = `¡Hola ${capitalizarNombre(invitadoEncontrado.nombre)}!`;
+    invitadoNombre = capitalizarNombre(invitadoEncontrado.nombre);
+    invitadoApellido = capitalizarNombre(invitadoEncontrado.apellido);
+    yaConfirmado = invitadoEncontrado.confirmado;
+    puedeAgregarPlusOne = invitadoEncontrado.puedeAgregarPlusOne ?? false;
+    restriccionAlimentariaExistente = invitadoEncontrado.restriccionAlimentaria;
+    plusOneExistente = plusOneEncontrado
+      ? {
+          nombre: plusOneEncontrado.nombre,
+          apellido: plusOneEncontrado.apellido,
+          confirmado: plusOneEncontrado.confirmado,
+        }
+      : null;
+  } else if (grupoParam && grupoEncontrado) {
+    mostrarBotonConfirmar = true;
+    saludoPersonalizado = `¡Hola ${grupoEncontrado.nombre}!`;
+    grupoDto = {
+      nombre: grupoEncontrado.nombre,
+      slug: grupoEncontrado.slug,
+      maxIntegrantesEfectivo: grupoEncontrado.maxIntegrantes ?? null,
+      restriccionAlimentaria: grupoEncontrado.restriccionAlimentaria,
+      integrantes: (integrantesGrupo ?? []).map((i) => ({
+        id: i.id,
+        nombre: i.nombre,
+        apellido: i.apellido,
+        confirmado: i.confirmado,
+      })),
+    };
   }
 
   // Verificar si el servicio de confirmación está habilitado
@@ -131,6 +187,13 @@ export function mapearInvitacionPublica(
     saludoPersonalizado,
     tieneConfirmacion,
     mostrarBotonConfirmar: mostrarBotonConfirmar && tieneConfirmacion,
+    invitadoNombre,
+    invitadoApellido,
+    puedeAgregarPlusOne,
+    plusOneExistente,
+    restriccionAlimentariaExistente,
+    yaConfirmado,
+    grupo: grupoDto,
   };
 }
 

@@ -13,6 +13,7 @@ import { Template } from './template.entity';
 import { Pedido } from './pedido.entity';
 import { InvitacionServicio } from './invitacion-servicio.entity';
 import { Invitado } from './invitado.entity';
+import { Grupo } from './grupo.entity';
 import { HistoriaSeccion } from './historia-seccion.entity';
 import { FotoAnfitrion } from './foto-anfitrion.entity';
 import { Foto } from './foto.entity';
@@ -94,6 +95,12 @@ export class Invitacion {
   })
   estadoPago!: 'PENDIENTE' | 'PAGADO' | 'CANCELADO';
 
+  @Column({ type: 'boolean', default: false, name: 'permitir_plus_one' })
+  permitirPlusOne!: boolean;
+
+  @Column({ type: 'int', nullable: true, name: 'max_integrantes_default' })
+  maxIntegrantesDefault!: number | null;
+
   // ── Relaciones ──
 
   @ManyToOne(() => Pedido, (pedido) => pedido.invitacion)
@@ -117,6 +124,9 @@ export class Invitacion {
 
   @OneToMany(() => Invitado, (inv) => inv.invitacion, { cascade: true })
   invitados!: Invitado[];
+
+  @OneToMany(() => Grupo, (g) => g.invitacion, { cascade: true })
+  grupos!: Grupo[];
 
   @OneToMany(() => HistoriaSeccion, (hs) => hs.invitacion, { cascade: true })
   historias!: HistoriaSeccion[];

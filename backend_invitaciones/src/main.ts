@@ -15,6 +15,7 @@ async function bootstrap() {
       /\.vercel\.app$/,            // Permite cualquier subdominio de Vercel
       'https://tu-app.vercel.app',
       'http://localhost:5173',
+      /^http:\/\/192\.168\.\d+\.\d+:5173$/,  // Red local (probar desde el celular)
       process.env.FRONTEND_URL,    // Permite el dominio configurado en las variables de entorno
     ].filter(Boolean) as (string | RegExp)[],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

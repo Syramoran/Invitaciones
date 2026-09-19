@@ -97,7 +97,7 @@ export class InvitacionesService {
         latitud: dto.latitud,
         longitud: dto.longitud,
         colorPrimario: dto.colorPrimario,
-        contrasenaAsistentes: dto.contrasenaAsistentes,
+        contrasenaAsistentes: dto.contrasenaAsistentes?.trim() || 'festeja123',
         maxFotos: dto.maxFotos ?? 1000,
         camposEspecificos: dto.camposEspecificos,
         fechaExpiracion: calcularFechaExpiracion(dto.fechaEvento),
@@ -232,6 +232,7 @@ export class InvitacionesService {
   async actualizar(
     id: string,
     dto: UpdateInvitacionDto,
+    esAdmin: boolean = false,
   ): Promise<InvitacionResponseDto> {
     const invitacion = await this.invitacionRepo.findOne({
       where: { id },
@@ -241,8 +242,8 @@ export class InvitacionesService {
       throw new NotFoundException(`Invitación ${id} no encontrada.`);
     }
 
-    // Validar límite de ediciones (máximo 5)
-    if (invitacion.editCount >= 5) {
+    // Validar límite de ediciones (máximo 5) — el admin edita sin límite
+    if (!esAdmin && invitacion.editCount >= 5) {
       throw new UnprocessableEntityException(`Se alcanzó el límite de ediciones permitidas.`);
     }
 
@@ -272,8 +273,10 @@ export class InvitacionesService {
     const { serviciosIds, ...campos } = dto;
     Object.assign(invitacion, campos);
 
-    // Incrementar contador de ediciones
-    invitacion.editCount += 1;
+    // Incrementar contador de ediciones (no aplica a ediciones del admin)
+    if (!esAdmin) {
+      invitacion.editCount += 1;
+    }
 
     await this.invitacionRepo.save(invitacion);
 

@@ -10,4 +10,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    host: true, // escucha en todas las interfaces de red (para probar desde el celular)
+  },
 })

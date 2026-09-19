@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Loader2, Lock, Users } from 'lucide-react'
-import { getAsistentes } from '@/services/invitacionService'
-import type { AsistenteItem } from '@/services/invitacionService'
+import { asistentesService } from '@/services/asistentesService'
+import type { AsistentesResponse } from '@/types/asistentes'
+import { GestionAsistentesPanel } from '@/components/public/asistentes/GestionAsistentesPanel'
 
 type Estado = 'form' | 'loading' | 'success' | 'error'
 
@@ -12,8 +13,7 @@ export default function AsistentesPage() {
   const [password, setPassword] = useState('')
   const [estado, setEstado] = useState<Estado>('form')
   const [errorMsg, setErrorMsg] = useState('')
-  const [totalConfirmados, setTotalConfirmados] = useState(0)
-  const [invitados, setInvitados] = useState<AsistenteItem[]>([])
+  const [data, setData] = useState<AsistentesResponse | null>(null)
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -23,48 +23,49 @@ export default function AsistentesPage() {
     setErrorMsg('')
 
     try {
-      const data = await getAsistentes(eventoId, password.trim())
-      setTotalConfirmados(data.totalConfirmados)
-      setInvitados(data.invitados)
+      const result = await asistentesService.obtener(eventoId, password.trim())
+      setData(result)
       setEstado('success')
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 403) {
         setErrorMsg('Contraseña incorrecta.')
       } else {
-        setErrorMsg('No se pudo cargar la lista. Intentá de nuevo.')
+        setErrorMsg('No se pudo cargar el panel. Intentá de nuevo.')
       }
       setEstado('error')
     }
   }
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-[#e8e8e8] px-4 py-12">
-      <div className="w-full max-w-[430px]">
+    <div className="flex min-h-screen items-start justify-center bg-ivory px-4 py-12">
+      <div className={estado === 'success' ? 'w-full flex justify-center' : 'w-full max-w-[430px]'}>
 
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
-            <Users className="h-6 w-6 text-[#555555]" />
+        {estado !== 'success' && (
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
+              <Users className="h-6 w-6 text-warm-gray" />
+            </div>
+            <h1 className="text-xl font-semibold text-charcoal">Panel de invitados</h1>
+            <p className="mt-1 text-sm text-warm-gray">Ingresá la contraseña del evento para gestionar tus invitados.</p>
           </div>
-          <h1 className="text-xl font-semibold text-[#1a1a1a]">Lista de asistentes</h1>
-          <p className="mt-1 text-sm text-[#777777]">Ingresá la contraseña del evento para ver quién confirmó.</p>
-        </div>
+        )}
 
         {/* Formulario */}
         {(estado === 'form' || estado === 'loading' || estado === 'error') && (
           <form onSubmit={handleSubmit} className="rounded-2xl bg-white p-6 shadow-sm">
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-widest text-[#777777]">
+            <label htmlFor="password-evento" className="mb-1 block text-xs font-semibold uppercase tracking-widest text-warm-gray">
               Contraseña
             </label>
             <div className="relative mt-1">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#aaaaaa]" />
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-warm-gray-light" />
               <input
+                id="password-evento"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Contraseña del evento"
-                className="w-full rounded-lg border border-[#e0e0e0] py-3 pl-9 pr-4 text-sm text-[#1a1a1a] outline-none focus:border-[#555555] focus:ring-0"
+                className="w-full rounded-lg border border-champagne-dark py-3 pl-9 pr-4 text-sm text-charcoal outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
                 autoComplete="off"
               />
             </div>
@@ -76,7 +77,7 @@ export default function AsistentesPage() {
             <button
               type="submit"
               disabled={estado === 'loading' || !password.trim()}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#1a1a1a] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-80 disabled:opacity-40"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-charcoal py-3 text-sm font-semibold text-cream transition-opacity hover:opacity-80 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1"
             >
               {estado === 'loading' ? (
                 <>
@@ -84,48 +85,20 @@ export default function AsistentesPage() {
                   Verificando...
                 </>
               ) : (
-                'Ver lista'
+                'Ingresar'
               )}
             </button>
           </form>
         )}
 
-        {/* Lista de asistentes */}
-        {estado === 'success' && (
-          <div className="rounded-2xl bg-white shadow-sm">
-            {/* Contador */}
-            <div className="border-b border-[#f0f0f0] px-6 py-4 text-center">
-              <span className="text-3xl font-bold text-[#1a1a1a]">{totalConfirmados}</span>
-              <p className="mt-0.5 text-xs font-semibold uppercase tracking-widest text-[#777777]">
-                {totalConfirmados === 1 ? 'confirmado' : 'confirmados'}
-              </p>
-            </div>
-
-            {/* Lista */}
-            {invitados.length === 0 ? (
-              <p className="px-6 py-8 text-center text-sm text-[#aaaaaa]">
-                Nadie confirmó todavía.
-              </p>
-            ) : (
-              <ul className="divide-y divide-[#f0f0f0]">
-                {invitados.map((inv, i) => (
-                  <li key={i} className="flex items-center justify-between px-6 py-4">
-                    <span className="text-sm font-medium capitalize text-[#1a1a1a]">
-                      {inv.nombre} {inv.apellido}
-                    </span>
-                    {inv.fechaConfirmacion && (
-                      <span className="text-xs text-[#aaaaaa]">
-                        {new Date(inv.fechaConfirmacion).toLocaleDateString('es-AR', {
-                          day: '2-digit',
-                          month: 'short',
-                        })}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+        {/* Panel de gestión */}
+        {estado === 'success' && data && eventoId && (
+          <GestionAsistentesPanel
+            invitacionId={eventoId}
+            password={password.trim()}
+            data={data}
+            onRefetch={setData}
+          />
         )}
 
       </div>

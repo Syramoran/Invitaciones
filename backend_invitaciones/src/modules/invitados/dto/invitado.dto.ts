@@ -5,8 +5,11 @@ import {
   ValidateNested,
   ArrayMinSize,
   MaxLength,
+  IsOptional,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { GrupoResponseDto } from '../../grupos/dto/grupo.dto';
 
 // ═══════════════════════════════════════════
 // REQUEST DTOs
@@ -40,6 +43,22 @@ export class CargarInvitadosDto {
 }
 
 /**
+ * Plus-one enviado al confirmar (sin campo de restricción propio — la nota
+ * del titular en ConfirmarAsistenciaDto.restriccionAlimentaria lo cubre).
+ */
+export class PlusOneConfirmarDto {
+  @IsString()
+  @IsNotEmpty({ message: 'El nombre del acompañante es obligatorio' })
+  @MaxLength(100)
+  nombre!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'El apellido del acompañante es obligatorio' })
+  @MaxLength(100)
+  apellido!: string;
+}
+
+/**
  * POST /invitaciones/:id/confirmar
  * Confirmar asistencia de un invitado (público).
  * Se recibe el slug tal como viene en el parámetro ?invitado de la URL.
@@ -49,6 +68,54 @@ export class ConfirmarAsistenciaDto {
   @IsNotEmpty()
   @MaxLength(250)
   invitadoSlug!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  restriccionAlimentaria?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PlusOneConfirmarDto)
+  plusOne?: PlusOneConfirmarDto;
+}
+
+/**
+ * POST /invitaciones/:id/asistentes/invitados
+ * Alta manual de un invitado individual/titular desde el panel de contraseña.
+ */
+export class CrearInvitadoAsistenteDto {
+  @IsString()
+  @IsNotEmpty({ message: 'El nombre del invitado es obligatorio' })
+  @MaxLength(100)
+  nombre!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'El apellido del invitado es obligatorio' })
+  @MaxLength(100)
+  apellido!: string;
+
+  @IsOptional()
+  @IsBoolean()
+  puedeAgregarPlusOne?: boolean;
+}
+
+/**
+ * PATCH /invitaciones/:id/asistentes/invitados/:invitadoId
+ */
+export class ActualizarInvitadoAsistenteDto {
+  @IsOptional()
+  @IsBoolean()
+  invitacionEnviada?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  puedeAgregarPlusOne?: boolean | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  restriccionAlimentaria?: string;
 }
 
 // ═══════════════════════════════════════════
@@ -74,16 +141,60 @@ export class CargarInvitadosResponseDto {
 }
 
 /**
- * GET /invitaciones/:id/invitados
- * Invitado con su estado de confirmación (admin).
+ * Error de fila individual durante la importación por archivo.
  */
-export class InvitadoResponseDto {
+export class ErrorImportacionDto {
+  fila!: number;
+  motivo!: string;
+}
+
+/**
+ * POST /invitaciones/:id/invitados/importar (201)
+ * Response de importación desde archivo .xlsx/.csv (admin).
+ */
+export class ImportarInvitadosResponseDto {
+  totalCreados!: number;
+  totalGrupos!: number;
+  duplicadosOmitidos!: number;
+  errores!: ErrorImportacionDto[];
+}
+
+/**
+ * Plus-one de un invitado individual/titular (anidado).
+ */
+export class PlusOneResponseDto {
+  id!: number;
+  nombre!: string;
+  apellido!: string;
+  confirmado!: boolean;
+}
+
+/**
+ * Invitado individual/titular (grupoId e invitadoPrincipalId nulos),
+ * con su plus-one anidado si existe.
+ */
+export class InvitadoIndividualResponseDto {
   id!: number;
   nombre!: string;
   apellido!: string;
   confirmado!: boolean;
   fechaConfirmacion!: Date | null;
+  slug!: string | null;
   urlPersonalizada!: string;
+  invitacionEnviada!: boolean;
+  /** null se trata igual que false: sin plus-one salvo que se habilite explícitamente */
+  puedeAgregarPlusOne!: boolean | null;
+  restriccionAlimentaria!: string | null;
+  plusOne!: PlusOneResponseDto | null;
+}
+
+/**
+ * GET /invitaciones/:id/invitados (admin)
+ * Listado extendido: individuales (+plusOne) y grupos (+integrantes).
+ */
+export class InvitadosListadoResponseDto {
+  individuales!: InvitadoIndividualResponseDto[];
+  grupos!: GrupoResponseDto[];
 }
 
 /**
@@ -100,15 +211,12 @@ export class ConfirmacionResponseDto {
 
 /**
  * GET /invitaciones/:id/asistentes
- * Lista de asistentes con conteos (protegido por contraseña).
+ * Panel de gestión completo (protegido por contraseña del evento):
+ * individuales+plusOne, grupos+integrantes y conteos (confirmados y pendientes).
  */
 export class AsistentesResponseDto {
   totalEsperados!: number;
   totalConfirmados!: number;
-  invitados!: {
-    nombre: string;
-    apellido: string;
-    confirmado: boolean;
-    fechaConfirmacion: Date | null;
-  }[];
+  individuales!: InvitadoIndividualResponseDto[];
+  grupos!: GrupoResponseDto[];
 }

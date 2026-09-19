@@ -105,7 +105,7 @@ export class InvitacionesController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateInvitacionDto,
   ) {
-    return this.invitacionesService.actualizar(id, dto);
+    return this.invitacionesService.actualizar(id, dto, true);
   }
 
   // ═══════════════════════════════════════════
@@ -161,16 +161,17 @@ export class InvitacionesController {
   }
 
   // ═══════════════════════════════════════════
-  // GET /invitaciones/:id/public — Vista pública del invitado (sin auth)
-  // Query: ?invitado=nombre-apellido
+  // GET /invitaciones/:id/public — Vista pública del invitado o grupo (sin auth)
+  // Query: ?invitado=slug  o  ?grupo=slug
   // ═══════════════════════════════════════════
   @Public()
   @Get(':id/public')
   async obtenerPublica(
     @Param('id', ParseUUIDPipe) id: string,
     @Query('invitado') invitado?: string,
+    @Query('grupo') grupo?: string,
   ) {
-    return this.invitacionesPublicService.obtenerPublica(id, invitado);
+    return this.invitacionesPublicService.obtenerPublica(id, invitado, grupo);
   }
 
   // ═══════════════════════════════════════════

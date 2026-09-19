@@ -4,6 +4,8 @@ import { Invitacion } from '../../entities/invitacion.entity';
 import { Pedido } from '../../entities/pedido.entity';
 import { FotoAnfitrion } from '../../entities/foto-anfitrion.entity';
 import { LogEliminacion } from '../../entities/log-eliminacion.entity';
+import { Invitado } from '../../entities/invitado.entity';
+import { Grupo } from '../../entities/grupo.entity';
 
 import { InvitacionesController } from './invitaciones.controller';
 import { InvitacionesClientController } from './invitaciones-client.controller';
@@ -23,6 +25,8 @@ import { MusicaModule } from '../musica/musica.module';
       Pedido,
       FotoAnfitrion,
       LogEliminacion,
+      Invitado,
+      Grupo,
     ]),
     TiposEventoModule,
     TemplatesModule,

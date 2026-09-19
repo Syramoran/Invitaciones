@@ -1,39 +1,18 @@
-import { useState } from 'react'
+import { useRef } from 'react'
 import type { GuestEntry } from '@/types/crearInvitacion'
 
 interface Props {
   guests: GuestEntry[]
   onChange: (guests: GuestEntry[]) => void
+  bulkFile: File | null
+  onBulkFileChange: (file: File | null) => void
   variant?: 'admin' | 'client'
 }
 
-interface BulkParseResult {
-  guests: GuestEntry[]
-  invalid: string[]
-}
+const ACCEPTED_EXTENSIONS = ['.xlsx', '.csv']
 
-function parseBulk(text: string): BulkParseResult {
-  const entries = text
-    .split(/[,\n]/)
-    .map(s => s.trim())
-    .filter(Boolean)
-  const guests: GuestEntry[] = []
-  const invalid: string[] = []
-  for (const entry of entries) {
-    const parts = entry.split(/\s+/)
-    if (parts.length !== 2) {
-      invalid.push(entry)
-    } else {
-      guests.push({ nombre: parts[0], apellido: parts[1] })
-    }
-  }
-  return { guests, invalid }
-}
-
-export function GuestListEditor({ guests, onChange, variant = 'client' }: Props) {
-  const [showBulk, setShowBulk] = useState(false)
-  const [bulkText, setBulkText] = useState('')
-  const [bulkError, setBulkError] = useState<string | null>(null)
+export function GuestListEditor({ guests, onChange, bulkFile, onBulkFileChange, variant = 'client' }: Props) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isAdmin = variant === 'admin'
   const inputBase = isAdmin
@@ -53,89 +32,70 @@ export function GuestListEditor({ guests, onChange, variant = 'client' }: Props)
     onChange([...guests, { nombre: '', apellido: '' }])
   }
 
-  function applyBulk() {
-    const { guests: parsed, invalid } = parseBulk(bulkText)
-    if (invalid.length > 0) {
-      setBulkError(
-        `Cada invitado debe tener 1 nombre y 1 apellido. Revisá: ${invalid.slice(0, 3).join(' / ')}${invalid.length > 3 ? '…' : ''}`
-      )
-      return
-    }
-    if (parsed.length === 0) {
-      setBulkError('Ingresá al menos un invitado.')
-      return
-    }
-    const existing = guests.filter(g => g.nombre.trim() || g.apellido.trim())
-    onChange([...existing, ...parsed])
-    setBulkText('')
-    setBulkError(null)
-    setShowBulk(false)
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null
+    onBulkFileChange(file)
   }
 
-  function cancelBulk() {
-    setBulkText('')
-    setBulkError(null)
-    setShowBulk(false)
+  function clearFile() {
+    onBulkFileChange(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const validCount = guests.filter(g => g.nombre.trim() && g.apellido.trim()).length
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <label className={isAdmin
-          ? 'text-[.75rem] font-semibold uppercase tracking-wide text-[#6b7280]'
-          : 'text-[.8rem] font-medium text-[#2d2926]'}>
-          Lista de invitados
-        </label>
-        <button
-          type="button"
-          onClick={() => { setShowBulk(s => !s); setBulkError(null) }}
-          className="text-[.78rem] font-medium text-[#c5a572] hover:text-[#a88a5d] transition-colors"
-        >
-          {showBulk ? 'Cerrar carga masiva' : '📋 Carga masiva'}
-        </button>
-      </div>
-
-      {showBulk && (
-        <div className="mb-4 p-3 bg-[#fdf8f0] border border-[#e8d9b5] rounded-lg">
-          <p className="text-[.78rem] text-[#6b7280] mb-2">
-            Pegá los invitados separados por <strong>coma</strong> o salto de línea. Formato:
-            <code className="ml-1 px-1.5 py-0.5 bg-white border border-[#e5e7eb] rounded text-[.75rem]">Nombre Apellido</code>
-            <span className="ml-1">(exactamente 1 nombre y 1 apellido por invitado).</span>
-          </p>
-          <textarea
-            rows={4}
-            value={bulkText}
-            onChange={e => { setBulkText(e.target.value); setBulkError(null) }}
-            placeholder="Juan Pérez, María García, Carlos López"
-            className="w-full px-3 py-2 border-[1.5px] border-[#d1d5db] rounded-lg text-[.85rem] focus:border-[#c5a572] focus:outline-none resize-none transition-colors bg-white"
-          />
-          {bulkError && (
-            <p className="mt-2 text-[.78rem] text-[#dc2626] font-medium">⚠ {bulkError}</p>
-          )}
-          <div className="flex gap-2 justify-end mt-2">
+      {/* Carga masiva por archivo */}
+      <div className="mb-5 p-3 bg-[#fdf8f0] border border-[#e8d9b5] rounded-lg">
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <label className={isAdmin
+            ? 'text-[.75rem] font-semibold uppercase tracking-wide text-[#6b7280]'
+            : 'text-[.8rem] font-medium text-[#2d2926]'}>
+            Carga masiva por archivo
+          </label>
+          <a
+            href="/plantilla-invitados.csv"
+            download
+            className="text-[.78rem] font-medium text-[#c5a572] hover:text-[#a88a5d] transition-colors"
+          >
+            ⬇ Descargar plantilla
+          </a>
+        </div>
+        <p className="text-[.78rem] text-[#6b7280] mb-2">
+          Subí un archivo .xlsx o .csv con columnas <code className="px-1 py-0.5 bg-white border border-[#e5e7eb] rounded text-[.75rem]">Nombre, Apellido, Grupo, PuedePlusOne, MaxIntegrantesGrupo</code>. Individuales y grupos en el mismo archivo.
+        </p>
+        {bulkFile ? (
+          <div className="flex items-center justify-between gap-2 bg-white border-[1.5px] border-[#d1d5db] rounded-lg px-3 py-2">
+            <span className="text-[.82rem] text-[#2d2926] truncate">📄 {bulkFile.name}</span>
             <button
               type="button"
-              onClick={cancelBulk}
-              className="px-3 py-1.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.8rem] font-medium hover:border-[#2d2926] transition-colors"
+              onClick={clearFile}
+              className="text-[.78rem] font-medium text-[#dc2626] hover:underline shrink-0"
             >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              onClick={applyBulk}
-              className="px-3 py-1.5 bg-[#2d2926] text-white rounded-lg text-[.8rem] font-medium hover:bg-[#4a4441] transition-colors"
-            >
-              Agregar a la lista
+              Quitar
             </button>
           </div>
-        </div>
-      )}
+        ) : (
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={ACCEPTED_EXTENSIONS.join(',')}
+            onChange={handleFileSelect}
+            className="block w-full text-[.82rem] text-[#6b7280] file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:bg-[#2d2926] file:text-white file:text-[.8rem] file:font-medium hover:file:bg-[#4a4441] file:cursor-pointer cursor-pointer"
+          />
+        )}
+      </div>
+
+      <label className={isAdmin
+        ? 'block mb-3 text-[.75rem] font-semibold uppercase tracking-wide text-[#6b7280]'
+        : 'block mb-3 text-[.8rem] font-medium text-[#2d2926]'}>
+        O cargá invitados uno por uno
+      </label>
 
       {guests.length === 0 ? (
         <div className="border-[1.5px] border-dashed border-[#d1d5db] rounded-lg px-4 py-6 text-center text-[.82rem] text-[#6b7280]">
-          Todavía no agregaste invitados. Hacé clic en <strong>+ Agregar invitado</strong> o usá la <strong>carga masiva</strong>.
+          Todavía no agregaste invitados. Hacé clic en <strong>+ Agregar invitado</strong> o subí un archivo arriba.
         </div>
       ) : (
         <div className="space-y-2">

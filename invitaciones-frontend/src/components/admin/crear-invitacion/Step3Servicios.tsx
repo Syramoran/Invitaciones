@@ -89,6 +89,7 @@ export function Step3Servicios({ state, onChange, onNext, onPrev, contrasenaAsis
     s => s.nombre.toLowerCase().includes('confirmaci')
   )
   const tieneConfirmacion = confirmacionSvc?.enabled ?? false
+  const faltaContrasena = tieneConfirmacion && !contrasenaAsistentes?.trim()
 
   return (
     <div>
@@ -141,7 +142,7 @@ export function Step3Servicios({ state, onChange, onNext, onPrev, contrasenaAsis
         <div className="mt-5 p-4 rounded-xl border border-[#c5a572]/30 bg-[rgba(197,165,114,.04)]">
           <div className="flex items-center gap-1.5 mb-1.5">
             <label className="text-[.75rem] font-semibold uppercase tracking-wide text-[#6b7280]">
-              Contraseña lista de asistentes
+              Contraseña lista de asistentes<span className="text-[#dc2626] ml-0.5">*</span>
             </label>
             <FieldTooltip text="Si olvidás la contraseña deberás comunicarte con soporte: festeja.plataforma@gmail.com. Elegí una que no vayas a olvidar." />
           </div>
@@ -169,15 +170,20 @@ export function Step3Servicios({ state, onChange, onNext, onPrev, contrasenaAsis
       )}
 
       {/* Navigation */}
-      <div className="flex justify-between mt-6 pt-4 border-t border-[#f0f0f0]">
+      <div className="flex items-center justify-between mt-6 pt-4 border-t border-[#f0f0f0]">
         <button type="button" onClick={onPrev}
           className="px-5 py-2.5 border-[1.5px] border-[#d1d5db] rounded-lg text-[.88rem] font-medium hover:border-[#2d2926] transition-colors">
           ← Anterior
         </button>
-        <button type="button" onClick={onNext}
-          className="px-5 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-lg text-[.88rem] font-medium hover:bg-[#4a4441] transition-colors">
-          Siguiente →
-        </button>
+        <div className="flex items-center gap-3">
+          {faltaContrasena && (
+            <p className="text-[.78rem] text-[#dc2626]">Falta la contraseña de asistentes.</p>
+          )}
+          <button type="button" onClick={onNext} disabled={faltaContrasena}
+            className="px-5 py-2.5 bg-[#2d2926] text-[#fefcf9] rounded-lg text-[.88rem] font-medium hover:bg-[#4a4441] transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#2d2926]">
+            Siguiente →
+          </button>
+        </div>
       </div>
     </div>
   )

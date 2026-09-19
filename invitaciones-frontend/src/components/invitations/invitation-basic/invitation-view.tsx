@@ -8,6 +8,7 @@ import { InfoSection } from "./info-section"
 import { MapSection } from "./map-section"
 import { StorySection } from "./story-section"
 import { RsvpSection } from "./rsvp-section"
+import { GrupoRsvpSection } from "@/components/invitations/shared/GrupoRsvpSection"
 
 interface InvitationViewProps {
   invitacion: InvitacionPublica
@@ -126,10 +127,18 @@ export function InvitationView({ invitacion, invitadoParam, previewMode = false 
         )}
 
         {/* RSVP / Confirmación (si el servicio está habilitado) */}
-        {tieneConfirmacion && (
+        {tieneConfirmacion && !invitacion.grupo && (
           <RsvpSection
-            invitacionId={invitacion.id}
+            invitacion={invitacion}
             invitadoParam={invitadoParam ?? null}
+            mostrarBoton={invitacion.mostrarBotonConfirmar}
+          />
+        )}
+
+        {tieneConfirmacion && invitacion.grupo && (
+          <GrupoRsvpSection
+            invitacionId={invitacion.id}
+            grupo={invitacion.grupo}
             mostrarBoton={invitacion.mostrarBotonConfirmar}
           />
         )}

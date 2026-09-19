@@ -1,5 +1,6 @@
 import apiClient from './apiClient'
 import type { WizardFormState, CrearInvitacionResult } from '@/types/crearInvitacion'
+import { invitadosAdminService } from './invitadosAdminService'
 
 // ─── FormData builder ─────────────────────────────────────────────────────────
 
@@ -77,11 +78,16 @@ export const crearInvitacionService = {
       })
     }
 
-    // Save guest list if provided
+    // Save guest list if provided (manual, row-by-row)
     if (form.step5.guests.length > 0) {
       await apiClient.post(`/invitaciones/${data.id}/invitados`, {
         invitados: form.step5.guests,
       })
+    }
+
+    // Bulk-import guests + groups from file, if provided
+    if (form.step5.bulkFile) {
+      await invitadosAdminService.importarInvitados(data.id, form.step5.bulkFile)
     }
 
     return data

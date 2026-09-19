@@ -49,6 +49,12 @@ export function TemplateCard({ template, toggling, onToggle }: Props) {
         <span className={`absolute top-2 left-2 text-[.65rem] font-semibold uppercase tracking-[.3px] px-2 py-0.5 rounded-full ${badgeCls}`}>
           {TIPO_LABEL[template.tipoEventoId] ?? `Tipo ${template.tipoEventoId}`}
         </span>
+        {/* Badge privada */}
+        {!template.publico && (
+          <span className="absolute top-2 right-2 text-[.65rem] font-semibold uppercase tracking-[.3px] px-2 py-0.5 rounded-full bg-[#1a1a1a] text-white">
+            Privada
+          </span>
+        )}
       </div>
 
       {/* Info + toggle */}

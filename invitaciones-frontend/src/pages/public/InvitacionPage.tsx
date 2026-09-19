@@ -100,6 +100,7 @@ export default function InvitacionPage() {
   const navigate = useNavigate()
 
   const invitado = searchParams.get('invitado') ?? undefined
+  const grupo = searchParams.get('grupo') ?? undefined
 
   const [invitacion, setInvitacion] = useState<InvitacionPublica | null>(null)
   const [status, setStatus] = useState<'loading' | 'success' | 'cached' | 'server-down' | 'error'>('loading')
@@ -112,7 +113,7 @@ export default function InvitacionPage() {
 
     setStatus('loading')
 
-    getInvitacionPublica(eventoId, invitado)
+    getInvitacionPublica(eventoId, invitado, grupo)
       .then((data) => {
         setInvitacion(data)
         document.title = `${data.titulo} | Invitación Digital`
@@ -134,7 +135,7 @@ export default function InvitacionPage() {
           setStatus('error')
         }
       })
-  }, [eventoId, invitado])
+  }, [eventoId, invitado, grupo])
 
   useEffect(() => {
     if (status === 'error') {
