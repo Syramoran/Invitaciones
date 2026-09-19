@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { confirmarAsistencia } from '@/services/invitacionService'
+import { extraerMensajeError } from './apiError'
 
 export type EstadoRsvp = 'idle' | 'loading' | 'success' | 'error'
 
@@ -36,26 +37,39 @@ export function useRsvpConfirmacion({
   const [restriccionAlimentaria, setRestriccionAlimentaria] = useState(
     restriccionAlimentariaExistente ?? '',
   )
+  const [intentoEnviar, setIntentoEnviar] = useState(false)
+
+  // Si el invitado sube el contador a 2 pero deja el nombre/apellido del
+  // acompañante vacíos, antes se enviaba igual y el plus-one se perdía en
+  // silencio (confirmaba solo al titular sin avisar). Ahora se bloquea el
+  // envío y se le pide completar los datos.
+  const faltaPlusOne =
+    puedeAgregarPlusOne && agregarPlusOne && (!plusOneNombre.trim() || !plusOneApellido.trim())
+  const errorPlusOne =
+    intentoEnviar && faltaPlusOne
+      ? 'Completá el nombre y apellido de tu acompañante, o volvé el contador a 1.'
+      : null
 
   async function confirmar() {
+    setIntentoEnviar(true)
+    if (faltaPlusOne) return
+
     setEstado('loading')
     try {
-      const incluirPlusOne =
-        puedeAgregarPlusOne && agregarPlusOne && plusOneNombre.trim() && plusOneApellido.trim()
-
       const response = await confirmarAsistencia(invitacionId, {
         invitadoSlug,
         restriccionAlimentaria: restriccionAlimentaria.trim() || undefined,
-        plusOne: incluirPlusOne
-          ? { nombre: plusOneNombre.trim(), apellido: plusOneApellido.trim() }
-          : undefined,
+        plusOne:
+          puedeAgregarPlusOne && agregarPlusOne
+            ? { nombre: plusOneNombre.trim(), apellido: plusOneApellido.trim() }
+            : undefined,
       })
       setEstado('success')
       setConfirmado(true)
       setMensaje(response.mensaje || '¡Gracias por confirmar tu asistencia!')
-    } catch {
+    } catch (err) {
       setEstado('error')
-      setMensaje('No se pudo registrar tu confirmación. Intentá de nuevo.')
+      setMensaje(extraerMensajeError(err, 'No se pudo registrar tu confirmación. Intentá de nuevo.'))
     }
   }
 
@@ -75,6 +89,7 @@ export function useRsvpConfirmacion({
     setPlusOneApellido,
     restriccionAlimentaria,
     setRestriccionAlimentaria,
+    errorPlusOne,
     confirmar,
     reintentar,
   }

@@ -1,8 +1,9 @@
-import { Loader2, Check, AlertCircle, Minus, Plus, X } from 'lucide-react'
+import { Loader2, Check, AlertCircle, Minus, Plus } from 'lucide-react'
 import type { InvitacionPublica } from '@/types/invitation'
 import { useRsvpConfirmacion } from '../shared/useRsvpConfirmacion'
 import { useRsvpConfirmacionGrupo } from '../shared/useRsvpConfirmacionGrupo'
 import { COLOR, TYPO } from './theme'
+import { haPasadoFechaLimite, obtenerFechaLimiteStr } from './fecha-limite-section'
 
 interface RsvpSectionProps {
   invitacion: InvitacionPublica
@@ -13,6 +14,18 @@ const INPUT_CLASS = 'w-full rounded-sm px-4 py-3 outline-none bg-[#E9E5E2] shado
 const INPUT_DISABLED_CLASS = `${INPUT_CLASS} opacity-70 cursor-not-allowed`
 const TEXTAREA_CLASS = 'w-full resize-none rounded-xl px-4 py-3 outline-none bg-[#E9E5E2] shadow-sm'
 const BOTON_CLASS = 'rounded-sm px-12 py-4 transition-opacity hover:opacity-85 cursor-pointer disabled:opacity-50'
+
+// Mismos límites que valida el backend (ConfirmarAsistenciaDto / ConfirmarGrupoDto)
+const MAX_NOMBRE = 100
+const MAX_RESTRICCION = 500
+
+function ContadorCaracteres({ actual, max }: { actual: number; max: number }) {
+  return (
+    <span className="self-end text-xs" style={{ color: COLOR.brown }}>
+      {actual}/{max}
+    </span>
+  )
+}
 
 function NombreCoupla() {
   return (
@@ -30,6 +43,34 @@ function EstadoConfirmado() {
       </div>
       <h2 style={{ ...TYPO.h2, color: COLOR.darkBrown }}>¡Confirmado!</h2>
     </div>
+  )
+}
+
+function DespedidaConfirmado() {
+  return (
+    <>
+      <EstadoConfirmado />
+      <h2 style={{ ...TYPO.h3, color: COLOR.darkBrown }}>Te esperamos</h2>
+      <NombreCoupla />
+    </>
+  )
+}
+
+function CierreTeEsperamos() {
+  return (
+    <>
+      <h2 style={{ ...TYPO.h3, color: COLOR.darkBrown }}>Te esperamos</h2>
+      <NombreCoupla />
+    </>
+  )
+}
+
+function DespedidaVencido() {
+  return (
+    <>
+      <h2 style={{ ...TYPO.h3, color: COLOR.darkBrown }}>Ya no se puede confirmar tu asistencia</h2>
+      <NombreCoupla />
+    </>
   )
 }
 
@@ -61,6 +102,7 @@ interface RsvpIndividualProps {
   yaConfirmado: boolean
   restriccionAlimentariaExistente: string | null
   plusOneExistente: { nombre: string; apellido: string } | null
+  deadlinePassed: boolean
 }
 
 function RsvpIndividual({
@@ -72,6 +114,7 @@ function RsvpIndividual({
   yaConfirmado,
   restriccionAlimentariaExistente,
   plusOneExistente,
+  deadlinePassed,
 }: RsvpIndividualProps) {
   const {
     estado,
@@ -85,6 +128,7 @@ function RsvpIndividual({
     setPlusOneApellido,
     restriccionAlimentaria,
     setRestriccionAlimentaria,
+    errorPlusOne,
     confirmar,
     reintentar,
   } = useRsvpConfirmacion({
@@ -106,8 +150,16 @@ function RsvpIndividual({
 
   if (confirmado) {
     return (
-      <section className="flex flex-col items-center px-7 py-16 text-center">
-        <EstadoConfirmado />
+      <section className="flex flex-col items-center gap-14 px-7 py-16 text-center">
+        <DespedidaConfirmado />
+      </section>
+    )
+  }
+
+  if (deadlinePassed) {
+    return (
+      <section className="flex flex-col items-center gap-14 px-7 py-16 text-center">
+        <DespedidaVencido />
       </section>
     )
   }
@@ -188,6 +240,7 @@ function RsvpIndividual({
                     value={plusOneNombre}
                     onChange={(e) => setPlusOneNombre(e.target.value)}
                     placeholder="Nombre"
+                    maxLength={MAX_NOMBRE}
                     className={INPUT_CLASS}
                     style={{ ...TYPO.text, color: COLOR.darkBrown }}
                   />
@@ -195,6 +248,7 @@ function RsvpIndividual({
                     value={plusOneApellido}
                     onChange={(e) => setPlusOneApellido(e.target.value)}
                     placeholder="Apellido"
+                    maxLength={MAX_NOMBRE}
                     className={INPUT_CLASS}
                     style={{ ...TYPO.text, color: COLOR.darkBrown }}
                   />
@@ -214,10 +268,16 @@ function RsvpIndividual({
           onChange={(e) => setRestriccionAlimentaria(e.target.value)}
           placeholder="Explicalo acá"
           rows={2}
+          maxLength={MAX_RESTRICCION}
           className={TEXTAREA_CLASS}
           style={{ ...TYPO.text, color: COLOR.darkBrown }}
         />
+        <ContadorCaracteres actual={restriccionAlimentaria.length} max={MAX_RESTRICCION} />
       </div>
+
+      {errorPlusOne && (
+        <p className="max-w-[20.75rem] text-sm text-red-600">{errorPlusOne}</p>
+      )}
 
       <button
         type="button"
@@ -236,7 +296,7 @@ function RsvpIndividual({
         )}
       </button>
 
-      <NombreCoupla />
+      <CierreTeEsperamos />
     </section>
   )
 }
@@ -244,26 +304,19 @@ function RsvpIndividual({
 interface RsvpGrupoProps {
   invitacionId: string
   grupo: NonNullable<InvitacionPublica['grupo']>
+  deadlinePassed: boolean
 }
 
-function RsvpGrupo({ invitacionId, grupo }: RsvpGrupoProps) {
+function RsvpGrupo({ invitacionId, grupo, deadlinePassed }: RsvpGrupoProps) {
   const {
     seleccionados,
     toggleIntegrante,
-    nuevos,
-    agregarNuevo,
-    quitarNuevo,
-    nombreNuevo,
-    setNombreNuevo,
-    apellidoNuevo,
-    setApellidoNuevo,
     restriccionAlimentaria,
     setRestriccionAlimentaria,
     estado,
     mensaje,
     confirmar,
     reintentar,
-    llegoAlTope,
   } = useRsvpConfirmacionGrupo({ invitacionId, grupo })
 
   const yaConfirmado = grupo.integrantes.some((i) => i.confirmado) || estado === 'success'
@@ -278,8 +331,16 @@ function RsvpGrupo({ invitacionId, grupo }: RsvpGrupoProps) {
 
   if (yaConfirmado) {
     return (
-      <section className="flex flex-col items-center px-7 py-16 text-center">
-        <EstadoConfirmado />
+      <section className="flex flex-col items-center gap-14 px-7 py-16 text-center">
+        <DespedidaConfirmado />
+      </section>
+    )
+  }
+
+  if (deadlinePassed) {
+    return (
+      <section className="flex flex-col items-center gap-14 px-7 py-16 text-center">
+        <DespedidaVencido />
       </section>
     )
   }
@@ -311,58 +372,7 @@ function RsvpGrupo({ invitacionId, grupo }: RsvpGrupoProps) {
             </span>
           </label>
         ))}
-
-        {nuevos.map((integrante, i) => (
-          <div
-            key={i}
-            className="flex w-full items-center justify-between gap-3 rounded-sm px-4 py-3 text-left bg-[#E9E5E2] shadow-sm"
-          >
-            <span style={{ ...TYPO.text, color: COLOR.darkBrown }}>
-              {integrante.nombre} {integrante.apellido}
-            </span>
-            <button
-              type="button"
-              onClick={() => quitarNuevo(i)}
-              aria-label={`Quitar ${integrante.nombre}`}
-              className="shrink-0 transition-opacity hover:opacity-60"
-              style={{ color: COLOR.brown }}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        ))}
       </div>
-
-      {!llegoAlTope && (
-        <div className="flex w-full max-w-[20.75rem] flex-col items-start gap-3 text-left">
-          <label style={{ ...TYPO.text2, color: COLOR.brown }}>Sumar a alguien más del grupo</label>
-          <div className="flex w-full gap-3">
-            <input
-              value={nombreNuevo}
-              onChange={(e) => setNombreNuevo(e.target.value)}
-              placeholder="Nombre"
-              className={INPUT_CLASS}
-              style={{ ...TYPO.text, color: COLOR.darkBrown }}
-            />
-            <input
-              value={apellidoNuevo}
-              onChange={(e) => setApellidoNuevo(e.target.value)}
-              placeholder="Apellido"
-              className={INPUT_CLASS}
-              style={{ ...TYPO.text, color: COLOR.darkBrown }}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={agregarNuevo}
-            disabled={!nombreNuevo.trim() || !apellidoNuevo.trim()}
-            className="self-start transition-opacity hover:opacity-70 disabled:opacity-40"
-            style={{ ...TYPO.text2, color: COLOR.darkBrown }}
-          >
-            + Agregar
-          </button>
-        </div>
-      )}
 
       <div className="flex w-full max-w-[20.75rem] flex-col items-start gap-3 text-left">
         <label style={{ ...TYPO.text2, color: COLOR.brown }}>
@@ -373,9 +383,11 @@ function RsvpGrupo({ invitacionId, grupo }: RsvpGrupoProps) {
           onChange={(e) => setRestriccionAlimentaria(e.target.value)}
           placeholder="Explicalo acá"
           rows={2}
+          maxLength={MAX_RESTRICCION}
           className={TEXTAREA_CLASS}
           style={{ ...TYPO.text, color: COLOR.darkBrown }}
         />
+        <ContadorCaracteres actual={restriccionAlimentaria.length} max={MAX_RESTRICCION} />
       </div>
 
       <button
@@ -395,7 +407,7 @@ function RsvpGrupo({ invitacionId, grupo }: RsvpGrupoProps) {
         )}
       </button>
 
-      <NombreCoupla />
+      <CierreTeEsperamos />
     </section>
   )
 }
@@ -405,14 +417,17 @@ export function RsvpSection({ invitacion, invitadoParam }: RsvpSectionProps) {
 
   if (!invitacion.mostrarBotonConfirmar) {
     return (
-      <section className="flex flex-col items-center px-7 py-16 text-center">
+      <section className="flex flex-col items-center gap-14 px-7 py-16 text-center">
         <h2 style={{ ...TYPO.h2, color: COLOR.darkBrown }}>¡Te esperamos!</h2>
+        <NombreCoupla />
       </section>
     )
   }
 
+  const deadlinePassed = haPasadoFechaLimite(obtenerFechaLimiteStr(invitacion))
+
   if (invitacion.grupo) {
-    return <RsvpGrupo invitacionId={invitacion.id} grupo={invitacion.grupo} />
+    return <RsvpGrupo invitacionId={invitacion.id} grupo={invitacion.grupo} deadlinePassed={deadlinePassed} />
   }
 
   return (
@@ -425,6 +440,7 @@ export function RsvpSection({ invitacion, invitadoParam }: RsvpSectionProps) {
       yaConfirmado={invitacion.yaConfirmado ?? false}
       restriccionAlimentariaExistente={invitacion.restriccionAlimentariaExistente ?? null}
       plusOneExistente={invitacion.plusOneExistente ?? null}
+      deadlinePassed={deadlinePassed}
     />
   )
 }

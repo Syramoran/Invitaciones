@@ -14,7 +14,7 @@ function formatDiaMes(fechaISO: string): { diaSemana: string; dia: string; mes: 
 }
 
 export function EventInfoSection({ invitacion }: EventInfoSectionProps) {
-  const { fechaEvento, horaEvento, titulo, ubicacion, direccion } = invitacion
+  const { fechaEvento, horaEvento, ubicacion, direccion } = invitacion
   const { diaSemana, dia, mes } = formatDiaMes(fechaEvento)
   const esMultiple = ubicacion === "multiple"
 
@@ -27,9 +27,9 @@ export function EventInfoSection({ invitacion }: EventInfoSectionProps) {
     const fmt = (d: Date) => d.toISOString().replace(/-|:|\.\d{3}/g, "")
     const params = new URLSearchParams({
       action: "TEMPLATE",
-      text: titulo,
+      text: "Boda Angie y Fran",
       dates: `${fmt(inicio)}/${fmt(fin)}`,
-      details: `Invitación: ${titulo}`,
+      details: "¡Nos casamos! Queremos compartir este día tan especial junto a vos. Te esperamos para celebrar nuestra boda.",
       location: esMultiple ? "" : `${ubicacion}, ${direccion}`,
     })
     return `https://calendar.google.com/calendar/render?${params.toString()}`

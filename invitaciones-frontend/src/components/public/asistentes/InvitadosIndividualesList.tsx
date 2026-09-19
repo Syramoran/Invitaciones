@@ -96,7 +96,7 @@ function InvitadoRow({
                 </p>
               ) : (
                 <p className="mt-1 text-xs italic text-warm-gray-light">
-                  Sin restricciones informadas todavía — la completa el invitado al confirmar.
+                  Sin restricciones informadas todavía.
                 </p>
               )}
             </div>

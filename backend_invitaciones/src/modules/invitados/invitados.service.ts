@@ -342,27 +342,15 @@ export class InvitadosService {
 
     // Lookup directo por slug indexado (uq_invitado_inv_slug), ya no hace
     // falta traer todos los invitados y recalcular el slug fila por fila.
-    let invitado = await this.invitadoRepo.findOne({
+    // No hay auto-registro: si el slug no corresponde a nadie precargado por
+    // la pareja, se rechaza (evita que cualquiera con el link invente un
+    // nombre en la URL y se sume solo a la lista de confirmados).
+    const invitado = await this.invitadoRepo.findOne({
       where: { invitacionId, slug: slugEntrada },
     });
 
     if (!invitado) {
-      // Invitado que no estaba en la lista previa (auto-registro).
-      // Reconstruimos nombre/apellido desde el slug para guardar algo legible.
-      const partes = slugEntrada.split('-');
-      const nombre = partes[0] ?? slugEntrada;
-      const apellido = partes.slice(1).join(' ') || nombre;
-
-      const yaUsados = await this.slugsIndividualesUsados(invitacionId);
-      invitado = this.invitadoRepo.create({
-        invitacionId,
-        nombre,
-        apellido,
-        slug: generarSlugUnico(`${nombre}-${apellido}`, yaUsados),
-        grupoId: null,
-        invitadoPrincipalId: null,
-        puedeAgregarPlusOne: null,
-      });
+      throw new NotFoundException('Invitado no encontrado en esta invitación.');
     }
 
     // Validar TODO antes de persistir nada — si el plusOne no es válido, la

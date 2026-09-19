@@ -59,7 +59,8 @@ export function mapearInvitacionResponse(
 
 export interface ContextoInvitadoPublico {
   invitadoParam?: string;
-  /** Fila real ya resuelta por slug persistido; null si no matcheó (aún no precargado). */
+  /** Fila real ya resuelta por slug persistido. El caller (InvitacionesPublicService)
+   *  tira NotFoundException antes de llegar acá si invitadoParam no matcheó a nadie. */
   invitadoEncontrado?: Invitado | null;
   plusOneEncontrado?: Invitado | null;
   grupoParam?: string;
@@ -92,35 +93,23 @@ export function mapearInvitacionPublica(
   let yaConfirmado: boolean | undefined;
   let grupoDto: InvitacionPublicDto['grupo'];
 
-  if (invitadoParam) {
+  if (invitadoParam && invitadoEncontrado) {
+    // El service ya tiró NotFoundException si el slug no matcheaba ningún
+    // invitado precargado — acá invitadoEncontrado siempre está resuelto.
     mostrarBotonConfirmar = true;
-
-    if (invitadoEncontrado) {
-      // Invitado real ya precargado — usamos su nombre de verdad, no el del slug
-      saludoPersonalizado = `¡Hola ${capitalizarNombre(invitadoEncontrado.nombre)}!`;
-      invitadoNombre = capitalizarNombre(invitadoEncontrado.nombre);
-      invitadoApellido = capitalizarNombre(invitadoEncontrado.apellido);
-      yaConfirmado = invitadoEncontrado.confirmado;
-      puedeAgregarPlusOne = invitadoEncontrado.puedeAgregarPlusOne ?? false;
-      restriccionAlimentariaExistente = invitadoEncontrado.restriccionAlimentaria;
-      plusOneExistente = plusOneEncontrado
-        ? {
-            nombre: plusOneEncontrado.nombre,
-            apellido: plusOneEncontrado.apellido,
-            confirmado: plusOneEncontrado.confirmado,
-          }
-        : null;
-    } else {
-      // Sin match (invitado aún no precargado): fallback al saludo por slug.
-      const [nombre] = invitadoParam.split('-');
-      saludoPersonalizado = nombre ? `¡Hola ${capitalizarNombre(nombre)}!` : null;
-      invitadoNombre = nombre ? capitalizarNombre(nombre) : null;
-      invitadoApellido = null;
-      yaConfirmado = false;
-      puedeAgregarPlusOne = false;
-      restriccionAlimentariaExistente = null;
-      plusOneExistente = null;
-    }
+    saludoPersonalizado = `¡Hola ${capitalizarNombre(invitadoEncontrado.nombre)}!`;
+    invitadoNombre = capitalizarNombre(invitadoEncontrado.nombre);
+    invitadoApellido = capitalizarNombre(invitadoEncontrado.apellido);
+    yaConfirmado = invitadoEncontrado.confirmado;
+    puedeAgregarPlusOne = invitadoEncontrado.puedeAgregarPlusOne ?? false;
+    restriccionAlimentariaExistente = invitadoEncontrado.restriccionAlimentaria;
+    plusOneExistente = plusOneEncontrado
+      ? {
+          nombre: plusOneEncontrado.nombre,
+          apellido: plusOneEncontrado.apellido,
+          confirmado: plusOneEncontrado.confirmado,
+        }
+      : null;
   } else if (grupoParam && grupoEncontrado) {
     mostrarBotonConfirmar = true;
     saludoPersonalizado = `¡Hola ${grupoEncontrado.nombre}!`;

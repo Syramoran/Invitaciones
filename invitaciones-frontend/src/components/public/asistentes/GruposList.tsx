@@ -13,7 +13,6 @@ interface Props {
   onEliminar: (grupoId: number) => Promise<void>
   onAgregarIntegrante: (grupoId: number, nombre: string, apellido: string) => Promise<void>
   onEliminarIntegrante: (grupoId: number, invitadoId: number) => Promise<void>
-  onActualizarRestriccion: (grupoId: number, restriccionAlimentaria: string) => Promise<void>
   onActualizarNombre: (grupoId: number, nombre: string) => Promise<void>
   onActualizarMaxIntegrantes: (grupoId: number, maxIntegrantes: number) => Promise<void>
   onCambiarInvitacionEnviada: (grupoId: number, invitacionEnviada: boolean) => Promise<void>
@@ -24,7 +23,6 @@ function GrupoRow({
   onEliminar,
   onAgregarIntegrante,
   onEliminarIntegrante,
-  onActualizarRestriccion,
   onActualizarNombre,
   onActualizarMaxIntegrantes,
   onCambiarInvitacionEnviada,
@@ -33,7 +31,6 @@ function GrupoRow({
   onEliminar: (grupoId: number) => Promise<void>
   onAgregarIntegrante: (grupoId: number, nombre: string, apellido: string) => Promise<void>
   onEliminarIntegrante: (grupoId: number, invitadoId: number) => Promise<void>
-  onActualizarRestriccion: (grupoId: number, restriccionAlimentaria: string) => Promise<void>
   onActualizarNombre: (grupoId: number, nombre: string) => Promise<void>
   onActualizarMaxIntegrantes: (grupoId: number, maxIntegrantes: number) => Promise<void>
   onCambiarInvitacionEnviada: (grupoId: number, invitacionEnviada: boolean) => Promise<void>
@@ -129,11 +126,18 @@ function GrupoRow({
               </div>
             </div>
 
-            <RestriccionInput
-              valor={grupo.restriccionAlimentaria}
-              onGuardar={(valor) => onActualizarRestriccion(grupo.id, valor)}
-              placeholder="Restricción alimentaria del grupo (ej: Ana - vegetariana)"
-            />
+            <div>
+              <p className="text-xs text-warm-gray">Restricción alimentaria</p>
+              {grupo.restriccionAlimentaria ? (
+                <p className="mt-1 rounded-lg bg-ivory px-2.5 py-1.5 text-xs text-charcoal">
+                  {grupo.restriccionAlimentaria}
+                </p>
+              ) : (
+                <p className="mt-1 text-xs italic text-warm-gray-light">
+                  Sin restricciones informadas todavía.
+                </p>
+              )}
+            </div>
 
             {grupo.integrantes.length > 0 && (
               <ul className="divide-y divide-[#f5f5f5]">
@@ -237,7 +241,6 @@ export function GruposList({
   onEliminar,
   onAgregarIntegrante,
   onEliminarIntegrante,
-  onActualizarRestriccion,
   onActualizarNombre,
   onActualizarMaxIntegrantes,
   onCambiarInvitacionEnviada,
@@ -309,7 +312,6 @@ export function GruposList({
               onEliminar={onEliminar}
               onAgregarIntegrante={onAgregarIntegrante}
               onEliminarIntegrante={onEliminarIntegrante}
-              onActualizarRestriccion={onActualizarRestriccion}
               onActualizarNombre={onActualizarNombre}
               onActualizarMaxIntegrantes={onActualizarMaxIntegrantes}
               onCambiarInvitacionEnviada={onCambiarInvitacionEnviada}

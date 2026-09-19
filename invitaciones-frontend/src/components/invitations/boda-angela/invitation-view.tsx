@@ -89,9 +89,6 @@ export function InvitationView({
       s.nombre.toLowerCase().includes('countdown')
   )
 
-  const campos = (invitacion.camposEspecificos ?? {}) as Record<string, unknown>
-  const fechaLimiteConfirmacion = (campos.fechaLimiteConfirmacion as string) || null
-
   return (
     <div className="relative min-h-screen w-full overflow-hidden" style={{ backgroundColor: COLOR.parchment }}>
       <img

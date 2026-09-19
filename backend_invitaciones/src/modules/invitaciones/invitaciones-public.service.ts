@@ -64,11 +64,12 @@ export class InvitacionesPublicService {
       invitadoEncontrado = await this.invitadoRepo.findOne({
         where: { invitacionId: id, slug: toSlug(invitadoParam) },
       });
-      if (invitadoEncontrado) {
-        plusOneEncontrado = await this.invitadoRepo.findOne({
-          where: { invitacionId: id, invitadoPrincipalId: invitadoEncontrado.id },
-        });
+      if (!invitadoEncontrado) {
+        throw new NotFoundException('Invitado no encontrado.');
       }
+      plusOneEncontrado = await this.invitadoRepo.findOne({
+        where: { invitacionId: id, invitadoPrincipalId: invitadoEncontrado.id },
+      });
     }
 
     let grupoEncontrado: Grupo | null = null;

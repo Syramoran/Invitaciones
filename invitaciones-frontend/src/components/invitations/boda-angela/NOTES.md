@@ -377,9 +377,12 @@ antes de publicar. `fondo-hero.png` (10 MB) queda para borrar.
       `Record<string, unknown> → CamposAngela` inválido (lo resuelve el tipo
       `CamposEspecificosBodaAngela`). Los 2 de `hero-section.tsx` (`invitadoParam`
       / `saludoPersonalizado` sin usar) se corrigieron en el pase de imágenes.
-- [ ] **Commit**: la carpeta entera está sin versionar.
-- [ ] Verificar en la DB actual que `id/slug/publico/tipo_evento_id` sigan como
-      dice la sección 1.
+- [ ] **Commit**: quedan cambios del último pase de RSVP (autocompletar
+      titular del plus-one) sin commitear — 3 archivos de back, 10 de front y
+      `shared/apiError.ts` nuevo.
+- [x] Verificar en la DB actual que `id/slug/publico/tipo_evento_id` sigan como
+      dice la sección 1 (2026-09-19, ver §10 — **confirmado en local**, pero
+      **no existe todavía en producción**).
 
 ---
 
@@ -403,3 +406,28 @@ Figma.
 | `rsvp-section.tsx`       | ✅ conectado al back (2026-09-15) | Segundo pase el mismo día: se conectó de verdad. Tres ramas dentro de `RsvpSection` (`invitacion.tieneConfirmacion` primero — si es `false`, `return null`): (1) sin `?invitado=`/`?grupo=` válido (`!invitacion.mostrarBotonConfirmar`) → solo "¡Te esperamos!"; (2) `invitado` individual → `RsvpIndividual` usa el hook compartido `useRsvpConfirmacion` (mismo que `invitation-basic`) — si `puedeAgregarPlusOne` es `false` la decisión del usuario fue mostrar **solo título + restricción alimentaria + botón** (sin contador ni subtítulo); si es `true`, el contador (1/2) alterna `agregarPlusOne` del hook y a los 2 aparecen dos inputs separados **Nombre/Apellido** (no "Nombre y apellido" combinado como en el mock — el DTO real `ConfirmarAsistenciaDto.plusOne` pide los campos separados); (3) `invitacion.grupo` → `RsvpGrupo` usa el hook nuevo `useRsvpConfirmacionGrupo` (extraído de `GrupoRsvpSection`, ver `shared/`) — checkbox por integrante ya precargado (no editable, el back no permite corregirle el nombre desde este endpoint) + mini-form "Nombre/Apellido + Agregar" para sumar gente nueva hasta `maxIntegrantesEfectivo`. Botón "Confirmar asistencia" ahora sí llama al back de verdad (`confirmar()` de cada hook), con estados loading/success/error (`EstadoError` compartido entre las dos ramas). Estilos: se conservaron los ajustes visuales que el usuario había hecho a mano en paralelo mientras yo investigaba el backend (labels en `TYPO.text2`, inputs `bg-[#E9E5E2] shadow-sm rounded-sm`, textarea `rounded-xl`, número del contador `fontSize:90` `COLOR.brown`, botón `rounded-sm cursor-pointer`) y el `<h1>Angie y Fran</h1>` que agregó al final de la sección — "dejalo así por ahora", pendiente de que decida si lo mueve/saca. Probado en vivo contra el back local: invitado sin plus-one ya confirmado (`syra-moran`), invitado con plus-one habilitado por PATCH temporal (`agostina-chiapino`, revertido después), y un grupo de prueba creado/borrado por API (`familia-test-claude` / `familia-test-visual`, con integrantes precargados + suma de nuevos hasta el tope) — sin dejar residuos en la DB.
 
 **Actualización (mismo día, 3er pedido):** cuando el invitado con plus-one habilitado suma una persona (contador a 2), "Invitado 1" ahora se autocompleta con el nombre/apellido real del titular (inputs `disabled`, `INPUT_DISABLED_CLASS`) y debajo aparecen los campos editables de "Invitado 2" (el acompañante). Esto requirió exponer el nombre/apellido del titular en el back, porque **no se puede derivar de forma confiable desde el slug** (`toSlug` convierte espacios Y el separador nombre-apellido al mismo `-`, así que un nombre u apellido compuesto — común en español — vuelve el slug ambiguo para partirlo de nuevo). Cambios de back: `InvitacionPublicDto.invitadoNombre/invitadoApellido` (nuevos, opcionales) en `invitacion.dto.ts`, poblados en `invitacion.mapper.ts` desde `invitadoEncontrado.nombre/apellido` (o solo el nombre, derivado del slug, si el invitado todavía no está precargado — el apellido queda `null` en ese caso). Reflejado en `types/invitation.ts` del frontend. **Ojo**: el backend corre acá como build compilado (`node dist/src/main`, no `nest start --watch`) — hace falta `npm run build` + reiniciar el proceso a mano después de tocar código del back, no alcanza con guardar el archivo. |
+
+---
+
+## 10. Estado de producción (verificado 2026-09-19)
+
+Chequeado directo contra la DB de Railway (solo lectura):
+
+- **`template` `boda-angela`: no existe en producción.** En local es `id=14,
+  slug=boda-angela, publico=false, tipo_evento_id=1, nombre="Boda Angela",
+  activo=true` — hay que crearlo igual en prod.
+- **La `invitacion` de Angela tampoco existe en producción.** En local:
+  `id=22325c7d-caae-490d-baac-29352a12e223`, `titulo="Nos casamos"`,
+  `fecha_evento=2027-02-20`, `activa=true`, `estado_pago=PENDIENTE`,
+  `pedido_id=null` (no está atada a ninguna orden — se cargó a mano). Definir
+  antes de migrar si en prod va como `PENDIENTE` o se marca `PAGADO`.
+- **Los `invitado`/`grupo` cargados hoy bajo esa invitación en local son de
+  prueba, no la lista real de Angela**: "Syra Moran" / "Daniel Moran" (grupo
+  "Flia Moran"), "Agostina Chiapino" + su plus-one "Thiago Totaro", y una
+  "Familia Romanoli" vacía. **No migrar esta data tal cual** — reemplazar por
+  la lista real de invitados de Angela cuando la tengamos (hay import por
+  Excel ya construido en el back: `invitados/helpers/excel-import.helper.ts`).
+- Deploy: frontend en Vercel (`invitaciones-frontend/vercel.json`), backend en
+  Railway. No hay config de rama en el repo — confirmar en cada dashboard qué
+  rama dispara el deploy antes de mergear (estamos parados en
+  `boda-personalizada`, no en `main`).

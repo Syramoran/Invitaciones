@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { confirmarGrupo } from "@/services/invitacionService"
 import type { InvitacionPublica } from "@/types/invitation"
+import { extraerMensajeError } from "./apiError"
 
 export type EstadoRsvpGrupo = "idle" | "loading" | "success" | "error"
 
@@ -69,9 +70,9 @@ export function useRsvpConfirmacionGrupo({ invitacionId, grupo }: UseRsvpConfirm
       setEstado("success")
       setMensaje(response.mensaje || "¡Gracias por confirmar!")
       setNuevos([])
-    } catch {
+    } catch (err) {
       setEstado("error")
-      setMensaje("No se pudo registrar la confirmación. Intentá de nuevo.")
+      setMensaje(extraerMensajeError(err, "No se pudo registrar la confirmación. Intentá de nuevo."))
     }
   }
 

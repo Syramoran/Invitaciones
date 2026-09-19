@@ -103,9 +103,6 @@ export function GestionAsistentesPanel({ invitacionId, password, data, onRefetch
         <p className="mt-4 text-xs text-warm-gray">
           {resumen.individuales} individual{resumen.individuales !== 1 ? 'es' : ''} · {resumen.grupos} grupo{resumen.grupos !== 1 ? 's' : ''} ({resumen.integrantesDeGrupo} integrante{resumen.integrantesDeGrupo !== 1 ? 's' : ''})
         </p>
-        <p className="mt-1 text-[11px] text-warm-gray-light">
-          Incluye individuales, integrantes de grupo y acompañantes ya confirmados. Los acompañantes de quienes todavía no confirmaron no cuentan hasta que lo hagan.
-        </p>
       </div>
 
       <FeedbackBanner feedback={feedback} />
@@ -152,11 +149,6 @@ export function GestionAsistentesPanel({ invitacionId, password, data, onRefetch
             withErrorHandling(
               () => asistentesService.eliminarIntegrante(invitacionId, password, grupoId, invitadoId),
               'Integrante eliminado.',
-            )
-          }
-          onActualizarRestriccion={(grupoId, restriccionAlimentaria) =>
-            withErrorHandling(() =>
-              asistentesService.actualizarGrupo(invitacionId, password, grupoId, { restriccionAlimentaria }),
             )
           }
           onActualizarNombre={(grupoId, nombre) =>

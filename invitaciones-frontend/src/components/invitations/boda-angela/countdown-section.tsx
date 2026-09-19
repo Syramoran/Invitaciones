@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { COLOR, FONT, TYPO } from "./theme"
+import { estadoFechaLimite as estadoDelDia } from "./fecha-limite-section"
 
 interface CountdownSectionProps {
   fechaObjetivo: string // ISO 8601 (fecha, hora opcional dentro de la misma cadena)
@@ -14,12 +15,16 @@ interface TimeLeft {
   segundos: number
 }
 
-function calcularTiempoRestante(fecha: string, hora: string): TimeLeft {
+type EstadoCountdown = "antes" | "hoy" | "despues"
+
+function calcularDiferenciaMs(fecha: string, hora: string): number {
   const [h, m] = hora.split(":").map(Number)
   const [y, mo, d] = fecha.split("T")[0].split("-").map(Number)
   const objetivo = new Date(y, mo - 1, d, h || 0, m || 0, 0, 0)
-  const diferencia = objetivo.getTime() - Date.now()
+  return objetivo.getTime() - Date.now()
+}
 
+function calcularTiempoRestante(diferencia: number): TimeLeft {
   if (diferencia <= 0) return { dias: 0, horas: 0, minutos: 0, segundos: 0 }
 
   return {
@@ -30,17 +35,62 @@ function calcularTiempoRestante(fecha: string, hora: string): TimeLeft {
   }
 }
 
+// 'antes' mientras no se llegó a la hora exacta del evento; una vez llegada,
+// 'hoy' o 'despues' según el día calendario (Argentina) siga siendo el del
+// evento o ya haya pasado — así "Gracias por asistir" no aparece en medio
+// de la fiesta, solo al otro día.
+function calcularEstadoCountdown(fecha: string, diferencia: number): EstadoCountdown {
+  if (diferencia > 0) return "antes"
+  return estadoDelDia(fecha) === "vencido" ? "despues" : "hoy"
+}
+
 export function CountdownSection({ fechaObjetivo, horaObjetivo = "00:00", label = "Faltan" }: CountdownSectionProps) {
-  const [tiempo, setTiempo] = useState<TimeLeft>(() =>
-    calcularTiempoRestante(fechaObjetivo, horaObjetivo)
+  const [diferencia, setDiferencia] = useState<number>(() =>
+    calcularDiferenciaMs(fechaObjetivo, horaObjetivo)
   )
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setTiempo(calcularTiempoRestante(fechaObjetivo, horaObjetivo))
-    }, 1000)
+    const actualizar = () => setDiferencia(calcularDiferenciaMs(fechaObjetivo, horaObjetivo))
+    actualizar()
+    const id = setInterval(actualizar, 1000)
     return () => clearInterval(id)
   }, [fechaObjetivo, horaObjetivo])
+
+  const estado = calcularEstadoCountdown(fechaObjetivo, diferencia)
+
+  if (estado === "despues") {
+    return (
+      <section className="flex flex-col items-center gap-6 px-7 p-40 text-center">
+        <p
+          className="opacity-0 group-data-[opened=true]/invitation:animate-fade-in-up"
+          style={{ ...TYPO.h1, color: COLOR.negro }}
+        >
+          Gracias por asistir
+        </p>
+      </section>
+    )
+  }
+
+  if (estado === "hoy") {
+    return (
+      <section className="flex flex-col items-center gap-10 px-7 p-40 text-center">
+        <p
+          className="opacity-0 group-data-[opened=true]/invitation:animate-fade-in-up"
+          style={{ ...TYPO.h1, color: COLOR.negro }}
+        >
+          ¡Es hoy!
+        </p>
+        <p
+          className="max-w-[220px] opacity-0 group-data-[opened=true]/invitation:animate-fade-in-up"
+          style={{ ...TYPO.h3, color: COLOR.brown, animationDelay: '0.3s' }}
+        >
+          Te esperamos para celebrar nuestra boda
+        </p>
+      </section>
+    )
+  }
+
+  const tiempo = calcularTiempoRestante(diferencia)
 
   const boxes = [
     { valor: tiempo.dias, unidad: "Días" },

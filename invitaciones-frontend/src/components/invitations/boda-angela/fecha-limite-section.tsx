@@ -7,34 +7,92 @@ interface FechaLimiteSectionProps {
   invitacion?: InvitacionPublica
 }
 
-function calcularDiasRestantes(fechaStr: string): number {
+// Argentina es UTC-3 todo el año (no tiene horario de verano) — se fija el
+// offset en vez de confiar en la zona horaria del entorno donde corra el JS
+// (el navegador del invitado, o eventualmente un server de Vercel en UTC).
+const ARGENTINA_UTC_OFFSET_HORAS = 3
+
+const FECHA_LIMITE_FALLBACK = "2027-02-13"
+
+export function obtenerFechaLimiteStr(invitacion?: Pick<InvitacionPublica, 'camposEspecificos'> | null): string {
+  const campos = (invitacion?.camposEspecificos ?? {}) as Record<string, unknown>
+  return (campos.fechaLimiteConfirmacion as string) || FECHA_LIMITE_FALLBACK
+}
+
+interface FechaYMD {
+  y: number
+  m: number
+  d: number
+}
+
+function parseFechaYMD(fechaStr: string): FechaYMD | null {
   const parts = fechaStr.split("T")[0].split("-").map(Number)
-  if (parts.length < 3 || parts.some(isNaN)) return 0
+  if (parts.length < 3 || parts.some(isNaN)) return null
   const [y, m, d] = parts
-  const objetivo = new Date(y, m - 1, d, 0, 0, 0, 0)
-  const ahora = new Date()
-  const diffTime = objetivo.getTime() - ahora.getTime()
-  if (diffTime <= 0) return 0
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return { y, m, d }
+}
+
+// Fecha (año/mes/día) de "ahora" según la hora de Argentina, sin importar
+// la zona horaria del navegador del invitado o del server que ejecute esto.
+function hoyEnArgentina(): FechaYMD {
+  const shifted = new Date(Date.now() - ARGENTINA_UTC_OFFSET_HORAS * 60 * 60 * 1000)
+  return { y: shifted.getUTCFullYear(), m: shifted.getUTCMonth() + 1, d: shifted.getUTCDate() }
+}
+
+function compararYMD(a: FechaYMD, b: FechaYMD): number {
+  if (a.y !== b.y) return a.y - b.y
+  if (a.m !== b.m) return a.m - b.m
+  return a.d - b.d
+}
+
+export type EstadoFechaLimite = 'antes' | 'hoy' | 'vencido'
+
+// El día límite en sí cuenta completo como día hábil para confirmar — recién
+// pasa a "vencido" al empezar el día siguiente (hora Argentina).
+export function estadoFechaLimite(fechaStr: string): EstadoFechaLimite {
+  const limite = parseFechaYMD(fechaStr)
+  if (!limite) return 'vencido'
+  const cmp = compararYMD(hoyEnArgentina(), limite)
+  if (cmp < 0) return 'antes'
+  if (cmp === 0) return 'hoy'
+  return 'vencido'
+}
+
+export function haPasadoFechaLimite(fechaStr: string): boolean {
+  return estadoFechaLimite(fechaStr) === 'vencido'
+}
+
+export function calcularDiasRestantes(fechaStr: string): number {
+  const limite = parseFechaYMD(fechaStr)
+  if (!limite) return 0
+  const hoy = hoyEnArgentina()
+  const hoyUTC = Date.UTC(hoy.y, hoy.m - 1, hoy.d)
+  const limiteUTC = Date.UTC(limite.y, limite.m - 1, limite.d)
+  const dias = Math.round((limiteUTC - hoyUTC) / (1000 * 60 * 60 * 24))
+  return dias > 0 ? dias : 0
 }
 
 export function FechaLimiteSection({ invitacion }: FechaLimiteSectionProps) {
-  const campos = (invitacion?.camposEspecificos ?? {}) as Record<string, unknown>
-  const fechaLimiteStr = (campos.fechaLimiteConfirmacion as string) || "2027-02-13"
+  const fechaLimiteStr = obtenerFechaLimiteStr(invitacion)
 
   const [diasRestantes, setDiasRestantes] = useState<number>(() =>
     calcularDiasRestantes(fechaLimiteStr)
   )
+  const [estado, setEstado] = useState<EstadoFechaLimite>(() => estadoFechaLimite(fechaLimiteStr))
 
   useEffect(() => {
-    setDiasRestantes(calcularDiasRestantes(fechaLimiteStr))
-    const id = setInterval(() => {
+    const actualizar = () => {
       setDiasRestantes(calcularDiasRestantes(fechaLimiteStr))
-    }, 60000)
+      setEstado(estadoFechaLimite(fechaLimiteStr))
+    }
+    actualizar()
+    const id = setInterval(actualizar, 60000)
     return () => clearInterval(id)
   }, [fechaLimiteStr])
 
   const { ref, inView } = useRevealOnScroll<HTMLDivElement>()
+
+  if (estado === 'vencido') return null
 
   return (
     <section ref={ref} className="flex flex-col items-center gap-6 px-7 py-40 gap-18 text-center">
@@ -48,22 +106,24 @@ export function FechaLimiteSection({ invitacion }: FechaLimiteSectionProps) {
         </h1>
       </div>
 
-      <div
-        className={`flex flex-col items-center gap-2 opacity-0 ${inView ? 'animate-fade-in-up' : ''}`}
-        style={{ animationDelay: '0.2s' }}
-      >
-        <p style={{ ...TYPO.h4, fontSize: 18, color: COLOR.brown }}>
-          Faltan
-        </p>
+      {estado === 'antes' && (
+        <div
+          className={`flex flex-col items-center gap-2 opacity-0 ${inView ? 'animate-fade-in-up' : ''}`}
+          style={{ animationDelay: '0.2s' }}
+        >
+          <p style={{ ...TYPO.h4, fontSize: 18, color: COLOR.brown }}>
+            Faltan
+          </p>
 
-        <span style={{ ...TYPO.numero, color: COLOR.brown }}>
-          {diasRestantes}
-        </span>
+          <span style={{ ...TYPO.numero, color: COLOR.brown }}>
+            {diasRestantes}
+          </span>
 
-        <p style={{ ...TYPO.h4, fontSize: 18, color: COLOR.brown }}>
-          días
-        </p>
-      </div>
+          <p style={{ ...TYPO.h4, fontSize: 18, color: COLOR.brown }}>
+            días
+          </p>
+        </div>
+      )}
 
       <svg
         width="75"

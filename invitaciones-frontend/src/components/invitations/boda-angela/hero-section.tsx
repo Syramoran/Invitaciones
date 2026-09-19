@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { InvitacionPublica, CamposEspecificosBoda } from '@/types/invitation'
-import { COLOR, FONT, TYPO } from './theme'
+import { COLOR, TYPO } from './theme'
 
 interface HeroSectionProps {
   invitacion?: InvitacionPublica
@@ -13,7 +13,7 @@ export function HeroSection({
   invitadoParam: _invitadoParam,
   isOpened = true,
 }: HeroSectionProps = {}) {
-  const [animKey, setAnimKey] = useState<number | null>(isOpened ? Date.now() : null)
+  const [animKey, setAnimKey] = useState<number | null>(() => (isOpened ? Date.now() : null))
 
   useEffect(() => {
     if (isOpened && !animKey) {
@@ -37,9 +37,9 @@ export function HeroSection({
     const fmt = (d: Date) => d.toISOString().replace(/-|:|\.\d{3}/g, '')
     const params = new URLSearchParams({
       action: 'TEMPLATE',
-      text: invitacion.titulo,
+      text: 'Boda Angie y Fran',
       dates: `${fmt(inicio)}/${fmt(fin)}`,
-      details: `Invitación: ${invitacion.titulo}`,
+      details: '¡Nos casamos! Queremos compartir este día tan especial junto a vos. Te esperamos para celebrar nuestra boda.',
       location:
         invitacion.ubicacion === 'multiple'
           ? ''
