@@ -74,21 +74,37 @@ function DespedidaVencido() {
   )
 }
 
-function EstadoError({ mensaje, onReintentar }: { mensaje: string; onReintentar: () => void }) {
+/**
+ * Popup de error de confirmación. A diferencia del resto de los estados
+ * (confirmado, vencido), este es transitorio: se superpone sobre el
+ * formulario en vez de reemplazarlo, para no perder lo que el invitado ya
+ * tipeó — "Cerrar" solo oculta el popup y vuelve a dejar ver el formulario
+ * tal cual estaba.
+ */
+function ErrorPopup({ mensaje, onCerrar }: { mensaje: string; onCerrar: () => void }) {
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-        <AlertCircle className="h-8 w-8 text-red-600" />
-      </div>
-      <p style={{ ...TYPO.text, color: COLOR.brown }}>{mensaje}</p>
-      <button
-        type="button"
-        onClick={onReintentar}
-        className="underline"
-        style={{ ...TYPO.text, color: COLOR.brown }}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6"
+      role="alertdialog"
+      aria-modal="true"
+    >
+      <div
+        className="flex w-full max-w-[22rem] flex-col items-center gap-4 rounded-lg px-6 py-8 text-center shadow-lg"
+        style={{ backgroundColor: COLOR.crema }}
       >
-        Intentar de nuevo
-      </button>
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+          <AlertCircle className="h-8 w-8 text-red-600" />
+        </div>
+        <p style={{ ...TYPO.text, color: COLOR.brown }}>{mensaje}</p>
+        <button
+          type="button"
+          onClick={onCerrar}
+          className="rounded-sm px-8 py-3 transition-opacity hover:opacity-85 cursor-pointer"
+          style={{ ...TYPO.text, backgroundColor: COLOR.darkBrown, color: COLOR.crema }}
+        >
+          Entendido
+        </button>
+      </div>
     </div>
   )
 }
@@ -140,14 +156,6 @@ function RsvpIndividual({
     plusOneExistente,
   })
 
-  if (estado === 'error') {
-    return (
-      <section className="flex flex-col items-center px-7 py-16 text-center">
-        <EstadoError mensaje={mensaje} onReintentar={reintentar} />
-      </section>
-    )
-  }
-
   if (confirmado) {
     return (
       <section className="flex flex-col items-center gap-14 px-7 py-16 text-center">
@@ -168,6 +176,7 @@ function RsvpIndividual({
 
   return (
     <section className="flex flex-col items-center gap-14 px-7 py-16 text-center">
+      {estado === 'error' && <ErrorPopup mensaje={mensaje} onCerrar={reintentar} />}
       <div className="flex flex-col items-center gap-16">
         <h2 style={{ ...TYPO.h2, color: COLOR.darkBrown }}>¿Nos acompañás?</h2>
 
@@ -321,14 +330,6 @@ function RsvpGrupo({ invitacionId, grupo, deadlinePassed }: RsvpGrupoProps) {
 
   const yaConfirmado = grupo.integrantes.some((i) => i.confirmado) || estado === 'success'
 
-  if (estado === 'error') {
-    return (
-      <section className="flex flex-col items-center px-7 py-16 text-center">
-        <EstadoError mensaje={mensaje} onReintentar={reintentar} />
-      </section>
-    )
-  }
-
   if (yaConfirmado) {
     return (
       <section className="flex flex-col items-center gap-14 px-7 py-16 text-center">
@@ -347,6 +348,7 @@ function RsvpGrupo({ invitacionId, grupo, deadlinePassed }: RsvpGrupoProps) {
 
   return (
     <section className="flex flex-col items-center gap-14 px-7 py-16 text-center">
+      {estado === 'error' && <ErrorPopup mensaje={mensaje} onCerrar={reintentar} />}
       <div className="flex flex-col items-center gap-16">
         <h2 style={{ ...TYPO.h2, color: COLOR.darkBrown }}>¿Nos acompañás?</h2>
         <h3 className="max-w-[280px]" style={{ ...TYPO.h4, color: COLOR.darkBrown }}>

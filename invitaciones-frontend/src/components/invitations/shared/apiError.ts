@@ -15,3 +15,11 @@ export function extraerMensajeError(err: unknown, fallback: string): string {
   }
   return fallback
 }
+
+/**
+ * Mensaje genérico para cuando falla la confirmación por un problema externo
+ * (backend caído, red del invitado, etc. — no un error de validación propio,
+ * que ya viene con su propio mensaje específico del backend).
+ */
+export const MENSAJE_ERROR_CONFIRMACION =
+  'Hubo un problema externo a la invitación al confirmar tu asistencia. Disculpá las molestias — probá de nuevo en unos minutos. Si el problema persiste, avisale a los novios o escribinos a festeja.plataforma@gmail.com.'

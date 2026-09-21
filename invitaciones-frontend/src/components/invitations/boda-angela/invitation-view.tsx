@@ -89,23 +89,24 @@ export function InvitationView({
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden" style={{ backgroundColor: COLOR.parchment }}>
-      <img
-        src="/boda-angela/textura-inv.jpg"
-        alt=""
+      {/* Textura de fondo — un solo <picture> para que el navegador baje
+          nada más que la imagen que corresponde (antes se bajaban las dos,
+          siempre, sin importar el dispositivo). */}
+      <picture
+        className="pointer-events-none absolute inset-0 block h-full w-full select-none"
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover select-none"
-        style={{
-          opacity: 0.7,
-          mixBlendMode: 'multiply',
-        }}
-      />
-      {/* Fondo mobile — solo visible en pantallas pequeñas */}
-      <img
-        src="/boda-angela/sections-bg-mobile2.jpg"
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover select-none sm:hidden"
-      />
+      >
+        <source media="(max-width: 639px)" srcSet="/boda-angela/sections-bg-mobile2.webp" />
+        <img
+          src="/boda-angela/textura-inv.webp"
+          alt=""
+          className="h-full w-full object-cover"
+          style={{
+            opacity: 0.7,
+            mixBlendMode: 'multiply',
+          }}
+        />
+      </picture>
       {showOverlay && (
         <EnvelopeOverlayAngela
           invitacion={invitacion}

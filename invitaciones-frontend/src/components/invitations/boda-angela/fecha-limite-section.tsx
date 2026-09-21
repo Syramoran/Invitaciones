@@ -10,7 +10,7 @@ interface FechaLimiteSectionProps {
 // Argentina es UTC-3 todo el año (no tiene horario de verano) — se fija el
 // offset en vez de confiar en la zona horaria del entorno donde corra el JS
 // (el navegador del invitado, o eventualmente un server de Vercel en UTC).
-const ARGENTINA_UTC_OFFSET_HORAS = 3
+export const ARGENTINA_UTC_OFFSET_HORAS = 3
 
 const FECHA_LIMITE_FALLBACK = "2027-02-13"
 

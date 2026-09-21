@@ -94,12 +94,17 @@ function ServerDownScreen() {
       <div className="text-center max-w-sm">
         <p className="text-5xl mb-4">🔧</p>
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-          Servidor en mantenimiento
+          No pudimos cargar la invitación
         </h2>
         <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-          No pudimos cargar esta invitación en este momento.
+          Es un problema externo a la invitación — disculpá las molestias, ya se debería resolver solo. Probá de nuevo en unos minutos.
           <br />
-          Intentalo de nuevo en unos minutos.
+          <br />
+          Si el problema persiste, avisale al anfitrión o escribinos a{' '}
+          <a href="mailto:festeja.plataforma@gmail.com" className="underline">
+            festeja.plataforma@gmail.com
+          </a>
+          .
         </p>
         <button
           onClick={() => window.location.reload()}
@@ -112,11 +117,17 @@ function ServerDownScreen() {
   )
 }
 
-/** Determina si el error de axios es de red/servidor (sin respuesta HTTP) */
+/**
+ * Determina si el error de axios corresponde a un problema del servidor
+ * (no del invitado): sin respuesta HTTP (servidor caído, sin internet) o con
+ * respuesta pero de error 5xx (el gateway/proxy sí respondió, pero el
+ * backend en sí no — ej. un 502 mientras el backend reinicia). Distinto de
+ * un 4xx real (404, 403), que sí es "esta invitación/link no existe".
+ */
 function isNetworkError(err: unknown): boolean {
   if (!isAxiosError(err)) return false
-  // Sin respuesta → servidor caído o sin internet
-  return !err.response
+  if (!err.response) return true
+  return err.response.status >= 500
 }
 
 export default function InvitacionPage() {
