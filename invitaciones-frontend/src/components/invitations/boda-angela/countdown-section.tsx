@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { COLOR, FONT, TYPO } from "./theme"
-import { estadoFechaLimite as estadoDelDia } from "./fecha-limite-section"
+import { estadoFechaLimite as estadoDelDia, ARGENTINA_UTC_OFFSET_HORAS } from "./fecha-limite-section"
 
 interface CountdownSectionProps {
   fechaObjetivo: string // ISO 8601 (fecha, hora opcional dentro de la misma cadena)
@@ -17,11 +17,17 @@ interface TimeLeft {
 
 type EstadoCountdown = "antes" | "hoy" | "despues"
 
+// El evento ocurre a la hora indicada en Argentina, sin importar en qué
+// zona horaria esté el dispositivo de quien mira la invitación (hay
+// invitados en el extranjero) — antes esto se construía con el
+// constructor local de Date, que interpreta y/m/d/h/m en la zona horaria
+// del navegador, corriendo la cuenta regresiva varias horas para cualquiera
+// que no esté en UTC-3. Mismo offset fijo que usa fecha-limite-section.tsx.
 function calcularDiferenciaMs(fecha: string, hora: string): number {
   const [h, m] = hora.split(":").map(Number)
   const [y, mo, d] = fecha.split("T")[0].split("-").map(Number)
-  const objetivo = new Date(y, mo - 1, d, h || 0, m || 0, 0, 0)
-  return objetivo.getTime() - Date.now()
+  const objetivoUTC = Date.UTC(y, mo - 1, d, (h || 0) + ARGENTINA_UTC_OFFSET_HORAS, m || 0, 0, 0)
+  return objetivoUTC - Date.now()
 }
 
 function calcularTiempoRestante(diferencia: number): TimeLeft {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { confirmarAsistencia } from '@/services/invitacionService'
-import { extraerMensajeError } from './apiError'
+import { extraerMensajeError, MENSAJE_ERROR_CONFIRMACION } from './apiError'
 
 export type EstadoRsvp = 'idle' | 'loading' | 'success' | 'error'
 
@@ -69,7 +69,7 @@ export function useRsvpConfirmacion({
       setMensaje(response.mensaje || '¡Gracias por confirmar tu asistencia!')
     } catch (err) {
       setEstado('error')
-      setMensaje(extraerMensajeError(err, 'No se pudo registrar tu confirmación. Intentá de nuevo.'))
+      setMensaje(extraerMensajeError(err, MENSAJE_ERROR_CONFIRMACION))
     }
   }
 
