@@ -10,6 +10,7 @@ interface DetallesSectionProps {
 
 interface CamposGift {
   alias?: string
+  aliasUsd?: string
   cbu?: string
   cvu?: string
 }
@@ -132,6 +133,7 @@ function AccordionRow({
 export function DetallesSection({ invitacion }: DetallesSectionProps) {
   const campos = (invitacion.camposEspecificos ?? {}) as CamposGift
   const alias = campos.alias
+  const aliasUsd = campos.aliasUsd
   const cbu = campos.cbu || campos.cvu
 
   const [openId, setOpenId] = useState<string | null>(null)
@@ -161,12 +163,13 @@ export function DetallesSection({ invitacion }: DetallesSectionProps) {
 
         <AccordionRow id="regalos" label="Regalos" open={openId === 'regalos'} onToggle={() => toggle('regalos')}>
           <p className='py-4'>Tu presencia es nuestro más valioso regalo</p>
-          {(alias || cbu) && (
+          {(alias || aliasUsd || cbu) && (
             <>
               <p className='py-4'>Si además quisieras hacernos otro regalo te dejamos esta manera de hacerlo</p>
               <p className='py-4' style={{ color: COLOR.brown }}>Info de cuenta</p>
               <div className="flex w-full flex-col gap-4">
                 {alias && <CopyField label="Alias" value={alias} />}
+                {aliasUsd && <CopyField label="Alias (USD)" value={aliasUsd} />}
                 {cbu && <CopyField label="CBU" value={cbu} />}
               </div>
             </>
@@ -183,7 +186,7 @@ export function DetallesSection({ invitacion }: DetallesSectionProps) {
             <p className="w-fit" style={{ ...TYPO.h3, color: COLOR.brown, paddingBottom: 6, borderBottom: '1px solid #D3CBC5' }}>Mujeres</p>
             <p>Elegante,<br />Largo y liso</p>
             <p>Sin estampas y del terracota al negro, cualquier tono en esta gama es bienvenido</p>
-            <ColorPalette colors={['#a65f3c', '#898174', '#6f7a49', '#458d77', '#476a9c', '#1e2a45', '#584b86', '#492c45', '#151515']} />
+            <ColorPalette colors={['#a65f3c', '#898174', '#6f7a49', '#458d77', '#476a9c', '#1e2a45', '#584b86', '#492c45', '#151515', '#58422d']} />
 
             {/* Aclaración */}
             <p style={{ ...TYPO.text, color: COLOR.brown, textTransform: 'none', letterSpacing: 'normal' }}>

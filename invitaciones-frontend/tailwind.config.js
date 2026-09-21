@@ -184,8 +184,8 @@ export default {
         'pulse-subtle': 'pulseSubtle 3s ease-in-out infinite',
         'expand-from-center': 'expandFromCenter 1.2s cubic-bezier(0.16, 1, 0.3, 1) both',
         'scale-up-in': 'scaleUpIn 1.8s cubic-bezier(0.16, 1, 0.3, 1) both',
-        'pendulum': 'pendulum 5s ease-in-out infinite',
-        'pendulum-strong': 'pendulumStrong 3.5s ease-in-out infinite',
+        'pendulum': 'pendulum 5s ease-in-out 2 both',
+        'pendulum-strong': 'pendulumStrong 3.5s ease-in-out 2 both',
       },
       transitionTimingFunction: {
         'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
