@@ -2,7 +2,12 @@
 
 > Doc de trabajo. Vamos anotando acá las decisiones clave, el estado de cada
 > componente y lo que queda pendiente mientras revisamos la template de a poco.
-> Última actualización: 2026-09-19.
+> Última actualización: 2026-09-21 (reescritura completa contra el código
+> actual — la versión anterior de §3/§4/§7/§9/§10 estaba desactualizada,
+> describía una estructura de secciones que ya no existe).
+>
+> **Plan de testing (manual + automatizado) en:**
+> `Invitaciones/Documentacion v1.1/Plan_Testing_BodaAngela.md`.
 
 ---
 
@@ -12,13 +17,27 @@
   boda). Diseño de origen: Figma **"Wedding angela"**.
 - **No aparece en el catálogo público** del wizard: usa el flag
   `Template.publico = false` (backend). Solo se asigna manualmente desde el admin.
-- Registro en DB local (según memoria del proyecto, verificar en la DB actual):
-  `id = 14`, `slug = boda-angela`, `publico = false`, `tipo_evento_id = 1` (Boda).
+- Registro en DB local: `id = 14`, `slug = boda-angela`, `publico = false`,
+  `tipo_evento_id = 1` (Boda).
+- **Ya está migrada a producción** (Railway) — tanto el `template` como la
+  `invitacion` real de Angela existen ahí (confirmado por el usuario,
+  2026-09-21; no se verificó el id exacto en la DB de producción en esta
+  pasada — ver §10). No hace falta migrar invitados: **todavía no hay
+  ninguno real cargado**, ni en local ni en producción, todos los que hay
+  hoy son de prueba (ver §10).
 - Carpeta de componentes: `invitaciones-frontend/src/components/invitations/boda-angela/`
 - Assets estáticos: `invitaciones-frontend/public/boda-angela/`
-- **Todo el código de esta template está sin commitear todavía** (la carpeta
-  entera figura como `??` en `git status`). No hay historial git de estos
-  archivos: este doc es la única memoria de los cambios hasta que se commitee.
+- El código de esta template está commiteado (dejó de ser el caso "todo sin
+  commitear" de versiones anteriores de este doc).
+- **Filosofía de la template, importante para no confundir "hardcodeado" con
+  "bug"**: al ser exclusiva de una sola clienta, es una decisión consciente
+  tener bastante contenido fijo en el JSX (fechas, horarios, textos) en vez
+  de cablearlo a `camposEspecificos`/el wizard — da igual si un dato "debería"
+  salir del backend o vive hardcodeado en el front. Si algo cambia (p. ej. la
+  hora de un evento), lo edita el desarrollador a mano en código o en la DB;
+  la clienta no tiene ni va a tener un flujo de autoservicio para eso. No
+  reportar esto como gap/bug — ver el detalle marcado igual en §8 y §9 para
+  que quede documentado qué es fijo, sin tratarlo como pendiente de arreglar.
 
 ---
 
@@ -31,6 +50,9 @@
 - **Render público** — `pages/public/InvitacionPage.tsx` resuelve
   `getInvitationComponent(invitacion.template.slug)` y monta
   `<InvitationView invitacion=... invitadoParam=... />` dentro de un `<Suspense>`.
+  Esta template además tiene su propia pantalla de loading
+  (`BodaAngelaLoadingScreen`, definida ahí mismo): un pulso crema en vez del
+  spinner genérico gris del resto de las templates.
 - **Preview en el wizard admin** —
   `components/admin/crear-invitacion/WizardLivePreview.tsx` monta
   `<InvitationView invitacion=... previewMode />`.
@@ -41,67 +63,118 @@
 
 ---
 
-## 3. Estructura de secciones (orden real en `invitation-view.tsx`)
+## 3. Estructura de secciones (orden real en `invitation-view.tsx`, verificado 2026-09-21)
 
-Contenedor: `div.min-h-screen` con `background-image: /boda-angela/textura-inv.jpg`
-(`cover / top center / no-repeat`) sobre `bg-white`.
-Marco interno: `mx-auto max-w-[430px] sm:max-w-[900px] overflow-hidden`.
+Contenedor raíz: `div.relative.min-h-screen.w-full.overflow-hidden`, fondo
+`COLOR.parchment`. Encima, dos imágenes de textura absolutas (no
+`background-image` del contenedor como decía una versión anterior de este
+doc):
+- `textura-inv.jpg` — full-bleed (`inset-0 h-full w-full object-cover`),
+  `opacity: 0.7`, `mixBlendMode: 'multiply'`. Siempre visible.
+- `sections-bg-mobile2.jpg` — mismo full-bleed, **solo mobile** (`sm:hidden`),
+  sin blend/opacity especial. No documentada en versiones anteriores de este
+  doc.
+
+Adentro, columna de contenido: `mx-auto w-full max-w-[750px]` (no
+`max-w-[430px] sm:max-w-[900px]` como decía antes — se unificó a un solo
+ancho máximo).
 
 | #  | Componente              | Archivo                        | Condición para mostrarse |
 |----|-------------------------|--------------------------------|--------------------------|
-| 0  | `EnvelopeOverlayAngela` | `envelope-overlay-angela.tsx`  | `!previewMode` (sobre de bienvenida, `position: fixed`) |
+| 0  | `EnvelopeOverlayAngela` | `envelope-overlay-angela.tsx`  | `showOverlay` (arranca `!previewMode`, se apaga al abrir el sobre) |
 | 0b | `MusicPlayerAngela`     | `music-player-angela.tsx`      | `invitacion.musica && !showOverlay` |
 | 1  | `HeroSection`           | `hero-section.tsx`             | siempre |
-| 2  | `CountdownSection`      | `countdown-section.tsx`        | si hay servicio con nombre que incluye "cuenta regresiva" o "countdown" |
-| 3  | `EventInfoSection`      | `event-info-section.tsx`       | siempre |
-| 4  | `Divisor` + `LocationsSection` | `locations-section.tsx` | siempre (secciones internas condicionadas por campos) |
-| 5  | `MapSection`            | `map-section.tsx`              | `ubicacion !== "multiple"` (devuelve `null` si es múltiple) |
-| 6  | `Divisor` + `NoteSection` | `note-section.tsx`           | si `soloAdultos` o `reglaPuntualidad` (devuelve `null` si ninguno) |
-| 7  | `Divisor` + `DresscodeSection` | `dresscode-section.tsx` | siempre — **100% hardcodeado, sin props** |
-| 8  | `Divisor` + `GiftSection` | `gift-section.tsx`           | siempre (bloque de alias/CBU condicionado) |
-| 9  | `Divisor` + `CountdownSection` (2º uso) | `countdown-section.tsx` | si `camposEspecificos.fechaLimiteConfirmacion` — countdown al cierre de confirmaciones, `label="Faltan"` |
-| 10 | `Divisor` + `RsvpSection` | `rsvp-section.tsx`           | `invitacion.tieneConfirmacion` (y adentro: `mostrarBoton && invitadoParam`) |
-| 11 | `footer`                | inline en `invitation-view`   | siempre ("Hecho con festeja.com.ar") |
+| 2  | `CountdownSection` (evento) | `countdown-section.tsx`    | si algún `servicio.nombre` incluye "cuenta regresiva" o "countdown" |
+| —  | `Divisor`               | inline en `invitation-view.tsx` | siempre entre secciones (ver nota abajo) |
+| 3  | `CeremoniaSection`      | `ceremonia-section.tsx`        | siempre (envuelto en `Reveal`) |
+| 4  | `CenaSection`           | `cena-section.tsx`             | siempre (`Reveal`) |
+| 5  | `DetallesSection`       | `detalles-section.tsx`         | siempre (`Reveal`) |
+| 6  | `FechaLimiteSection`    | `fecha-limite-section.tsx`     | `estadoFechaLimite(...) !== 'vencido'` (devuelve `null` si ya venció) |
+| 7  | `RsvpSection`           | `rsvp-section.tsx`             | `invitacion.tieneConfirmacion` (y adentro: 3 ramas — genérica/individual/grupo, ver §9) |
+| 8  | `footer`                | inline en `invitation-view.tsx` | siempre — solo el link `festeja.com.ar` (el `<span>Hecho con </span>` está comentado, no se muestra) |
 
-`Divisor()` = `<div class="h-px w-[90%] sm:w-[75%] bg-[#6b5a50]">` (definido inline
-en `invitation-view.tsx`, **no** usa los SVG `divisor*.svg`).
+**Ya no existe** la vieja secuencia `EventInfoSection → LocationsSection →
+MapSection → NoteSection → DresscodeSection → GiftSection` que documentaba
+una versión anterior de este doc — esos 5 archivos quedaron huérfanos tras el
+refactor del 2026-09-15 y **se borraron el 2026-09-21** (junto con
+`dresscode-section.tsx`, que ya no existía — su contenido vive ahora en el
+acordeón "Dresscode" de `DetallesSection`).
 
-`CountdownSection` es **reutilizable**: se usa una vez para la cuenta regresiva
-del evento (paso 2) y otra para el límite de confirmación (paso 9), con distinto
-`fechaObjetivo` / `label`.
+**`Divisor()`**: ya no es un `<div>` estático — ahora usa
+`useRevealOnScroll` igual que las secciones, con `scaleX`/`opacity`
+animados al entrar en viewport (`transform-origin: center`,
+`cubic-bezier(0.16, 1, 0.3, 1)`). Sigue sin usar los SVG `divisor*.svg`
+(que además ya se borraron, ver §7).
+
+**`Reveal` / `useRevealOnScroll`**: patrón compartido nuevo (no existía en
+la versión anterior de este doc) — `reveal.tsx` + `use-reveal-on-scroll.ts`.
+Envuelve una sección y le aplica fade/scale al entrar en viewport. Varios
+componentes además usan `useRevealOnScroll` directo (no vía `<Reveal>`) para
+animar sub-bloques internos (p. ej. `CeremoniaSection`/`CenaSection` tienen
+2 observadores propios, uno por grupo de contenido).
+
+`CountdownSection` es **reutilizable**: hoy solo se usa una vez (cuenta
+regresiva del evento). El 2º uso que documentaba una versión anterior de
+este doc (countdown al cierre de confirmaciones) ya no existe — ese rol lo
+cumple `FechaLimiteSection`, que es un componente distinto con su propia
+lógica de fecha (día calendario en Argentina, no cuenta ms como
+`CountdownSection`).
 
 ---
 
 ## 4. Modelo de datos: qué campos consume cada componente
 
-El tipo `CamposEspecificosBoda` (en `types/invitation.ts`) hoy solo declara:
-`novio1`, `novio2`, `tipoCeremonia?`, `dressCode?`, `notas?`.
+El tipo `CamposEspecificosBoda` (en `types/invitation.ts`) sigue solo
+declarando `novio1`, `novio2`, `tipoCeremonia?`, `dressCode?`, `notas?`. Cada
+componente sigue casteando `camposEspecificos` a una interfaz local ad-hoc
+(`CamposAngela` en `ceremonia-section.tsx`/`cena-section.tsx`, `CamposGift`
+en `detalles-section.tsx`, etc.) — **sigue sin existir un
+`CamposEspecificosBodaAngela` unificado** (mismo TODO que antes, ver §8).
 
-Pero los componentes leen **muchos más campos** de `camposEspecificos` con casts
-locales ad-hoc. Falta unificar esto en un tipo `CamposEspecificosBodaAngela`:
+| Campo (`camposEspecificos.*`)   | Lo lee                    | Uso | ¿Editable desde el wizard admin? |
+|----------------------------------|----------------------------|-----|-----------------------------------|
+| `novio1`, `novio2`               | `hero-section`             | nombres de la pareja (título del hero) | Sí (`Step2Evento.tsx`) |
+| `horaCeremonia`                  | `ceremonia-section`        | fallback: `invitacion.horaEvento` | No — solo API/DB |
+| `lugarCeremonia`                 | `ceremonia-section`        | fallback: `invitacion.ubicacion` | No |
+| `direccionCeremonia`             | `ceremonia-section`        | fallback: `invitacion.direccion` | No |
+| `linkUbicacion`                  | `ceremonia-section`        | fallback: link de Google Maps armado con lugar+dirección | No |
+| `lugarCena`                      | `cena-section`             | fallback: `invitacion.ubicacion` | No |
+| `direccionCena`                  | `cena-section`             | fallback: `invitacion.direccion` | No |
+| `linkUbicacionCena`              | `cena-section`             | fallback: link de Maps armado | No |
+| `fechaLimiteConfirmacion`        | `fecha-limite-section`, `rsvp-section` | fecha de corte del RSVP (fallback fijo `"2027-02-13"` si no está seteado) | No |
+| `alias`                          | `detalles-section` (acordeón Regalos) | alias bancario (ARS) | Sí |
+| `aliasUsd`                       | `detalles-section`         | alias bancario en USD — **input gateado a `templateSlug === 'boda-angela'`** en `Step2Evento.tsx`, no aparece para las otras bodas | Sí (solo esta template) |
+| `cbu` / `cvu`                    | `detalles-section`         | toma `cbu`, si no `cvu` | Solo `cbu` tiene input; `cvu` no |
 
-| Campo (`camposEspecificos.*`)   | Lo lee                    | Uso |
-|---------------------------------|---------------------------|-----|
-| `novio1`, `novio2`              | `invitation-view`, `hero`, `envelope-overlay` | nombres de la pareja / título del overlay |
-| `fechaLimiteConfirmacion`       | `invitation-view`         | dispara el 2º countdown |
-| `nombreLugar`                   | `locations-section`       | nombre del salón (fallback: `ubicacion`) |
-| `fotoLugar`                     | `locations-section`       | foto del salón (fallback: `/boda-angela/villa-elina.png`) |
-| `horaCivil`                     | `locations-section`       | muestra bloque "Civil" |
-| `notaCelebracion`               | `locations-section`       | muestra bloque "Celebración" |
-| `soloAdultos`                   | `note-section`            | string; se oculta solo si `=== "false"` |
-| `reglaPuntualidad`              | `note-section`            | string; se oculta solo si `=== "false"` |
-| `alias`                         | `gift-section`            | alias bancario |
-| `cbu` / `cvu`                   | `gift-section`            | CBU/CVU (toma `cbu`, si no `cvu`) |
+Campos de `InvitacionPublica` (nivel raíz) usados hoy: `id`, `titulo`,
+`fechaEvento`, `horaEvento`, `ubicacion`, `direccion`, `servicios` (para
+detectar el countdown), `musica`, `tieneConfirmacion`,
+`mostrarBotonConfirmar`, `invitadoNombre`, `invitadoApellido`,
+`puedeAgregarPlusOne`, `yaConfirmado`, `restriccionAlimentariaExistente`,
+`plusOneExistente`, `grupo`. **Ya no se usan** `fotosAnfitrion` (el hero usa
+imágenes estáticas propias, `s-t-d/std_*`) ni `saludoPersonalizado`.
 
-Campos de `InvitacionPublica` (nivel raíz) que se usan: `titulo`, `fechaEvento`,
-`horaEvento`, `ubicacion`, `direccion`, `latitud`, `longitud`, `servicios`,
-`fotosAnfitrion`, `musica`, `tieneConfirmacion`, `mostrarBotonConfirmar`,
-`saludoPersonalizado` (se destructura en `hero` pero **no se usa**).
+**Corrección importante respecto a una versión anterior de este doc**: el
+sobre de apertura (`EnvelopeOverlayAngela`) **no** usa `novio1`/`novio2` — el
+nombre que muestra es el del **invitado/grupo que abre el link**
+(`invitacion.grupo.nombre` o `invitacion.invitadoNombre`+`invitadoApellido`),
+vía la función interna `getTitularInfo`. "Angie y Fran" como tal solo
+aparece hardcodeado en `hero-section.tsx` y `rsvp-section.tsx`
+(`NombreCoupla`), nunca en el sobre.
 
-**Ojo:** el `HeroSection` muestra la fecha **hardcodeada** ("SÁBADO 20 FEBRERO
-2027"), no `invitacion.fechaEvento`. `EventInfoSection` sí usa la fecha real
-(`formatDiaMes(fechaEvento)`). Hay que decidir si el hero se cablea a data o si
-queda fijo para esta clienta.
+**Contenido fijo por diseño (no cablea a ningún campo, ver §1)**:
+- Hero: fecha "SÁBADO 20 FEBRERO 2027" — el link de "Agendar en calendario"
+  sí usa `invitacion.fechaEvento` real, pero el texto mostrado no.
+- `FechaLimiteSection`: título "13 de febrero" — el contador de días
+  ("Faltan N días") sí es dinámico contra `fechaLimiteConfirmacion`, el
+  texto de la fecha no.
+- `CenaSection`: hora "21:00 HS" + el texto "¡Después del sí... nos espera
+  una noche inolvidable!" — sin ningún campo equivalente a `horaCeremonia`.
+- `DetallesSection`: los textos de "Niños" y "Puntualidad" son fijos, no
+  leen ningún campo (`camposEspecificos.soloAdultos`/`reglaPuntualidad` ya
+  no existen como condición — una versión anterior de este doc describía el
+  componente viejo `note-section.tsx`, que sí eran data-driven pero está
+  borrado desde 2026-09-21).
 
 ---
 
@@ -195,9 +268,7 @@ font-style: normal;
 - **Kit verificado (2026-09-09)** — expone las 5 familias de la guía:
   `absolute-beauty` (700), `cormorant-garamond` (400, 500),
   `montserrat` (**solo 300 y 400**), `garamond-premier-pro` (400) y
-  `garamond-premier-pro-display` (400). O sea: **no falta importar nada en
-  Adobe**, `garamond-premier-pro-display` ya estaba en el kit, solo no se usaba
-  en el código.
+  `garamond-premier-pro-display` (400).
 - `montserrat` también venía por Google Fonts (algunos componentes usan
   `"Montserrat, sans-serif"` con mayúscula). Para esta template usar siempre la
   del kit vía `FONT.sans` (`montserrat, sans-serif`, minúscula).
@@ -209,28 +280,19 @@ tipografías y colores de esta template. **No usar fuentes ni colores fuera de a
 
 - `FONT` — las 5 familias (`script`, `serif`, `sans`, `garamond`, `garamondDisplay`).
 - `TYPO` — presets por estilo de la guía (`h1`, `h2`, `h3`, `h4`, `text`, `text2`,
-  `text3`, `timer`, `detailsH`, `horarios`, `numero`) como `CSSProperties`
-  (familia + peso + `fontSize` px de la guía + `lineHeight` + `letterSpacing` en
-  `em` = % de Figma + `textTransform`). El `fontSize` se puede sobreescribir por
-  sección si el frame de Figma difiere.
+  `text3`, `timer`, `detailsH`, `horarios`, `numero`) como `CSSProperties`.
 - `COLOR` — los 5 colores de la guía (ver sección 6).
 
 Uso: `style={{ ...TYPO.h2, color: COLOR.brown }}`.
 
-### 5.4 Gaps / a resolver con la guía
+### 5.4 Gaps / a resolver con la guía (no re-verificado componente por componente en esta pasada — solo `hero-section.tsx` tenía el pase confirmado como hecho a la fecha de la última revisión)
 
-- **`hanken-grotesk`** — está en el kit y se usa en `dresscode-section` y
-  `rsvp-section` (labels), pero **no figura en la guía**. Por la regla "solo las
-  fuentes de la guía" → reemplazar por `FONT.sans` (Montserrat) en el pase
-  componente por componente.
-- **Pesos fuera del kit** — el kit trae Montserrat solo 300/400, pero hay
-  componentes que usan `fontWeight: 500`/`600` o `font-semibold` sobre Montserrat
-  (ej. botón del hero, `rsvp` estado success) → el browser lo simula (faux bold).
-  La guía solo usa 300/400: bajar esos pesos.
-- Fallback de `absolute-beauty`: la guía escribe `sans-serif`; `theme.ts` ya usa
-  `sans-serif`. Falta migrar los componentes que aún ponen `cursive`.
-- Mapa estilo-de-guía → componente: se arma en la sección 9 a medida que se
-  revisa cada sección.
+- **`hanken-grotesk`** — sigue en el kit; confirmar si ya se reemplazó por
+  `FONT.sans` en todos los componentes o sigue pendiente en alguno.
+- **Pesos fuera del kit** (Montserrat 500/600 sobre un kit que solo trae
+  300/400) — mismo estado, no re-verificado.
+- Fallback de `absolute-beauty`: `theme.ts` usa `sans-serif` (correcto según
+  la guía) — confirmar que no queda ningún `cursive` suelto.
 
 ---
 
@@ -246,189 +308,152 @@ Los **únicos 5 colores** de la template. Están en `theme.ts` como `COLOR`.
 | Brown        | `#67594C` | `brown`     | textos y números |
 | Crema        | `#D4CCC4` | `crema`     | botones |
 
-### 6.1 Colores en el código que NO están en la paleta (a eliminar en el pase)
+### 6.1 Colores en el código que NO están en la paleta
 
-| Hex en el código        | Dónde / uso actual            | Reemplazo por |
-|-------------------------|-------------------------------|---------------|
+Tabla ampliada 2026-09-21 (los primeros son los ya conocidos; los últimos 2
+son nuevos, detectados esta pasada en `rsvp-section.tsx`/`detalles-section.tsx`):
+
+| Hex en el código        | Dónde / uso actual            | Reemplazo sugerido |
+|--------------------------|-------------------------------|--------------------|
 | `#262626`               | nombres, botones (texto)      | `negro` (cursivas) o `darkBrown` (texto) según el caso |
 | `#574b42`               | texto secundario dresscode    | `brown` |
-| `#6b5a50`               | color de los `Divisor`        | `brown` (o `darkBrown`) |
 | `#c9c0b8` / `#eee9e4`    | hover de botones              | `crema` con `opacity`/filtro |
-| `#e9e5e2` / `#e0d8cc`    | placeholders / skeleton       | `parchment` / `crema` |
-| `#9a8f82`               | texto tenue, placeholders     | `brown` |
-| `#777` / `#555`         | footer                        | `brown` / `darkBrown` |
-| `rgba(59,51,43,0.55)`   | dim del overlay               | `darkBrown` con alpha |
-| `#e4e4e4`               | fondo del `iframe` del mapa   | `parchment` / `crema` |
+| `#e9e5e2` / `#e0d8cc`    | placeholders / skeleton        | `parchment` / `crema` |
+| `#9a8f82`                | texto tenue, placeholders     | `brown` |
+| `#777` / `#555`          | footer                        | `brown` / `darkBrown` |
+| `rgba(59,51,43,0.55)`    | dim del overlay               | `darkBrown` con alpha |
+| `#e4e4e4`                | fondo de mapa (componente ya borrado, revisar si queda en otro lado) | `parchment` / `crema` |
+| `bg-[#E9E5E2]`           | fondo de inputs/textarea en `rsvp-section.tsx` | `crema` |
+| `#D3CBC5`                | borde entre filas del acordeón en `detalles-section.tsx` | `brown` con opacidad |
 
 También: `invitation-view` setea `--invitation-primary` / `--invitation-accent`
-a `#67594c` (= `brown`). El fondo del contenedor es `bg-white` → debería ser
-`parchment`.
+a `COLOR.brown` (ya no un hex suelto — esto se corrigió respecto a antes). El
+fondo del contenedor ya es `COLOR.parchment` (también corregido, antes decía
+`bg-white`).
 
 ### 6.2 Swatches del dresscode
 
-Hardcodeados en `dresscode-section.tsx` — son colores de vestimenta sugerida, no
-son de la paleta de marca. Quedan como están (los define el diseño de esa
-sección), pero revisar contra el Figma cuando toquemos ese componente:
-- Mujeres: `#bf7340 #6b2e2e #5e3b1a #5f743e #abc76b #39acac #5398c6 #223677`
-- Hombres: `#2a365c #58422d #000000`
+Hardcodeados en el acordeón "Dresscode" de `detalles-section.tsx` (antes
+vivían en el componente ya borrado `dresscode-section.tsx`) — son colores de
+vestimenta sugerida, no son de la paleta de marca, quedan como están:
+- Mujeres (10, actualizado 2026-09-21 — se agregó `#58422d` al final):
+  `#a65f3c #898174 #6f7a49 #458d77 #476a9c #1e2a45 #584b86 #492c45 #151515 #58422d`
+- Hombres (4): `#1D2B45 #58422d #8e8e93 #000000`
 
 ---
 
 ## 7. Assets (`public/boda-angela/`)
 
-### Usados por componentes
-| Archivo                     | Peso    | Dónde |
-|-----------------------------|---------|-------|
-| `s-t-d/std_mobile.png`      | 349 KB  | foto de la pareja en **mobile** (`hero`) — 695×744, polaroid con marco+sombra integrados, fondo transparente |
-| `s-t-d/std_web.png`         | 446 KB  | foto de la pareja en **desktop** (`hero`) — 764×816, ídem |
-| `s-t-d/Std-bg-mobile.jpg`   | 584 KB  | fondo hero **mobile** — 645×1296, textura de papel lisa. Vía `background-image` full-bleed en la `<section>` |
-| `s-t-d/std-bg.png`          | **2.2 MB** ⚠️ | fondo hero **desktop** — 1038×1548, hoja de papel con borde rasgado. Vía `<img>` absoluto `w-full h-auto` + `opacity .63` + `mix-blend luminosity` (specs Figma, ancho 674px) |
-| `textura-inv.jpg`           | **3.0 MB** ⚠️  | fondo global en `invitation-view` |
-| `villa-elina.png`           | 391 KB  | fallback foto del salón (`locations-section`) |
-| `icon-civil.svg`            | 3.7 KB  | bloque Civil (`locations-section`) |
-| `icon-celebracion.svg`      | 3.4 KB  | bloque Celebración (`locations-section`) |
-| `icon-heart.svg`            | 1.5 KB  | cierre de `gift-section` |
-| `vector-date.svg`           | 858 B   | ícono del botón "Agendar" en `hero-section` |
+### Usados por componentes activos (verificado 2026-09-21, sin referencias rotas)
 
-La **foto** de la pareja usa `<picture>` + `<source media="(min-width:640px)">`
-→ el browser baja solo la del breakpoint activo. El **fondo** es distinto por
-breakpoint: mobile `background-image` en la `<section>`, desktop `<img>` aparte
-(ver §8).
+| Archivo                     | Dónde |
+|-----------------------------|-------|
+| `s-t-d/std_mobile.png`      | foto de la pareja mobile (`hero-section`) |
+| `s-t-d/std_web.png`         | foto de la pareja desktop (`hero-section`) |
+| `s-t-d/Std-bg-mobile.jpg`   | fondo hero mobile |
+| `s-t-d/std-bg.png`          | fondo hero desktop (⚠️ 2.2 MB, sigue sin optimizar) |
+| `std_animated.svg`          | animación "Save the date" del hero, se remonta con `key` al abrir el sobre |
+| `vector-date.svg`           | ícono del botón "Agendar en calendario" (`hero-section`) |
+| `textura-inv.jpg`           | textura de fondo global, todas las pantallas (⚠️ 3.0 MB, sigue sin optimizar) |
+| `sections-bg-mobile2.jpg`   | textura de fondo adicional, **solo mobile** (no documentada antes) |
+| `sobre/bottom.png`, `sobre/top.png`, `sobre/sello.png` | `envelope-overlay-angela.tsx` |
+| `novios-recurso.svg`        | ilustración de `ceremonia-section.tsx` |
+| `villaelina-recurso.svg`    | ilustración de lugar en `ceremonia-section.tsx` |
+| `brindis-recurso.svg`       | ilustración de `cena-section.tsx` |
+| `villa-elina.png`           | ¿fallback de foto de salón? — no se encontró ninguna referencia activa a este archivo en el pase de 2026-09-21; revisar si sigue en uso antes de la próxima limpieza |
 
-### En la carpeta pero **sin usar**
-| Archivo | Nota |
-|---------|------|
-| `fondo-hero.png` (**10 MB**) | era el fondo viejo del hero; **reemplazado** por `s-t-d/std-bg*`. Borrar cuando se confirme. |
-| `foto-novios.png` | placeholder viejo de la pareja; el hero ahora usa `s-t-d/std_*`. Borrar. |
-| `Save the date.svg` | el hero escribe "Save the date" como `<p>` en `absolute-beauty`, no usa este SVG |
-| `divisor.svg`, `divisor-sm-1..4.svg` | `Divisor()` es un `<div>` CSS |
-| `foto-frame.svg`, `foto-mask.svg` | la foto ya trae el marco integrado |
+### Borrados el 2026-09-21 (estaban huérfanos, confirmado por grep en todo `src/`)
 
-⚠️ **Peso de imágenes**: `s-t-d/std-bg.png` (2.2 MB, solo desktop) y
-`textura-inv.jpg` (3 MB) siguen pesados para mobile. Optimizar / pasar a `.webp`
-antes de publicar. `fondo-hero.png` (10 MB) queda para borrar.
+`fondo-hero.png` (10 MB), `foto-novios.png`, `divisor.svg`,
+`divisor-sm-1.svg`…`divisor-sm-4.svg`, `foto-frame.svg`, `foto-mask.svg`,
+`icon-civil.svg`, `icon-celebracion.svg`, `icon-heart.svg` (estos 3 quedaron
+huérfanos al borrar `locations-section.tsx`/`gift-section.tsx`), `rec-std.svg`
+y `SVG/pruebasvg.svg`/`SVG/pruebasvg2.svg` (SVGs de prueba sin documentar,
+carpeta `SVG/` completa eliminada). Todo estaba commiteado, recuperable vía
+`git log` si hiciera falta.
+
+⚠️ **Peso de imágenes pendiente**: `s-t-d/std-bg.png` (2.2 MB) y
+`textura-inv.jpg` (3 MB) siguen sin pasar a `.webp`/optimizar.
 
 ---
 
 ## 8. Puntos abiertos / TODOs
 
-- [ ] **Fondo/textura**: según memoria del proyecto quedó revertido a blanco y
-      hubo varias vueltas sin poder verificar visualmente. Hoy el código sí
-      aplica `textura-inv.jpg` como `background-image` en `invitation-view`.
-      Confirmar en el navegador real de la usuaria cómo se ve (el screenshot del
-      preview pane de Claude no es confiable en este repo).
-- [x] **Hero — fondo + fotos responsive** (2026-09-09):
-      - Foto de la pareja: `<picture>` + `(min-width:640px)` — mobile
-        `std_mobile.png`, desktop `std_web.png`. Contenedor `w-[350px] max-w-full`.
-        Se dejó de usar `fotosAnfitrion` (foto estática de la clienta).
-      - **Estructura final (2026-09-09)** — se simplificó (se descartó el
-        overlay absoluto y el debate de `max-w`):
-        - `invitation-view`: div externo full-width + textura de página
-          (`<img textura-inv>` `opacity .8` + `mixBlendMode: multiply` sobre
-          `bg-[#F4F2F0]`, edición de la usuaria). Adentro, **columna de
-          contenido** `mx-auto w-[80%] max-w-[450px]` — la usan todas las
-          secciones.
-        - `hero-section` `<section>`: `mx-auto mt-4 w-[80%]` (del ancho de la
-          columna), `flex flex-col items-center justify-center` (contenido en
-          flujo normal), `aspect-[645/1296]` mobile · `sm:aspect-[1038/1548]`
-          desktop → el alto sale del ratio de la imagen.
-        - Fondo std al 100% del ancho de la sección: mobile por `background-image`
-          (`bg-cover bg-center`); desktop `std-bg.png` como `<img>`
-          `absolute inset-0 -z-10 object-cover` + `opacity .63` +
-          `mixBlendMode: 'luminosity'`; `sm:bg-none` en la sección.
-      - `eslint` + `vite build` OK. **Pendiente de verificación visual.**
-- [ ] **Hero / columna — a verificar con la usuaria**:
-      - El contenido fluye normal: si no entra en la caja del `aspect-ratio`, la
-        empuja más alto que la imagen. Ajustar tamaños/espaciado contra Figma.
-      - `mix-blend luminosity`: el hero está dentro de `div.relative.z-10` de
-        `invitation-view` (stacking context) → el blend puede no llegar a la
-        textura de página. Si no se ve → ajuste en `invitation-view`.
-      - La columna `w-[80%] max-w-[450px]` ahora aplica a **todas** las secciones
-        (countdown, locations, map, dresscode…), que todavía no se revisaron a
-        ese ancho.
-- [ ] **Hero**: fecha hardcodeada ("SÁBADO 20 FEBRERO 2027") y botón "Agendar en
-      calendario" **sin `onClick`** (el de `EventInfoSection` sí funciona).
-      Decidir: cablear a data o quitar el duplicado. (No tocado — pendiente el
-      pase de fuentes/contenido.)
-- [ ] **DresscodeSection**: 100% hardcodeada (textos, colores, aclaración). Al
-      ser template de 1 clienta puede estar OK, pero dejar constancia de que no
-      sale de la data.
-- [ ] **Tipos**: crear `CamposEspecificosBodaAngela` y sacar los casts locales
-      (`CamposAngela`, `CamposNota`, `CamposGift`, `CamposGift.cvu`, etc.).
-- [x] **`theme.ts`** creado — `FONT` / `TYPO` / `COLOR` como fuente de verdad
-      (2026-09-09). `garamond-premier-pro-display` confirmada en el kit `ulv5nzn`.
-- [ ] **Pase de fuentes** (componente por componente): reemplazar `hanken-grotesk`
-      por `FONT.sans`; bajar pesos de Montserrat 500/600 a 300/400; cambiar
-      fallback `cursive` → `sans-serif`; migrar los `style={{ fontFamily: … }}`
-      inline a `FONT` / `TYPO`.
-      - [x] `hero-section.tsx` (2026-09-09) — todo vía `theme.ts`. "Save the date"
-        y nombres → `TYPO.h1` (STD bajó de 128px→96px, la de la guía);
-        "Nos casamos" → `TYPO.h2` (28px, sin cambio); SÁBADO/FEBRERO → `FONT.serif`;
-        "20"/"2027" → `FONT.garamond` peso 400 (antes 300, cara inexistente en el
-        kit), se dejó el `tracking-[0.2em]` del 2027; botón → `FONT.sans` peso 400.
-        Tamaños de "20" (64px) y "2027" (32px) se dejaron como estaban (la guía no
-        fija tamaño para esos números).
-- [ ] **Pase de colores** (componente por componente): reemplazar todos los hex
-      sueltos por `COLOR.*` según la tabla 6.1; fondo del contenedor a `parchment`.
-- [ ] **Imágenes**: borrar `fondo-hero.png` / `foto-novios.png` (ya sin uso);
-      optimizar `s-t-d/std-bg.png` (2.2 MB) y `textura-inv.jpg` (3 MB) → `.webp`.
-- [ ] **`tsc --noEmit`**: queda **1** error en la template (no rompe `vite build`
-      porque el build no corre `tsc`): `locations-section.tsx` — cast
-      `Record<string, unknown> → CamposAngela` inválido (lo resuelve el tipo
-      `CamposEspecificosBodaAngela`). Los 2 de `hero-section.tsx` (`invitadoParam`
-      / `saludoPersonalizado` sin usar) se corrigieron en el pase de imágenes.
-- [ ] **Commit**: quedan cambios del último pase de RSVP (autocompletar
-      titular del plus-one) sin commitear — 3 archivos de back, 10 de front y
-      `shared/apiError.ts` nuevo.
-- [x] Verificar en la DB actual que `id/slug/publico/tipo_evento_id` sigan como
-      dice la sección 1 (2026-09-19, ver §10 — **confirmado en local**, pero
-      **no existe todavía en producción**).
+- [ ] **Tipos**: crear `CamposEspecificosBodaAngela` unificado y sacar los
+      casts locales ad-hoc (`CamposAngela` en `ceremonia-section.tsx` y
+      `cena-section.tsx`, `CamposGift` en `detalles-section.tsx`, etc.).
+- [ ] **Pase de fuentes/colores**: no re-verificado componente por
+      componente en esta pasada — ver gaps listados en §5.4/§6.1 (2 colores
+      nuevos detectados: `#E9E5E2` en inputs de RSVP, `#D3CBC5` en bordes
+      del acordeón de Detalles).
+- [ ] **Imágenes sin optimizar**: `s-t-d/std-bg.png` (2.2 MB) y
+      `textura-inv.jpg` (3 MB) — pasar a `.webp`.
+- [ ] **`villa-elina.png`**: sin referencia activa encontrada, confirmar si
+      sigue en uso antes de borrarlo (ver §7).
+- [ ] **`tsc --noEmit`**: no se re-corrió en esta pasada; una versión
+      anterior de este doc reportaba 1 error en un archivo (`locations-section.tsx`)
+      que ya no existe — probablemente resuelto solo al borrar el archivo,
+      pero no confirmado.
+- [x] **Estructura de secciones desactualizada en este doc** — corregido
+      2026-09-21 (esta reescritura).
+- [x] **5 archivos huérfanos** (`event-info-section.tsx`, `gift-section.tsx`,
+      `locations-section.tsx`, `map-section.tsx`, `note-section.tsx`) +
+      assets exclusivos de ellos — borrados 2026-09-21.
+- [x] **Commit pendiente** — resuelto, todo el código de la template está
+      commiteado (confirmado por `git log`).
+- [x] **Migración a producción** — resuelto, template + invitación real ya
+      existen en producción (confirmado por el usuario 2026-09-21).
+
+**Ya NO son TODOs** (contenido fijo a propósito, ver §1 y §4 — no tratar
+como pendiente de arreglar salvo que la clienta pida explícitamente que
+algo pase a ser dinámico):
+- Hero con fecha hardcodeada.
+- `FechaLimiteSection` con "13 de febrero" hardcodeado.
+- `CenaSection` con hora/texto hardcodeados.
+- `camposEspecificos` de Ceremonia/Cena/fecha límite sin UI en el wizard
+  (solo editables por API/DB directa).
 
 ---
 
 ## 9. Checklist de revisión componente por componente
 
-Vamos completando `Estado` y `Notas` a medida que revisamos cada uno contra el
-Figma.
+Estado real verificado el 2026-09-21 (revisión completa de los 9 archivos
+activos + los 2 hooks compartidos de RSVP). Reemplaza la tabla anterior, que
+listaba componentes ya borrados.
 
 | Componente               | Estado | Notas |
-|--------------------------|--------|-------|
-| `invitation-view.tsx`    | ⏳ por revisar | orden de secciones, fondo, marco, divisores |
-| `envelope-overlay-angela.tsx` | ⏳ | tipografías del overlay, animación, "y" en nombres |
-| `music-player-angela.tsx` | ✅ (2026-09-19) | FAB + reproductor propios (antes usaba el `MusicPlayer` genérico de `invitation-basic`, con colores/fuente ajenos a la template). Reusa la misma lógica (autoplay al abrir el sobre, loop, seek, skip ±10s) pero re-skinneado 100% con `COLOR`/`TYPO` de `theme.ts`: FAB y chip ícono en `crema`/`darkBrown` (mismo tono que "Agendar en calendario"), panel en `parchment` con borde `brown` al 20% de opacidad, botón play/pausa invertido (`darkBrown` sobre `parchment`), barras de progreso/volumen `darkBrown` sobre track `crema`, label "MÚSICA" con `TYPO.text3`. Volumen inicial 20% (`audio.volume = 0.2`), el slider deja subirlo. Verificado en vivo contra la invitación real de Angela (tiene música cargada): autoplay a 20% al abrir el sobre, pausa, subida de volumen a 75% y apertura/cierre del panel confirmados por estado real del `<audio>` + estilos computados, y por screenshot en viewport mobile. |
-| `hero-section.tsx`       | 🔧 en progreso | ✅ imágenes responsive (`<picture>`) · ✅ fuentes vía `theme.ts` (`TYPO.h1/h2`, `FONT.serif/garamond/sans`) · ⏳ falta: colores → `COLOR`, fecha dinámica, botón "Agendar" sin acción, `<p>Save the date</p>` vs SVG, ajustes de fondo (ver TODO Hero) |
-| `countdown-section.tsx`  | ⏳ | estilo de cajas, tipografía Timer, doble uso |
-| `event-info-section.tsx` | ⏳ | usa data real, link de calendario OK |
-| `locations-section.tsx`  | ⏳ | 3 bloques condicionales, íconos, fallback de foto |
-| `map-section.tsx`        | ⏳ | iframe de Google Maps, botón copiar dirección |
-| `note-section.tsx`       | ⏳ | lógica `!== "false"`, textos fijos |
-| `dresscode-section.tsx`  | ⏳ | todo hardcodeado, swatches, `hanken-grotesk` |
-| `gift-section.tsx`       | ⏳ | alias/CBU/CVU, ícono corazón |
-| `rsvp-section.tsx`       | ✅ conectado al back (2026-09-15) | Segundo pase el mismo día: se conectó de verdad. Tres ramas dentro de `RsvpSection` (`invitacion.tieneConfirmacion` primero — si es `false`, `return null`): (1) sin `?invitado=`/`?grupo=` válido (`!invitacion.mostrarBotonConfirmar`) → solo "¡Te esperamos!"; (2) `invitado` individual → `RsvpIndividual` usa el hook compartido `useRsvpConfirmacion` (mismo que `invitation-basic`) — si `puedeAgregarPlusOne` es `false` la decisión del usuario fue mostrar **solo título + restricción alimentaria + botón** (sin contador ni subtítulo); si es `true`, el contador (1/2) alterna `agregarPlusOne` del hook y a los 2 aparecen dos inputs separados **Nombre/Apellido** (no "Nombre y apellido" combinado como en el mock — el DTO real `ConfirmarAsistenciaDto.plusOne` pide los campos separados); (3) `invitacion.grupo` → `RsvpGrupo` usa el hook nuevo `useRsvpConfirmacionGrupo` (extraído de `GrupoRsvpSection`, ver `shared/`) — checkbox por integrante ya precargado (no editable, el back no permite corregirle el nombre desde este endpoint) + mini-form "Nombre/Apellido + Agregar" para sumar gente nueva hasta `maxIntegrantesEfectivo`. Botón "Confirmar asistencia" ahora sí llama al back de verdad (`confirmar()` de cada hook), con estados loading/success/error (`EstadoError` compartido entre las dos ramas). Estilos: se conservaron los ajustes visuales que el usuario había hecho a mano en paralelo mientras yo investigaba el backend (labels en `TYPO.text2`, inputs `bg-[#E9E5E2] shadow-sm rounded-sm`, textarea `rounded-xl`, número del contador `fontSize:90` `COLOR.brown`, botón `rounded-sm cursor-pointer`) y el `<h1>Angie y Fran</h1>` que agregó al final de la sección — "dejalo así por ahora", pendiente de que decida si lo mueve/saca. Probado en vivo contra el back local: invitado sin plus-one ya confirmado (`syra-moran`), invitado con plus-one habilitado por PATCH temporal (`agostina-chiapino`, revertido después), y un grupo de prueba creado/borrado por API (`familia-test-claude` / `familia-test-visual`, con integrantes precargados + suma de nuevos hasta el tope) — sin dejar residuos en la DB.
-
-**Actualización (mismo día, 3er pedido):** cuando el invitado con plus-one habilitado suma una persona (contador a 2), "Invitado 1" ahora se autocompleta con el nombre/apellido real del titular (inputs `disabled`, `INPUT_DISABLED_CLASS`) y debajo aparecen los campos editables de "Invitado 2" (el acompañante). Esto requirió exponer el nombre/apellido del titular en el back, porque **no se puede derivar de forma confiable desde el slug** (`toSlug` convierte espacios Y el separador nombre-apellido al mismo `-`, así que un nombre u apellido compuesto — común en español — vuelve el slug ambiguo para partirlo de nuevo). Cambios de back: `InvitacionPublicDto.invitadoNombre/invitadoApellido` (nuevos, opcionales) en `invitacion.dto.ts`, poblados en `invitacion.mapper.ts` desde `invitadoEncontrado.nombre/apellido` (o solo el nombre, derivado del slug, si el invitado todavía no está precargado — el apellido queda `null` en ese caso). Reflejado en `types/invitation.ts` del frontend. **Ojo**: el backend corre acá como build compilado (`node dist/src/main`, no `nest start --watch`) — hace falta `npm run build` + reiniciar el proceso a mano después de tocar código del back, no alcanza con guardar el archivo. |
+|---------------------------|--------|-------|
+| `invitation-view.tsx`     | ✅ estructura estable | ver §3 para el orden y condiciones actuales; fondo ya en `COLOR.parchment` + 2 capas de textura (general + mobile-only) |
+| `envelope-overlay-angela.tsx` | ✅ funcional | auto-apertura a los 20s si no se toca, click manual con guard anti-doble-trigger (`hasTriggeredRef`), bloquea scroll de fondo mientras está abierto. Muestra nombre+cantidad del **invitado/grupo que entra por el link** (no "Angie y Fran", ver corrección en §4) |
+| `music-player-angela.tsx` | ✅ (2026-09-19) | FAB + reproductor propios, re-skinneados con `COLOR`/`TYPO`. Autoplay al cerrar el sobre a volumen 20%, con manejo del bloqueo de autoplay del navegador (cae a botón manual sin romper nada). Verificado en vivo contra la invitación real |
+| `hero-section.tsx`        | 🔧 pase de fuentes hecho, colores pendiente | Fecha "SÁBADO 20 FEBRERO 2027" y "21:00 HS" de Cena son fijos a propósito (§1/§4, ya no un TODO). Link de calendario SÍ dinámico (`generarLinkCalendario`, evento de todo el día desde 2026-09-21). Nota menor de code quality: `esBoda` es siempre `true` (`Boolean(...) || true`), la rama `else` del `<h1>` es código muerto sin impacto visible — no urgente |
+| `countdown-section.tsx`   | ✅ funcional | 3 estados (`antes`/`hoy`/`despues`) recalculados cada 1s; `despues` usa `estadoFechaLimite` de `fecha-limite-section.tsx` para decidir si sigue siendo "hoy" o ya "despues" (no dobles de medianoche simple) |
+| `ceremonia-section.tsx`   | ✅ funcional | fallback a `horaEvento`/`ubicacion`/`direccion` generales si no hay overrides específicos (que hoy no tienen UI de carga, ver §4) |
+| `cena-section.tsx`        | ✅ funcional | mismo patrón de fallback que Ceremonia; hora y texto descriptivo 100% fijos |
+| `detalles-section.tsx`    | ✅ funcional | acordeón de 4 ítems (Niños/Regalos/Puntualidad/Dresscode) con `aria-expanded`/`aria-controls`. "Niños"/"Puntualidad" con texto fijo (ya no data-driven, ver §4). "Regalos" condiciona `alias`/`aliasUsd`/`cbu` con `CopyField` (copia al portapapeles). Dresscode con 14 swatches hardcodeados (§6.2) |
+| `fecha-limite-section.tsx` | ✅ conectado (2026-09-18, spec definitiva) | matriz completa de 3 estados (`antes`/`hoy`/`vencido`) × Argentina UTC-3 fijo (sin depender de la zona horaria del navegador/servidor). Título "13 de febrero" fijo a propósito; el contador de días sí es dinámico. Funciones puras `estadoFechaLimite`/`calcularDiasRestantes`/`haPasadoFechaLimite`/`obtenerFechaLimiteStr` ya exportadas — buenas candidatas a test unitario (ver plan de testing) |
+| `rsvp-section.tsx`        | ✅ conectado al back | 3 ramas (genérica/individual/grupo) cruzadas con el estado de fecha límite (matriz de 6 casos, ver plan de testing). Individual: contador 1↔2, autocompleta el titular al sumar plus-one, valida que el acompañante tenga nombre+apellido antes de dejar confirmar. Grupo: checkbox por integrante ya precargado, **sin opción de sumar gente nueva** (removida a propósito el 2026-09-18) — un solo submit exitoso marca **todo el grupo** como confirmado, aunque no se haya tildado a todos; **confirmado con el usuario (2026-09-21) que esto es intencional**: el encargado del grupo es responsable de tildar a todos antes de confirmar |
 
 ---
 
-## 10. Estado de producción (verificado 2026-09-19)
+## 10. Estado de datos (actualizado 2026-09-21)
 
-Chequeado directo contra la DB de Railway (solo lectura):
-
-- **`template` `boda-angela`: no existe en producción.** En local es `id=14,
-  slug=boda-angela, publico=false, tipo_evento_id=1, nombre="Boda Angela",
-  activo=true` — hay que crearlo igual en prod.
-- **La `invitacion` de Angela tampoco existe en producción.** En local:
-  `id=22325c7d-caae-490d-baac-29352a12e223`, `titulo="Nos casamos"`,
-  `fecha_evento=2027-02-20`, `activa=true`, `estado_pago=PENDIENTE`,
-  `pedido_id=null` (no está atada a ninguna orden — se cargó a mano). Definir
-  antes de migrar si en prod va como `PENDIENTE` o se marca `PAGADO`.
-- **Los `invitado`/`grupo` cargados hoy bajo esa invitación en local son de
-  prueba, no la lista real de Angela**: "Syra Moran" / "Daniel Moran" (grupo
-  "Flia Moran"), "Agostina Chiapino" + su plus-one "Thiago Totaro", y una
-  "Familia Romanoli" vacía. **No migrar esta data tal cual** — reemplazar por
-  la lista real de invitados de Angela cuando la tengamos (hay import por
-  Excel ya construido en el back: `invitados/helpers/excel-import.helper.ts`).
-- Deploy: frontend en Vercel (`invitaciones-frontend/vercel.json`), backend en
-  Railway. No hay config de rama en el repo — confirmar en cada dashboard qué
-  rama dispara el deploy antes de mergear (estamos parados en
-  `boda-personalizada`, no en `main`).
+- **Producción (Railway)**: el `template` `boda-angela` y la `invitacion`
+  real de Angela **ya existen** (confirmado por el usuario). No se
+  verificaron los ids exactos de producción en esta pasada — si hace falta
+  cruzar referencias entre local y producción, chequear directo en la DB de
+  Railway antes de asumir que coinciden con los ids locales.
+- **Local**: `invitacion.id = 22325c7d-caae-490d-baac-29352a12e223`,
+  `titulo="Nos casamos"`, `fecha_evento=2027-02-20`, `hora_evento=17:30`,
+  lugar Villa Elina — cargada a mano (`pedido_id=null`, no pasó por
+  checkout).
+- **Invitados/grupos**: **ninguno es real todavía**, ni en local ni en
+  producción — todos los que hay cargados hoy (individuales y grupos, en
+  cualquier entorno) son datos de prueba. No hace falta ninguna migración
+  de invitados de local a producción; cuando esté la lista real de Angela
+  se carga directo (hay import por Excel ya construido en el back:
+  `invitados/helpers/excel-import.helper.ts`).
+- Deploy: frontend en Vercel (`invitaciones-frontend/vercel.json`), backend
+  en Railway. Rama actual de trabajo: `boda-personalizada` (no `main`) —
+  confirmar en cada dashboard qué rama dispara el deploy antes de mergear,
+  si todavía no se hizo.
