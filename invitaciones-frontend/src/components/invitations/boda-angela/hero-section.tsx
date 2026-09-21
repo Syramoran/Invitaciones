@@ -28,13 +28,12 @@ export function HeroSection({
   const altFoto = `${nombreNovio1} y ${nombreNovio2}`
 
   const generarLinkCalendario = () => {
-    if (!invitacion?.fechaEvento || !invitacion?.horaEvento) return undefined
+    if (!invitacion?.fechaEvento) return undefined
     const [year, month, day] = invitacion.fechaEvento.split('T')[0].split('-').map(Number)
-    const [hora, minuto] = invitacion.horaEvento.split(':').map(Number)
-    const inicio = new Date(year, month - 1, day, hora, minuto, 0, 0)
-    const fin = new Date(inicio)
-    fin.setHours(fin.getHours() + 5)
-    const fmt = (d: Date) => d.toISOString().replace(/-|:|\.\d{3}/g, '')
+    const inicio = new Date(year, month - 1, day)
+    const fin = new Date(year, month - 1, day + 1)
+    const fmt = (d: Date) =>
+      `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`
     const params = new URLSearchParams({
       action: 'TEMPLATE',
       text: 'Boda Angie y Fran',

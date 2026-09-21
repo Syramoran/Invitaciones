@@ -628,6 +628,16 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
                 className={INPUT}
               />
             </div>
+            {templateSlug === 'boda-angela' && (
+              <div>
+                <Label text="Alias en USD" required={false} tooltip="Alias de una cuenta en dólares, para quien prefiera regalar en USD" />
+                <input
+                  type="text" maxLength={200} placeholder="Ej: nombreapellido.usd"
+                  value={getCampo('aliasUsd')} onChange={e => setCampo('aliasUsd', e.target.value)}
+                  className={INPUT}
+                />
+              </div>
+            )}
           </div>
         </Section>
       )}
