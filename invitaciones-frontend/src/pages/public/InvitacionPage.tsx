@@ -1,6 +1,7 @@
 import { Suspense, useMemo, useEffect, useState } from 'react'
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { isAxiosError } from 'axios'
+import { FileQuestion } from 'lucide-react'
 import type { InvitacionPublica } from '@/types/invitation'
 import { getInvitacionPublica, getCachedInvitacion } from '@/services/invitacionService'
 import { getInvitationComponent } from '@/components/invitations/registry'
@@ -118,6 +119,41 @@ function ServerDownScreen() {
 }
 
 /**
+ * Pantalla para un link que no resuelve a ninguna invitación. `personalizado`
+ * distingue los dos casos, porque la acción que le toca al invitado es
+ * distinta: si el link traía ?invitado=/?grupo= y falló, la invitación existe
+ * pero ese nombre no está en la lista, así que lo que corresponde es pedir el
+ * link de nuevo.
+ */
+function InvitacionNoEncontradaScreen({ personalizado }: { personalizado: boolean }) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#faf9f7] px-5">
+      <div className="max-w-sm text-center">
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#efece7]">
+          <FileQuestion className="h-8 w-8 text-[#8a8178]" />
+        </div>
+        <h2 className="mb-2 text-2xl font-semibold text-gray-800">
+          {personalizado ? 'No encontramos tu invitación' : 'Invitación no encontrada'}
+        </h2>
+        <p className="text-sm leading-relaxed text-gray-500">
+          {personalizado ? (
+            <>
+              El enlace puede haber quedado incompleto al compartirlo.
+              Pedile al anfitrión que te reenvíe tu link personal.
+            </>
+          ) : (
+            <>
+              Esta invitación no existe o ya no está disponible.
+              Revisá que el enlace esté completo.
+            </>
+          )}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+/**
  * Determina si el error de axios corresponde a un problema del servidor
  * (no del invitado): sin respuesta HTTP (servidor caído, sin internet) o con
  * respuesta pero de error 5xx (el gateway/proxy sí respondió, pero el
@@ -133,7 +169,6 @@ function isNetworkError(err: unknown): boolean {
 export default function InvitacionPage() {
   const { eventoId } = useParams<{ eventoId: string }>()
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
 
   const invitado = searchParams.get('invitado') ?? undefined
   const grupo = searchParams.get('grupo') ?? undefined
@@ -176,12 +211,6 @@ export default function InvitacionPage() {
       })
   }, [eventoId, invitado, grupo])
 
-  useEffect(() => {
-    if (status === 'error') {
-      navigate('/not-found', { replace: true })
-    }
-  }, [status, navigate])
-
   const InvitationComponent = useMemo(
     () => (invitacion ? getInvitationComponent(invitacion.template.slug) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -193,7 +222,12 @@ export default function InvitacionPage() {
 
   if (status === 'loading') return <LoadingFallback />
   if (status === 'server-down') return <ServerDownScreen />
-  if (!invitacion || !InvitationComponent) return null
+  // Cualquier salida sin invitación montable muestra pantalla, nunca un blanco:
+  // link inexistente, invitado que no está en la lista, o una template sin
+  // componente registrado en el frontend.
+  if (status === 'error' || !invitacion || !InvitationComponent) {
+    return <InvitacionNoEncontradaScreen personalizado={Boolean(invitado || grupo)} />
+  }
 
   return (
     <>
