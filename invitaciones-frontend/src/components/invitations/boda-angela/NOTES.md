@@ -348,19 +348,18 @@ vestimenta sugerida, no son de la paleta de marca, quedan como están:
 
 | Archivo                     | Dónde |
 |-----------------------------|-------|
-| `s-t-d/std_mobile.png`      | foto de la pareja mobile (`hero-section`) |
-| `s-t-d/std_web.png`         | foto de la pareja desktop (`hero-section`) |
-| `s-t-d/Std-bg-mobile.jpg`   | fondo hero mobile |
-| `s-t-d/std-bg.png`          | fondo hero desktop (⚠️ 2.2 MB, sigue sin optimizar) |
+| `s-t-d/std_mobile.webp`     | foto de la pareja mobile (`hero-section`) |
+| `s-t-d/std_web.webp`        | foto de la pareja desktop (`hero-section`) |
+| `s-t-d/Std-bg-mobile.webp`  | fondo hero mobile |
+| `s-t-d/std-bg.webp`         | fondo hero desktop |
 | `std_animated.svg`          | animación "Save the date" del hero, se remonta con `key` al abrir el sobre |
 | `vector-date.svg`           | ícono del botón "Agendar en calendario" (`hero-section`) |
-| `textura-inv.jpg`           | textura de fondo global, todas las pantallas (⚠️ 3.0 MB, sigue sin optimizar) |
-| `sections-bg-mobile2.jpg`   | textura de fondo adicional, **solo mobile** (no documentada antes) |
-| `sobre/bottom.png`, `sobre/top.png`, `sobre/sello.png` | `envelope-overlay-angela.tsx` |
+| `textura-inv.webp`          | textura de fondo global, todas las pantallas |
+| `sections-bg-mobile2.webp`  | textura de fondo adicional, **solo mobile** |
+| `sobre/bottom.webp`, `sobre/top.webp`, `sobre/sello.webp` | `envelope-overlay-angela.tsx` |
 | `novios-recurso.svg`        | ilustración de `ceremonia-section.tsx` |
 | `villaelina-recurso.svg`    | ilustración de lugar en `ceremonia-section.tsx` |
 | `brindis-recurso.svg`       | ilustración de `cena-section.tsx` |
-| `villa-elina.png`           | ¿fallback de foto de salón? — no se encontró ninguna referencia activa a este archivo en el pase de 2026-09-21; revisar si sigue en uso antes de la próxima limpieza |
 
 ### Borrados el 2026-09-21 (estaban huérfanos, confirmado por grep en todo `src/`)
 
@@ -372,8 +371,23 @@ y `SVG/pruebasvg.svg`/`SVG/pruebasvg2.svg` (SVGs de prueba sin documentar,
 carpeta `SVG/` completa eliminada). Todo estaba commiteado, recuperable vía
 `git log` si hiciera falta.
 
-⚠️ **Peso de imágenes pendiente**: `s-t-d/std-bg.png` (2.2 MB) y
-`textura-inv.jpg` (3 MB) siguen sin pasar a `.webp`/optimizar.
+### Borrado el 2026-09-22 (B2 de la auditoría)
+
+`villa-elina.png` (400 KB, en realidad un JPEG con extensión `.png` —
+confirmado con `sharp`) — huérfano, sin ninguna referencia en `src/`. Estaba
+commiteado, recuperable por `git log` si hiciera falta.
+
+**Peso de imágenes — resuelto 2026-09-22 (M1 de la auditoría)**: los 7 PNG/JPG
+que quedaban sin optimizar (`s-t-d/std-bg.png` 2.2MB, `s-t-d/Std-bg-mobile.jpg`
+570KB, `s-t-d/std_web.png` 435KB, `s-t-d/std_mobile.png` 341KB,
+`sobre/bottom.png` 703KB, `sobre/top.png` 321KB, `sobre/sello.png` 66KB) se
+convirtieron a `.webp` con `sharp` (calidad 82 fotos / 88 piezas del sobre,
+`effort:6`), preservando el canal alpha donde lo tenían. Total: 4.6MB → 426KB
+(-91%). Verificado visualmente en el navegador (mobile y desktop) que no hay
+pérdida de nitidez ni artefactos, y por red que no queda ningún 404. Los 7
+originales se borraron (recuperables por `git log`, estaban commiteados) y
+`hero-section.tsx`/`envelope-overlay-angela.tsx` se actualizaron a las rutas
+`.webp`.
 
 ---
 
@@ -386,14 +400,14 @@ carpeta `SVG/` completa eliminada). Todo estaba commiteado, recuperable vía
       componente en esta pasada — ver gaps listados en §5.4/§6.1 (2 colores
       nuevos detectados: `#E9E5E2` en inputs de RSVP, `#D3CBC5` en bordes
       del acordeón de Detalles).
-- [ ] **Imágenes sin optimizar**: `s-t-d/std-bg.png` (2.2 MB) y
-      `textura-inv.jpg` (3 MB) — pasar a `.webp`.
-- [ ] **`villa-elina.png`**: sin referencia activa encontrada, confirmar si
-      sigue en uso antes de borrarlo (ver §7).
-- [ ] **`tsc --noEmit`**: no se re-corrió en esta pasada; una versión
-      anterior de este doc reportaba 1 error en un archivo (`locations-section.tsx`)
-      que ya no existe — probablemente resuelto solo al borrar el archivo,
-      pero no confirmado.
+- [x] **`villa-elina.png`** — borrado 2026-09-22 (B2), sin referencia activa
+      (ver §7).
+- [x] **`tsc --noEmit`**: corre limpio, 0 errores (confirmado 2026-09-21 y de
+      nuevo 2026-09-22 tras el cambio de imágenes a webp).
+- [x] **Imágenes sin optimizar** — resuelto 2026-09-22 (M1 de la auditoría),
+      ver detalle en §7. Los 7 PNG/JPG que quedaban pasaron a `.webp`
+      (-91% de peso); `textura-inv.jpg`/`sections-bg-mobile2.jpg` ya venían
+      en `.webp` de antes.
 - [x] **Estructura de secciones desactualizada en este doc** — corregido
       2026-09-21 (esta reescritura).
 - [x] **5 archivos huérfanos** (`event-info-section.tsx`, `gift-section.tsx`,
@@ -457,3 +471,64 @@ listaba componentes ya borrados.
   en Railway. Rama actual de trabajo: `boda-personalizada` (no `main`) —
   confirmar en cada dashboard qué rama dispara el deploy antes de mergear,
   si todavía no se hizo.
+
+---
+
+## 11. Auditoría sept 2026 — estado de los hallazgos
+
+Informe completo (30 hallazgos por severidad):
+https://claude.ai/artifact/8XdvbccAiDk6hACpGJYYQj — ver también memoria
+`project_auditoria_sept_2026` para el detalle de qué descartó el usuario y por
+qué. Algunos hallazgos son de todo `backend_invitaciones`/routing general, no
+solo de esta template — se listan igual acá porque afectan directamente a
+cómo los invitados de Angela llegan a la invitación.
+
+**Arreglados:**
+- **C2 (2026-09-21)** — un link inválido (`?invitado=`/`?grupo=` que no
+  matchea a nadie, o un UUID inexistente) ya no cae en pantalla en blanco.
+  `InvitacionPage.tsx` reemplazó el `navigate('/not-found')` roto (esa ruta
+  nunca existió) por `InvitacionNoEncontradaScreen`, con mensaje distinto
+  según si el link era personalizado o no.
+- **C3 (2026-09-21)** — un grupo ya no puede "confirmar" sin tildar a nadie.
+  Validación en `rsvp-section.tsx` (`RsvpGrupo`): si `seleccionados.size===0`
+  al apretar el botón, corta antes de llamar a `confirmar()` y muestra
+  "Marcá al menos una persona para poder confirmar." **Alcance: solo esta
+  template** — `invitation-basic` comparte el mismo hook
+  (`useRsvpConfirmacionGrupo`) y tiene el mismo agujero sin parchear, a
+  propósito, sin que se haya pedido tocarlo.
+- **A2 (2026-09-22)** — el rate limit del backend (100 req/min, `app.module.ts`)
+  contaba a todos los invitados como una sola IP detrás del proxy de Railway,
+  porque Express no confiaba en `X-Forwarded-For` por defecto. Arreglado en
+  `backend_invitaciones/src/main.ts`: `app.set('trust proxy', 1)` +
+  `NestExpressApplication`. Verificado en local simulando el header tal cual
+  lo entrega Railway (un solo valor, no una cadena) — `req.ip` pasó de ser la
+  IP de conexión directa a la IP real simulada.
+- **M1 (2026-09-22)** — 7 PNG/JPG sin optimizar pasados a `.webp` (4.6MB →
+  426KB, -91%). Ver detalle en §7.
+- **B2 (2026-09-22)** — `villa-elina.png` (huérfano) borrado. Ver §7.
+- **UUID de producción (2026-09-22)** — `invitationSlugs.ts` ya apunta a
+  `39eb3de2-4c79-44b0-8bd1-d51c8960422c` (producción), no al id local. Hecho
+  al pedir el commit+push a `main` para el deploy. Ver
+  `project_template_boda_angela` (memoria) por el detalle y el efecto
+  secundario en local (`/angieyfran` ya no resuelve ahí, es esperado).
+
+**Pendientes (por orden de cuándo se tocaron en la auditoría):**
+- **A1** — el usuario se encarga a mano de que toda invitación tenga
+  contraseña de asistentes segura; no requiere cambio de código.
+- **A4/A5** — descartados por el usuario, ver memoria (la fecha límite se
+  carga una sola vez y no server-side por decisión de negocio, no por
+  descuido).
+- **A6** — no hay forma de enterarse si el sistema cae (sin health check, sin
+  error tracking, sin logging estructurado). Propuestas comparadas en el
+  informe; no implementado, a la espera de que el usuario elija.
+- **Sistema de slug "lindo"** (`config/invitationSlugs.ts`, revisado
+  2026-09-22, no estaba en el informe original): confirmado que `/uuid` y
+  `/slug` funcionan igual, y que el panel de asistentes copia con el slug
+  solo para esta invitación. Dos gaps nuevos detectados, sin arreglar
+  todavía: (1) un espacio u otro carácter de más al copiar el link rompe el
+  match de ruta — a diferencia del slug de invitado individual, este no pasa
+  por ningún `toSlug()`/normalización, aunque sí tolera mayúsculas; (2) si un
+  slug futuro coincidiera con una ruta reservada (`crear`, `admin`, etc.) ese
+  link quedaría atrapado sin aviso, no hay validación que lo prevenga.
+- **Medios restantes (M2-M8) y limpieza restante (B1, B3-B14)** del informe —
+  todavía no revisados uno por uno con el usuario.
