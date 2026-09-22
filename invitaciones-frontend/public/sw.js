@@ -2,12 +2,12 @@
  * Service Worker — festejá
  *
  * Estrategia:
- *  - App shell (HTML/JS/CSS):  network-first → cache → maintenance.html
- *  - Invitaciones públicas API: network-first → cache (última versión conocida)
- *  - Assets estáticos:          cache-first  → network
+ *  - App shell (HTML/JS/CSS):  network-first          → cache → maintenance.html
+ *  - Invitaciones públicas API: network-first          → cache (última versión conocida)
+ *  - Assets estáticos:          stale-while-revalidate → cache al toque + actualiza en background
  */
 
-const CACHE_VERSION = 'festeja-v1'
+const CACHE_VERSION = 'festeja-v2'
 const MAINTENANCE_URL = '/maintenance.html'
 
 // Archivos del app shell que se cachean al instalar el SW
@@ -65,9 +65,10 @@ self.addEventListener('fetch', (event) => {
   }
 
   // ── Assets estáticos (JS, CSS, imágenes, fuentes) ──
-  // Cache-first: mejora rendimiento; se actualiza en background
+  // Stale-while-revalidate: responde con la copia cacheada al toque y
+  // dispara un fetch en paralelo que actualiza el cache para la próxima.
   if (isStaticAsset(url)) {
-    event.respondWith(handleStaticAsset(event.request))
+    event.respondWith(handleStaticAsset(event))
     return
   }
 })
@@ -113,25 +114,31 @@ async function handleInvitacionApi(request) {
   }
 }
 
-async function handleStaticAsset(request) {
+async function handleStaticAsset(event) {
+  const request = event.request
   const url = new URL(request.url)
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
     return fetch(request)
   }
 
-  const cached = await caches.match(request)
-  if (cached) return cached
+  const cache = await caches.open(CACHE_VERSION)
+  const cached = await cache.match(request)
 
-  try {
-    const response = await fetch(request)
-    if (response.ok) {
-      const cache = await caches.open(CACHE_VERSION)
-      cache.put(request, response.clone())
-    }
-    return response
-  } catch {
-    return new Response('', { status: 503 })
+  const networkUpdate = fetch(request)
+    .then((response) => {
+      if (response.ok) cache.put(request, response.clone())
+      return response
+    })
+    .catch(() => null)
+
+  if (cached) {
+    // No bloquea la respuesta — la actualización sigue en curso en background,
+    // event.waitUntil evita que el SW se termine antes de que cache.put corra.
+    event.waitUntil(networkUpdate)
+    return cached
   }
+
+  return (await networkUpdate) ?? new Response('', { status: 503 })
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

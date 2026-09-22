@@ -1,8 +1,9 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider } from '@/context/authContext'
 import { useAuth } from '@/context/useAuth'
 import { CrearInvitacionModalProvider } from '@/context/crearInvitacionModalContext'
+import { SLUG_REDIRECTS } from '@/config/invitationSlugs'
 import { Suspense, lazy } from 'react'
 
 // Lazy loading — cada chunk se carga solo cuando se navega a esa ruta
@@ -65,6 +66,12 @@ function ClientPrivateRoute({ children }: { children: React.JSX.Element }) {
 
 const PageLoader = () => <div className="page-loading"></div>
 
+/** Redirige un slug "lindo" a la URL real (con uuid), preservando query params (?invitado=, ?grupo=). */
+function SlugRedirect({ to }: { to: string }) {
+  const location = useLocation()
+  return <Navigate to={`${to}${location.search}`} replace />
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -119,6 +126,11 @@ export default function App() {
               path="/client/edit-invitation/:id"
               element={<ClientPrivateRoute><EditarInvitacionPage variant="client" /></ClientPrivateRoute>}
             />
+
+            {/* ── LINKS LINDOS (slug -> uuid real) ── */}
+            {Object.entries(SLUG_REDIRECTS).map(([slug, uuid]) => (
+              <Route key={slug} path={`/${slug}`} element={<SlugRedirect to={`/${uuid}`} />} />
+            ))}
 
             {/* ── INVITACIONES PÚBLICAS (al final para no capturar rutas /client) ── */}
             <Route path="/:eventoId"               element={<InvitacionPage />} />
