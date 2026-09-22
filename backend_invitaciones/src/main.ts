@@ -1,10 +1,18 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Railway mete un único salto de proxy delante del backend, y limpia el
+  // header X-Forwarded-For en su borde (un cliente no puede falsificar el
+  // propio). Sin esto, Express toma como IP la del proxy de Railway para
+  // todo el mundo, así que el rate limit (100 req/min) termina compartido
+  // entre todos los invitados en vez de aplicarse por persona.
+  app.set('trust proxy', 1);
 
   // 1. Helmet
   app.use(helmet());

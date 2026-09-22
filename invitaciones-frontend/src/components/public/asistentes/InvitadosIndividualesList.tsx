@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { InvitadoIndividual } from '@/types/asistentes'
+import { toPrettyInvitationUrl } from '@/config/invitationSlugs'
 import { Badge } from './Badge'
 import { ConfirmDialog } from './ConfirmDialog'
 import { InvitacionEnviadaToggle } from './InvitacionEnviadaToggle'
@@ -64,7 +65,7 @@ function InvitadoRow({
                 />
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <CopyUrlButton url={inv.urlPersonalizada} />
+                <CopyUrlButton url={toPrettyInvitationUrl(inv.urlPersonalizada)} />
                 <button
                   onClick={() => onSolicitarEliminar(inv)}
                   aria-label={`Eliminar a ${inv.nombre} ${inv.apellido}`}

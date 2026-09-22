@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X, ChevronDown } from 'lucide-react'
 import type { Grupo, IntegranteGrupo } from '@/types/asistentes'
+import { toPrettyInvitationUrl } from '@/config/invitationSlugs'
 import { RestriccionInput } from './RestriccionInput'
 import { Badge } from './Badge'
 import { ConfirmDialog } from './ConfirmDialog'
@@ -115,7 +116,7 @@ function GrupoRow({
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <CopyUrlButton url={grupo.urlPersonalizada} />
+                <CopyUrlButton url={toPrettyInvitationUrl(grupo.urlPersonalizada)} />
                 <button
                   onClick={() => setConfirmandoEliminar(true)}
                   aria-label={`Eliminar el grupo ${grupo.nombre}`}

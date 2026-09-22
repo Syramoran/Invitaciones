@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Loader2, Check, AlertCircle, Minus, Plus } from 'lucide-react'
 import type { InvitacionPublica } from '@/types/invitation'
 import { useRsvpConfirmacion } from '../shared/useRsvpConfirmacion'
@@ -328,6 +329,20 @@ function RsvpGrupo({ invitacionId, grupo, deadlinePassed }: RsvpGrupoProps) {
     reintentar,
   } = useRsvpConfirmacionGrupo({ invitacionId, grupo })
 
+  // Sin al menos un integrante marcado, el backend acepta el envío y responde
+  // "confirmado" sin registrar a nadie — el grupo se quedaría afuera creyendo
+  // que confirmó. Se corta acá antes de mandarlo.
+  const [intentoEnviar, setIntentoEnviar] = useState(false)
+  const sinSeleccion = seleccionados.size === 0
+  const errorSeleccion =
+    intentoEnviar && sinSeleccion ? 'Marcá al menos una persona para poder confirmar.' : null
+
+  const intentarConfirmar = () => {
+    setIntentoEnviar(true)
+    if (sinSeleccion) return
+    confirmar()
+  }
+
   const yaConfirmado = grupo.integrantes.some((i) => i.confirmado) || estado === 'success'
 
   if (yaConfirmado) {
@@ -392,9 +407,13 @@ function RsvpGrupo({ invitacionId, grupo, deadlinePassed }: RsvpGrupoProps) {
         <ContadorCaracteres actual={restriccionAlimentaria.length} max={MAX_RESTRICCION} />
       </div>
 
+      {errorSeleccion && (
+        <p className="max-w-[20.75rem] text-sm text-red-600">{errorSeleccion}</p>
+      )}
+
       <button
         type="button"
-        onClick={confirmar}
+        onClick={intentarConfirmar}
         disabled={estado === 'loading'}
         className={BOTON_CLASS}
         style={{ ...TYPO.text, backgroundColor: COLOR.crema, color: COLOR.negro }}

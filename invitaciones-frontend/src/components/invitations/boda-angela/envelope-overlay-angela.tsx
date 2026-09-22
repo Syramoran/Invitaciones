@@ -90,7 +90,7 @@ export function EnvelopeOverlayAngela({ invitacion, onOpen, onRevealStart }: Env
         className="relative aspect-[720/950] h-dvh w-auto cursor-pointer appearance-none border-0 bg-transparent p-0 disabled:cursor-default sm:h-auto sm:w-[440px] shadow-md drop-shadow-md"
       >
         <img
-          src="/boda-angela/sobre/bottom.png"
+          src="/boda-angela/sobre/bottom.webp"
           alt=""
           aria-hidden="true"
           draggable={false}
@@ -102,7 +102,7 @@ export function EnvelopeOverlayAngela({ invitacion, onOpen, onRevealStart }: Env
           }}
         />
         <img
-          src="/boda-angela/sobre/top.png"
+          src="/boda-angela/sobre/top.webp"
           alt=""
           aria-hidden="true"
           draggable={false}
@@ -146,7 +146,7 @@ export function EnvelopeOverlayAngela({ invitacion, onOpen, onRevealStart }: Env
         `}</style>
 
         <img
-          src="/boda-angela/sobre/sello.png"
+          src="/boda-angela/sobre/sello.webp"
           alt=""
           aria-hidden="true"
           draggable={false}

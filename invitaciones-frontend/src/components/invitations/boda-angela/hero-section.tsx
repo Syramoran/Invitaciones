@@ -51,9 +51,9 @@ export function HeroSection({
     <section className="relative z-10 flex w-full flex-col items-center gap-2 bg-transparent shadow-md text-center md:max-w-[620px] md:shadow-none pb-8">
       {/* Fondo responsive */}
       <picture className="pointer-events-none absolute inset-0 -z-10 block h-full w-full select-none">
-        <source media="(min-width: 768px)" srcSet="/boda-angela/s-t-d/std-bg.png" />
+        <source media="(min-width: 768px)" srcSet="/boda-angela/s-t-d/std-bg.webp" />
         <img
-          src="/boda-angela/s-t-d/Std-bg-mobile.jpg"
+          src="/boda-angela/s-t-d/Std-bg-mobile.webp"
           alt=""
           aria-hidden="true"
           className="h-full w-full object-top"
@@ -73,9 +73,9 @@ export function HeroSection({
 
       <div className="opacity-0 group-data-[opened=true]/invitation:animate-fade-in-up md:mt-2 w-[340px] max-w-[85%]" style={{ animationDelay: '0.3s' }}>
         <picture>
-          <source media="(min-width: 640px)" srcSet="/boda-angela/s-t-d/std_web.png" />
+          <source media="(min-width: 640px)" srcSet="/boda-angela/s-t-d/std_web.webp" />
           <img
-            src="/boda-angela/s-t-d/std_mobile.png"
+            src="/boda-angela/s-t-d/std_mobile.webp"
             alt={altFoto}
             className="h-auto w-full"
             loading="lazy"
