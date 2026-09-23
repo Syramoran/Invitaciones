@@ -83,26 +83,6 @@ function CuentaCard({
   )
 }
 
-function ColorPalette({ colors }: { colors: string[] }) {
-  return (
-    <div className="flex">
-      {colors.map((color, i) => (
-        <div
-          key={color}
-          style={{
-            backgroundColor: color,
-            width: 48,
-            height: 72,
-            borderRadius: 8,
-            marginLeft: i === 0 ? 0 : -6,
-            border: `2px solid ${COLOR.parchment}`,
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
 function AccordionRow({
   id,
   label,
@@ -198,32 +178,11 @@ export function DetallesSection({ invitacion }: DetallesSectionProps) {
         </AccordionRow>
 
         <AccordionRow id="puntualidad" label="Puntualidad" open={openId === 'puntualidad'} onToggle={() => toggle('puntualidad')}>
-          <p>Se ruega puntualidad especialmente para la ceremonia</p>
+          <p>Se ruega puntualidad</p>
         </AccordionRow>
 
-        <AccordionRow id="dresscode" label="Dresscode" open={openId === 'dresscode'} onToggle={() => toggle('dresscode')}>
-          {/* MUJERES Y ACLARACIÓN */}
-          <div className="flex flex-col gap-12 py-6 w-full">
-            <p className="w-fit" style={{ ...TYPO.h3, color: COLOR.brown, paddingBottom: 6, borderBottom: '1px solid #D3CBC5' }}>Mujeres</p>
-            <p>Elegante,<br />Largo y liso</p>
-            <p>Sin estampas y del terracota al negro, cualquier tono en esta gama es bienvenido</p>
-            <ColorPalette colors={['#a65f3c', '#898174', '#6f7a49', '#458d77', '#476a9c', '#1e2a45', '#584b86', '#492c45', '#151515', '#58422d']} />
-
-            {/* Aclaración */}
-            <p style={{ ...TYPO.text, color: COLOR.brown, textTransform: 'none', letterSpacing: 'normal' }}>
-              Aclaración:<br />
-              Blanco y colores muy claros están<br />
-              reservados para la novia
-            </p>
-          </div>
-
-          {/* HOMBRES */}
-          <div className="flex flex-col gap-12 py-6 w-full">
-            <p className="w-fit" style={{ ...TYPO.h3, color: COLOR.brown, paddingBottom: 6, borderBottom: '1px solid #D3CBC5' }}>Hombres</p>
-            <p>Elegante</p>
-            <p>Colores oscuros:<br />azul, marrones, gris y negro</p>
-            <ColorPalette colors={['#1D2B45', '#58422d', '#8e8e93', '#000000']} />
-          </div>
+        <AccordionRow id="movilidad" label="Movilidad" open={openId === 'movilidad'} onToggle={() => toggle('movilidad')}>
+          <p>El lugar queda cerca, así que te aconsejamos ir en uber</p>
         </AccordionRow>
       </Reveal>
     </section>
