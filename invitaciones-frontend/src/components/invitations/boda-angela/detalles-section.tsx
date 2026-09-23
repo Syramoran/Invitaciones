@@ -13,6 +13,7 @@ interface CamposGift {
   aliasUsd?: string
   cbu?: string
   cvu?: string
+  cbuUsd?: string
 }
 
 function PlusIcon({ isOpen }: { isOpen: boolean }) {
@@ -29,12 +30,24 @@ function PlusIcon({ isOpen }: { isOpen: boolean }) {
   )
 }
 
-function CopyField({ label, value }: { label: string; value: string }) {
+function CuentaCard({
+  titulo,
+  alias,
+  cbu,
+}: {
+  titulo: string
+  alias?: string
+  cbu?: string
+}) {
   const [copiado, setCopiado] = useState(false)
+
+  if (!alias && !cbu) return null
+
+  const texto = [alias && `Alias: ${alias}`, cbu && `CBU/CVU: ${cbu}`].filter(Boolean).join('\n')
 
   const copiar = async () => {
     try {
-      await navigator.clipboard.writeText(value)
+      await navigator.clipboard.writeText(texto)
       setCopiado(true)
       setTimeout(() => setCopiado(false), 2000)
     } catch {
@@ -43,19 +56,28 @@ function CopyField({ label, value }: { label: string; value: string }) {
   }
 
   return (
-    <div className="flex w-full items-center justify-between gap-4">
-      <div className="flex flex-col" style={{ color: COLOR.brown }}>
-        <span style={{ ...TYPO.text3 }}>{label}</span>
-        <span className="break-all" style={{ ...TYPO.text }}>{value}</span>
+    <div className="flex w-full flex-col items-start gap-4 text-left">
+      <p style={{ ...TYPO.text3, color: COLOR.brown }}>{titulo}</p>
+      <div className="flex flex-col gap-2" style={{ color: COLOR.brown }}>
+        {alias && (
+          <span style={{ ...TYPO.text }}>
+            Alias: <span className="break-all">{alias}</span>
+          </span>
+        )}
+        {cbu && (
+          <span style={{ ...TYPO.text }}>
+            CBU/CVU: <span className="break-all">{cbu}</span>
+          </span>
+        )}
       </div>
       <button
         type="button"
         onClick={copiar}
-        aria-label={`Copiar ${label}`}
-        className="shrink-0 cursor-pointer rounded px-4 py-2 transition-opacity hover:opacity-70"
+        aria-label={`Copiar datos de ${titulo}`}
+        className="cursor-pointer rounded px-4 py-2 transition-opacity hover:opacity-70"
         style={{ backgroundColor: COLOR.crema, color: COLOR.darkBrown, ...TYPO.text3 }}
       >
-        {copiado ? 'Copiado' : 'Copiar'}
+        {copiado ? 'Copiado' : 'Copiar datos'}
       </button>
     </div>
   )
@@ -118,8 +140,8 @@ function AccordionRow({
         <div className="overflow-hidden">
           {children && (
             <div
-              className="flex flex-col items-start gap-8 pb-8 text-left"
-              style={{ ...TYPO.h3, color: COLOR.brown }}
+              className="flex flex-col items-start gap-4 pb-8 text-left"
+              style={{ ...TYPO.h4, color: COLOR.brown }}
             >
               {children}
             </div>
@@ -135,6 +157,7 @@ export function DetallesSection({ invitacion }: DetallesSectionProps) {
   const alias = campos.alias
   const aliasUsd = campos.aliasUsd
   const cbu = campos.cbu || campos.cvu
+  const cbuUsd = campos.cbuUsd
 
   const [openId, setOpenId] = useState<string | null>(null)
 
@@ -163,14 +186,12 @@ export function DetallesSection({ invitacion }: DetallesSectionProps) {
 
         <AccordionRow id="regalos" label="Regalos" open={openId === 'regalos'} onToggle={() => toggle('regalos')}>
           <p className='py-4'>Tu presencia es nuestro más valioso regalo</p>
-          {(alias || aliasUsd || cbu) && (
+          {(alias || cbu || aliasUsd || cbuUsd) && (
             <>
-              <p className='py-4'>Si además quisieras hacernos otro regalo te dejamos esta manera de hacerlo</p>
-              <p className='py-4' style={{ color: COLOR.brown }}>Info de cuenta</p>
-              <div className="flex w-full flex-col gap-4">
-                {alias && <CopyField label="Alias" value={alias} />}
-                {aliasUsd && <CopyField label="Alias (USD)" value={aliasUsd} />}
-                {cbu && <CopyField label="CBU" value={cbu} />}
+              <p className='py-4'>Si además quisieras hacernos otro, te dejamos esta manera de hacerlo</p>
+              <div className="flex w-full flex-col gap-8">
+                <CuentaCard titulo="Cuenta en pesos" alias={alias} cbu={cbu} />
+                <CuentaCard titulo="Cuenta en dólares" alias={aliasUsd} cbu={cbuUsd} />
               </div>
             </>
           )}

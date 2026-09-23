@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { MapPin, Calendar, Palette, Gift, Info, Users } from 'lucide-react'
+import { MapPin, Calendar, CalendarClock, Palette, Gift, Info, Users, Eye } from 'lucide-react'
 import { FieldTooltip } from './FieldTooltip'
 import type { WizardStep2, UbicacionEvento, TipoUbicacion } from '@/types/crearInvitacion'
 import { TIPOS_UBICACION_OPTIONS as TIPOS_UBICACION, COLORES_PALETA, TEMPLATE_COLORS } from '@/types/crearInvitacion'
@@ -613,7 +613,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
               </div>
             </div>
             <div>
-              <Label text="Alias (cuenta bancaria)" required={false} tooltip="Alias de tu cuenta bancaria o Mercado Pago para recibir transferencias" />
+              <Label text={templateSlug === 'boda-angela' ? 'Alias (cuenta en pesos)' : 'Alias (cuenta bancaria)'} required={false} tooltip="Alias de tu cuenta bancaria o Mercado Pago para recibir transferencias" />
               <input
                 type="text" maxLength={200} placeholder="Ej: nombreapellido.mp"
                 value={getCampo('alias')} onChange={e => setCampo('alias', e.target.value)}
@@ -621,7 +621,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
               />
             </div>
             <div>
-              <Label text="CBU / CVU" required={false} tooltip="Número CBU o CVU de tu cuenta bancaria. Se muestra para facilitar transferencias" />
+              <Label text={templateSlug === 'boda-angela' ? 'CBU/CVU (cuenta en pesos)' : 'CBU / CVU'} required={false} tooltip="Número CBU o CVU de tu cuenta bancaria. Se muestra para facilitar transferencias" />
               <input
                 type="text" maxLength={22} placeholder="0000003100010000000000"
                 value={getCampo('cbu')} onChange={e => setCampo('cbu', e.target.value)}
@@ -629,15 +629,78 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
               />
             </div>
             {templateSlug === 'boda-angela' && (
-              <div>
-                <Label text="Alias en USD" required={false} tooltip="Alias de una cuenta en dólares, para quien prefiera regalar en USD" />
-                <input
-                  type="text" maxLength={200} placeholder="Ej: nombreapellido.usd"
-                  value={getCampo('aliasUsd')} onChange={e => setCampo('aliasUsd', e.target.value)}
-                  className={INPUT}
-                />
-              </div>
+              <>
+                <div>
+                  <Label text="Alias (cuenta en dólares)" required={false} tooltip="Alias de una cuenta en dólares, para quien prefiera regalar en USD" />
+                  <input
+                    type="text" maxLength={200} placeholder="Ej: nombreapellido.usd"
+                    value={getCampo('aliasUsd')} onChange={e => setCampo('aliasUsd', e.target.value)}
+                    className={INPUT}
+                  />
+                </div>
+                <div>
+                  <Label text="CBU/CVU (cuenta en dólares)" required={false} tooltip="Número CBU o CVU de la cuenta en dólares. Se muestra para facilitar transferencias" />
+                  <input
+                    type="text" maxLength={22} placeholder="0000003100010000000000"
+                    value={getCampo('cbuUsd')} onChange={e => setCampo('cbuUsd', e.target.value)}
+                    className={INPUT}
+                  />
+                </div>
+              </>
             )}
+          </div>
+        </Section>
+      )}
+
+      {/* ──────────────────────────────────────────────────────────────────────── */}
+      {/* SECTION 5.5 · Visibilidad / modo Save the Date (boda-angela only)       */}
+      {/* ──────────────────────────────────────────────────────────────────────── */}
+
+      {templateSlug === 'boda-angela' && (
+        <Section icon={Eye} title="Visibilidad de la invitación">
+          <div className="flex items-center gap-3 p-3.5 rounded-xl border border-[#e5e7eb] bg-[#fafafa]">
+            <button
+              type="button"
+              onClick={() => {
+                const current = getCampo('invitacionCompleta', 'true')
+                setCampo('invitacionCompleta', current === 'false' ? 'true' : 'false')
+              }}
+              className={[
+                'relative inline-flex h-6 w-11 items-center rounded-full shrink-0 transition-colors focus:outline-none',
+                getCampo('invitacionCompleta', 'true') !== 'false' ? 'bg-[#c5a572]' : 'bg-[#d1d5db]',
+              ].join(' ')}
+            >
+              <span className={[
+                'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
+                getCampo('invitacionCompleta', 'true') !== 'false' ? 'translate-x-6' : 'translate-x-1',
+              ].join(' ')} />
+            </button>
+            <div>
+              <p className="text-[.85rem] font-medium text-[#2d2926]">Mostrar invitación completa</p>
+              <p className="text-[.72rem] text-[#9ca3af] mt-0.5">
+                Desactivalo para el modo "Save the date": solo se muestra el hero (sin sobre, música ni el resto de las secciones) hasta que actives la invitación completa.
+              </p>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {/* ──────────────────────────────────────────────────────────────────────── */}
+      {/* SECTION 6 · Fecha límite de confirmación (boda-angela only)             */}
+      {/* ──────────────────────────────────────────────────────────────────────── */}
+
+      {templateSlug === 'boda-angela' && (
+        <Section icon={CalendarClock} title="Fecha límite de confirmación">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label text="Fecha límite para confirmar asistencia" required={false} tooltip="Hasta qué día los invitados pueden confirmar. Pasada esta fecha se bloquea el formulario de confirmación" />
+              <input
+                type="date"
+                value={getCampo('fechaLimiteConfirmacion')}
+                onChange={e => setCampo('fechaLimiteConfirmacion', e.target.value)}
+                className={INPUT}
+              />
+            </div>
           </div>
         </Section>
       )}

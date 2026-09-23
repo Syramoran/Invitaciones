@@ -81,17 +81,26 @@ ancho máximo).
 
 | #  | Componente              | Archivo                        | Condición para mostrarse |
 |----|-------------------------|--------------------------------|--------------------------|
-| 0  | `EnvelopeOverlayAngela` | `envelope-overlay-angela.tsx`  | `showOverlay` (arranca `!previewMode`, se apaga al abrir el sobre) |
-| 0b | `MusicPlayerAngela`     | `music-player-angela.tsx`      | `invitacion.musica && !showOverlay` |
-| 1  | `HeroSection`           | `hero-section.tsx`             | siempre |
-| 2  | `CountdownSection` (evento) | `countdown-section.tsx`    | si algún `servicio.nombre` incluye "cuenta regresiva" o "countdown" |
-| —  | `Divisor`               | inline en `invitation-view.tsx` | siempre entre secciones (ver nota abajo) |
-| 3  | `CeremoniaSection`      | `ceremonia-section.tsx`        | siempre (envuelto en `Reveal`) |
-| 4  | `CenaSection`           | `cena-section.tsx`             | siempre (`Reveal`) |
-| 5  | `DetallesSection`       | `detalles-section.tsx`         | siempre (`Reveal`) |
-| 6  | `FechaLimiteSection`    | `fecha-limite-section.tsx`     | `estadoFechaLimite(...) !== 'vencido'` (devuelve `null` si ya venció) |
-| 7  | `RsvpSection`           | `rsvp-section.tsx`             | `invitacion.tieneConfirmacion` (y adentro: 3 ramas — genérica/individual/grupo, ver §9) |
-| 8  | `footer`                | inline en `invitation-view.tsx` | siempre — solo el link `festeja.com.ar` (el `<span>Hecho con </span>` está comentado, no se muestra) |
+| 0  | `EnvelopeOverlayAngela` | `envelope-overlay-angela.tsx`  | `invitacionCompleta && showOverlay` (arranca `!previewMode && invitacionCompleta`, se apaga al abrir el sobre) |
+| 0b | `MusicPlayerAngela`     | `music-player-angela.tsx`      | `invitacionCompleta && invitacion.musica && !showOverlay` |
+| 1  | `HeroSection`           | `hero-section.tsx`             | siempre (único bloque visible cuando `invitacionCompleta === false`) |
+| 2  | `CountdownSection` (evento) | `countdown-section.tsx`    | `invitacionCompleta` **y** si algún `servicio.nombre` incluye "cuenta regresiva" o "countdown" |
+| —  | `Divisor`               | inline en `invitation-view.tsx` | `invitacionCompleta` — siempre entre secciones cuando la invitación está completa (ver nota abajo) |
+| 3  | `CeremoniaSection`      | `ceremonia-section.tsx`        | `invitacionCompleta` (envuelto en `Reveal`) |
+| 4  | `CenaSection`           | `cena-section.tsx`             | `invitacionCompleta` (`Reveal`) |
+| 5  | `DetallesSection`       | `detalles-section.tsx`         | `invitacionCompleta` (`Reveal`) |
+| 6  | `FechaLimiteSection`    | `fecha-limite-section.tsx`     | `invitacionCompleta` **y** `estadoFechaLimite(...) !== 'vencido'` (devuelve `null` si ya venció) |
+| 7  | `RsvpSection`           | `rsvp-section.tsx`             | `invitacionCompleta && invitacion.tieneConfirmacion` (y adentro: 3 ramas — genérica/individual/grupo, ver §9) |
+| 8  | `footer`                | inline en `invitation-view.tsx` | `invitacionCompleta` — solo el link `festeja.com.ar` (el `<span>Hecho con </span>` está comentado, no se muestra) |
+
+**Modo "Save the date" (`camposEspecificos.invitacionCompleta === 'false'`,
+agregado 2026-09-23)**: todo lo de la tabla salvo `HeroSection` (fila 1) se
+oculta — incluido el sobre y la música, que ni se montan (no solo se pausan).
+`heroRevealed` arranca en `true` en este modo (no depende de abrir el sobre,
+que no existe), así que el hero se muestra directo con sus animaciones.
+Pensado para: mostrar el hero como "save the date" hasta una fecha, y luego
+el cliente activa el toggle "Mostrar invitación completa" en el wizard
+(`Step2Evento.tsx`) para revelar el resto.
 
 **Ya no existe** la vieja secuencia `EventInfoSection → LocationsSection →
 MapSection → NoteSection → DresscodeSection → GiftSection` que documentaba
@@ -141,10 +150,12 @@ en `detalles-section.tsx`, etc.) — **sigue sin existir un
 | `lugarCena`                      | `cena-section`             | fallback: `invitacion.ubicacion` | No |
 | `direccionCena`                  | `cena-section`             | fallback: `invitacion.direccion` | No |
 | `linkUbicacionCena`              | `cena-section`             | fallback: link de Maps armado | No |
-| `fechaLimiteConfirmacion`        | `fecha-limite-section`, `rsvp-section` | fecha de corte del RSVP (fallback fijo `"2027-02-13"` si no está seteado) | No |
-| `alias`                          | `detalles-section` (acordeón Regalos) | alias bancario (ARS) | Sí |
-| `aliasUsd`                       | `detalles-section`         | alias bancario en USD — **input gateado a `templateSlug === 'boda-angela'`** en `Step2Evento.tsx`, no aparece para las otras bodas | Sí (solo esta template) |
-| `cbu` / `cvu`                    | `detalles-section`         | toma `cbu`, si no `cvu` | Solo `cbu` tiene input; `cvu` no |
+| `fechaLimiteConfirmacion`        | `fecha-limite-section`, `rsvp-section` | fecha de corte del RSVP (fallback fijo `"2027-02-01"` si no está seteado) | Sí (input `type="date"` gateado a `templateSlug === 'boda-angela'` en `Step2Evento.tsx`, sección "Fecha límite de confirmación") |
+| `alias`                          | `detalles-section` (acordeón Regalos, cuenta en pesos) | alias bancario (ARS) | Sí |
+| `cbu` / `cvu`                    | `detalles-section`         | toma `cbu`, si no `cvu` — cuenta en pesos | Solo `cbu` tiene input; `cvu` no |
+| `aliasUsd`                       | `detalles-section`         | alias bancario en USD — **inputs gateados a `templateSlug === 'boda-angela'`** en `Step2Evento.tsx`, no aparecen para las otras bodas | Sí (solo esta template) |
+| `cbuUsd`                         | `detalles-section`         | CBU/CVU de la cuenta en USD — **input gateado a `templateSlug === 'boda-angela'`** en `Step2Evento.tsx` | Sí (solo esta template) |
+| `invitacionCompleta`             | `invitation-view`           | modo "Save the date" (2026-09-23): `!== 'false'` → invitación completa (default). `'false'` → solo se renderiza `HeroSection`; se ocultan sobre (`EnvelopeOverlayAngela`), música (`MusicPlayerAngela`, no se monta el `<audio>` así no puede sonar), countdown, ceremonia, cena, detalles, fecha límite, RSVP, divisores y footer. `heroRevealed`/`showOverlay` se ajustan para que el hero se vea directo sin animación de sobre | Sí (toggle en `Step2Evento.tsx`, sección "Visibilidad de la invitación") |
 
 Campos de `InvitacionPublica` (nivel raíz) usados hoy: `id`, `titulo`,
 `fechaEvento`, `horaEvento`, `ubicacion`, `direccion`, `servicios` (para
@@ -165,7 +176,7 @@ aparece hardcodeado en `hero-section.tsx` y `rsvp-section.tsx`
 **Contenido fijo por diseño (no cablea a ningún campo, ver §1)**:
 - Hero: fecha "SÁBADO 20 FEBRERO 2027" — el link de "Agendar en calendario"
   sí usa `invitacion.fechaEvento` real, pero el texto mostrado no.
-- `FechaLimiteSection`: título "13 de febrero" — el contador de días
+- `FechaLimiteSection`: título "1 de febrero" — el contador de días
   ("Faltan N días") sí es dinámico contra `fechaLimiteConfirmacion`, el
   texto de la fecha no.
 - `CenaSection`: hora "21:00 HS" + el texto "¡Después del sí... nos espera
@@ -444,7 +455,7 @@ listaba componentes ya borrados.
 | `countdown-section.tsx`   | ✅ funcional | 3 estados (`antes`/`hoy`/`despues`) recalculados cada 1s; `despues` usa `estadoFechaLimite` de `fecha-limite-section.tsx` para decidir si sigue siendo "hoy" o ya "despues" (no dobles de medianoche simple) |
 | `ceremonia-section.tsx`   | ✅ funcional | fallback a `horaEvento`/`ubicacion`/`direccion` generales si no hay overrides específicos (que hoy no tienen UI de carga, ver §4) |
 | `cena-section.tsx`        | ✅ funcional | mismo patrón de fallback que Ceremonia; hora y texto descriptivo 100% fijos |
-| `detalles-section.tsx`    | ✅ funcional | acordeón de 4 ítems (Niños/Regalos/Puntualidad/Dresscode) con `aria-expanded`/`aria-controls`. "Niños"/"Puntualidad" con texto fijo (ya no data-driven, ver §4). "Regalos" condiciona `alias`/`aliasUsd`/`cbu` con `CopyField` (copia al portapapeles). Dresscode con 14 swatches hardcodeados (§6.2) |
+| `detalles-section.tsx`    | ✅ funcional | acordeón de 4 ítems (Niños/Regalos/Puntualidad/Dresscode) con `aria-expanded`/`aria-controls`. "Niños"/"Puntualidad" con texto fijo (ya no data-driven, ver §4). "Regalos" muestra dos `CuentaCard` (cuenta en pesos: `alias`/`cbu`; cuenta en dólares: `aliasUsd`/`cbuUsd`), cada una con su propio botón "Copiar datos" (copia alias+CBU juntos al portapapeles). Dresscode con 14 swatches hardcodeados (§6.2) |
 | `fecha-limite-section.tsx` | ✅ conectado (2026-09-18, spec definitiva) | matriz completa de 3 estados (`antes`/`hoy`/`vencido`) × Argentina UTC-3 fijo (sin depender de la zona horaria del navegador/servidor). Título "13 de febrero" fijo a propósito; el contador de días sí es dinámico. Funciones puras `estadoFechaLimite`/`calcularDiasRestantes`/`haPasadoFechaLimite`/`obtenerFechaLimiteStr` ya exportadas — buenas candidatas a test unitario (ver plan de testing) |
 | `rsvp-section.tsx`        | ✅ conectado al back | 3 ramas (genérica/individual/grupo) cruzadas con el estado de fecha límite (matriz de 6 casos, ver plan de testing). Individual: contador 1↔2, autocompleta el titular al sumar plus-one, valida que el acompañante tenga nombre+apellido antes de dejar confirmar. Grupo: checkbox por integrante ya precargado, **sin opción de sumar gente nueva** (removida a propósito el 2026-09-18) — un solo submit exitoso marca **todo el grupo** como confirmado, aunque no se haya tildado a todos; **confirmado con el usuario (2026-09-21) que esto es intencional**: el encargado del grupo es responsable de tildar a todos antes de confirmar |
 

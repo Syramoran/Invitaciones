@@ -237,7 +237,7 @@ Esta es la lógica más retocada del proyecto (ver memoria `project_plusones_gru
 
 | `estadoFechaLimite` | ¿Ya confirmó? | `FechaLimiteSection` | `RsvpSection` |
 |---|---|---|---|
-| `antes` | No | Completa (encabezado + "13 de febrero" + "Faltan N días") | Formulario activo + "¡Te esperamos!" + "Angie y Fran" |
+| `antes` | No | Completa (encabezado + "1 de febrero" + "Faltan N días") | Formulario activo + "¡Te esperamos!" + "Angie y Fran" |
 | `antes` | Sí | Completa (con contador) | "¡Confirmado!" + "¡Te esperamos!" + "Angie y Fran" |
 | `hoy` (el día límite en sí) | No | Encabezado + fecha, **sin** el contador | Formulario activo + "¡Te esperamos!" + "Angie y Fran" |
 | `hoy` | Sí | Encabezado + fecha, sin contador | "¡Confirmado!" + "¡Te esperamos!" + "Angie y Fran" |
@@ -311,7 +311,7 @@ objetivo de listarlos acá es no perder tiempo re-descubriéndolos, y
 detectar si alguno cambió sin querer en un commit futuro:
 
 - [ ] Hero: fecha "SÁBADO 20 FEBRERO 2027" hardcodeada (no lee `fechaEvento`).
-- [ ] `FechaLimiteSection`: título "13 de febrero" hardcodeado (no lee `fechaLimiteConfirmacion`, solo el contador de días sí es dinámico).
+- [ ] `FechaLimiteSection`: título "1 de febrero" hardcodeado (no lee `fechaLimiteConfirmacion`, solo el contador de días sí es dinámico).
 - [ ] `CenaSection`: hora "21:00 HS" y texto descriptivo hardcodeados.
 - [ ] Grupo RSVP: no se puede sumar gente nueva no precargada (removido a propósito el 2026-09-18).
 - [ ] Una vez confirmado (individual o grupo), no hay forma de editar la confirmación desde el link público.
@@ -568,12 +568,17 @@ automatizados:
 6. ✅ **Resuelto (2026-09-21)** — varios `camposEspecificos` sin UI en el
    wizard (`horaCeremonia`, `lugarCeremonia`, `direccionCeremonia`,
    `linkUbicacion`, `lugarCena`, `direccionCena`, `linkUbicacionCena`,
-   `fechaLimiteConfirmacion`, `cvu`), solo cargables por API/DB directa:
-   confirmado que es a propósito — la clienta no autogestiona nada, el
-   usuario edita a mano cuando haga falta. No hay que construir esa UI.
+   `cvu`), solo cargables por API/DB directa: confirmado que es a
+   propósito — la clienta no autogestiona nada, el usuario edita a mano
+   cuando haga falta. No hay que construir esa UI.
+   **Actualizado (2026-09-23)**: `fechaLimiteConfirmacion` pasó a tener UI
+   propia en el wizard (input `type="date"` en `Step2Evento.tsx`, sección
+   "Fecha límite de confirmación", gateada a `templateSlug === 'boda-angela'`)
+   porque no se venía seteando en ningún lado y dependía 100% del fallback
+   hardcodeado en código.
 7. ✅ **Resuelto (2026-09-21), queda solo como nota operativa** — textos
    hardcodeados que dependen de que la fecha/hora real no cambie: Hero ("20
-   FEBRERO 2027"), `FechaLimiteSection` ("13 de febrero"), `CenaSection`
+   FEBRERO 2027"), `FechaLimiteSection` ("1 de febrero"), `CenaSection`
    ("21:00 HS" + texto). Confirmado que es intencional (punto 6). Sigue
    siendo útil un test de regresión (§5.4, comparando el texto renderizado
    contra `invitacion.fechaEvento`) para que, el día que el usuario edite la

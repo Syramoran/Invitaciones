@@ -146,7 +146,7 @@ export const TYPO: Record<TypoName, CSSProperties> = {
   detailsH: {
     fontFamily: FONT.serif,
     fontWeight: 500,
-    fontSize: 20,
+    fontSize: 22,
     lineHeight: 'normal',
     letterSpacing: '0.15em',
     textTransform: 'uppercase',
