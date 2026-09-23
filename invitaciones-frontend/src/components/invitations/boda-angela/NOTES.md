@@ -81,17 +81,26 @@ ancho máximo).
 
 | #  | Componente              | Archivo                        | Condición para mostrarse |
 |----|-------------------------|--------------------------------|--------------------------|
-| 0  | `EnvelopeOverlayAngela` | `envelope-overlay-angela.tsx`  | `showOverlay` (arranca `!previewMode`, se apaga al abrir el sobre) |
-| 0b | `MusicPlayerAngela`     | `music-player-angela.tsx`      | `invitacion.musica && !showOverlay` |
-| 1  | `HeroSection`           | `hero-section.tsx`             | siempre |
-| 2  | `CountdownSection` (evento) | `countdown-section.tsx`    | si algún `servicio.nombre` incluye "cuenta regresiva" o "countdown" |
-| —  | `Divisor`               | inline en `invitation-view.tsx` | siempre entre secciones (ver nota abajo) |
-| 3  | `CeremoniaSection`      | `ceremonia-section.tsx`        | siempre (envuelto en `Reveal`) |
-| 4  | `CenaSection`           | `cena-section.tsx`             | siempre (`Reveal`) |
-| 5  | `DetallesSection`       | `detalles-section.tsx`         | siempre (`Reveal`) |
-| 6  | `FechaLimiteSection`    | `fecha-limite-section.tsx`     | `estadoFechaLimite(...) !== 'vencido'` (devuelve `null` si ya venció) |
-| 7  | `RsvpSection`           | `rsvp-section.tsx`             | `invitacion.tieneConfirmacion` (y adentro: 3 ramas — genérica/individual/grupo, ver §9) |
-| 8  | `footer`                | inline en `invitation-view.tsx` | siempre — solo el link `festeja.com.ar` (el `<span>Hecho con </span>` está comentado, no se muestra) |
+| 0  | `EnvelopeOverlayAngela` | `envelope-overlay-angela.tsx`  | `invitacionCompleta && showOverlay` (arranca `!previewMode && invitacionCompleta`, se apaga al abrir el sobre) |
+| 0b | `MusicPlayerAngela`     | `music-player-angela.tsx`      | `invitacionCompleta && invitacion.musica && !showOverlay` |
+| 1  | `HeroSection`           | `hero-section.tsx`             | siempre (único bloque visible cuando `invitacionCompleta === false`) |
+| 2  | `CountdownSection` (evento) | `countdown-section.tsx`    | `invitacionCompleta` **y** si algún `servicio.nombre` incluye "cuenta regresiva" o "countdown" |
+| —  | `Divisor`               | inline en `invitation-view.tsx` | `invitacionCompleta` — siempre entre secciones cuando la invitación está completa (ver nota abajo) |
+| 3  | `CeremoniaSection`      | `ceremonia-section.tsx`        | `invitacionCompleta` (envuelto en `Reveal`) |
+| 4  | `CenaSection`           | `cena-section.tsx`             | `invitacionCompleta` (`Reveal`) |
+| 5  | `DetallesSection`       | `detalles-section.tsx`         | `invitacionCompleta` (`Reveal`) |
+| 6  | `FechaLimiteSection`    | `fecha-limite-section.tsx`     | `invitacionCompleta` **y** `estadoFechaLimite(...) !== 'vencido'` (devuelve `null` si ya venció) |
+| 7  | `RsvpSection`           | `rsvp-section.tsx`             | `invitacionCompleta && invitacion.tieneConfirmacion` (y adentro: 3 ramas — genérica/individual/grupo, ver §9) |
+| 8  | `footer`                | inline en `invitation-view.tsx` | `invitacionCompleta` — solo el link `festeja.com.ar` (el `<span>Hecho con </span>` está comentado, no se muestra) |
+
+**Modo "Save the date" (`camposEspecificos.invitacionCompleta === 'false'`,
+agregado 2026-09-23)**: todo lo de la tabla salvo `HeroSection` (fila 1) se
+oculta — incluido el sobre y la música, que ni se montan (no solo se pausan).
+`heroRevealed` arranca en `true` en este modo (no depende de abrir el sobre,
+que no existe), así que el hero se muestra directo con sus animaciones.
+Pensado para: mostrar el hero como "save the date" hasta una fecha, y luego
+el cliente activa el toggle "Mostrar invitación completa" en el wizard
+(`Step2Evento.tsx`) para revelar el resto.
 
 **Ya no existe** la vieja secuencia `EventInfoSection → LocationsSection →
 MapSection → NoteSection → DresscodeSection → GiftSection` que documentaba
@@ -146,6 +155,7 @@ en `detalles-section.tsx`, etc.) — **sigue sin existir un
 | `cbu` / `cvu`                    | `detalles-section`         | toma `cbu`, si no `cvu` — cuenta en pesos | Solo `cbu` tiene input; `cvu` no |
 | `aliasUsd`                       | `detalles-section`         | alias bancario en USD — **inputs gateados a `templateSlug === 'boda-angela'`** en `Step2Evento.tsx`, no aparecen para las otras bodas | Sí (solo esta template) |
 | `cbuUsd`                         | `detalles-section`         | CBU/CVU de la cuenta en USD — **input gateado a `templateSlug === 'boda-angela'`** en `Step2Evento.tsx` | Sí (solo esta template) |
+| `invitacionCompleta`             | `invitation-view`           | modo "Save the date" (2026-09-23): `!== 'false'` → invitación completa (default). `'false'` → solo se renderiza `HeroSection`; se ocultan sobre (`EnvelopeOverlayAngela`), música (`MusicPlayerAngela`, no se monta el `<audio>` así no puede sonar), countdown, ceremonia, cena, detalles, fecha límite, RSVP, divisores y footer. `heroRevealed`/`showOverlay` se ajustan para que el hero se vea directo sin animación de sobre | Sí (toggle en `Step2Evento.tsx`, sección "Visibilidad de la invitación") |
 
 Campos de `InvitacionPublica` (nivel raíz) usados hoy: `id`, `titulo`,
 `fechaEvento`, `horaEvento`, `ubicacion`, `direccion`, `servicios` (para

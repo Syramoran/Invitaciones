@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { MapPin, Calendar, CalendarClock, Palette, Gift, Info, Users } from 'lucide-react'
+import { MapPin, Calendar, CalendarClock, Palette, Gift, Info, Users, Eye } from 'lucide-react'
 import { FieldTooltip } from './FieldTooltip'
 import type { WizardStep2, UbicacionEvento, TipoUbicacion } from '@/types/crearInvitacion'
 import { TIPOS_UBICACION_OPTIONS as TIPOS_UBICACION, COLORES_PALETA, TEMPLATE_COLORS } from '@/types/crearInvitacion'
@@ -648,6 +648,39 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
                 </div>
               </>
             )}
+          </div>
+        </Section>
+      )}
+
+      {/* ──────────────────────────────────────────────────────────────────────── */}
+      {/* SECTION 5.5 · Visibilidad / modo Save the Date (boda-angela only)       */}
+      {/* ──────────────────────────────────────────────────────────────────────── */}
+
+      {templateSlug === 'boda-angela' && (
+        <Section icon={Eye} title="Visibilidad de la invitación">
+          <div className="flex items-center gap-3 p-3.5 rounded-xl border border-[#e5e7eb] bg-[#fafafa]">
+            <button
+              type="button"
+              onClick={() => {
+                const current = getCampo('invitacionCompleta', 'true')
+                setCampo('invitacionCompleta', current === 'false' ? 'true' : 'false')
+              }}
+              className={[
+                'relative inline-flex h-6 w-11 items-center rounded-full shrink-0 transition-colors focus:outline-none',
+                getCampo('invitacionCompleta', 'true') !== 'false' ? 'bg-[#c5a572]' : 'bg-[#d1d5db]',
+              ].join(' ')}
+            >
+              <span className={[
+                'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
+                getCampo('invitacionCompleta', 'true') !== 'false' ? 'translate-x-6' : 'translate-x-1',
+              ].join(' ')} />
+            </button>
+            <div>
+              <p className="text-[.85rem] font-medium text-[#2d2926]">Mostrar invitación completa</p>
+              <p className="text-[.72rem] text-[#9ca3af] mt-0.5">
+                Desactivalo para el modo "Save the date": solo se muestra el hero (sin sobre, música ni el resto de las secciones) hasta que actives la invitación completa.
+              </p>
+            </div>
           </div>
         </Section>
       )}

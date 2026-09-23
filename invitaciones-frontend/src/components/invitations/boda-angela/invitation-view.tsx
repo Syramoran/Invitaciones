@@ -56,11 +56,17 @@ export function InvitationView({
   invitadoParam,
   previewMode = false,
 }: InvitationViewProps) {
-  const [showOverlay, setShowOverlay] = useState(!previewMode)
+  const campos = (invitacion?.camposEspecificos ?? {}) as Record<string, unknown>
+  // Modo "save the date": el cliente pide mostrar solo el hero (sin sobre ni
+  // música) hasta cierta fecha, y recién después habilitar la invitación
+  // completa. Por default (campo no seteado) se muestra completa.
+  const invitacionCompleta = String(campos.invitacionCompleta) !== 'false'
+
+  const [showOverlay, setShowOverlay] = useState(!previewMode && invitacionCompleta)
   // Separado de showOverlay a propósito: se activa apenas arranca la animación
   // de apertura del sobre, para que el hero empiece a aparecer en simultáneo
   // con las piezas del sobre alejándose (no recién cuando el sobre termina de desmontarse).
-  const [heroRevealed, setHeroRevealed] = useState(previewMode)
+  const [heroRevealed, setHeroRevealed] = useState(previewMode || !invitacionCompleta)
   const [autoPlayMusic, setAutoPlayMusic] = useState(false)
 
   useEffect(() => {
@@ -107,7 +113,7 @@ export function InvitationView({
           }}
         />
       </picture>
-      {showOverlay && (
+      {invitacionCompleta && showOverlay && (
         <EnvelopeOverlayAngela
           invitacion={invitacion}
           onOpen={handleOpenInvitation}
@@ -115,7 +121,7 @@ export function InvitationView({
         />
       )}
 
-      {invitacion.musica && !showOverlay && (
+      {invitacionCompleta && invitacion.musica && !showOverlay && (
         <MusicPlayerAngela musica={invitacion.musica} autoPlay={autoPlayMusic} />
       )}
 
@@ -125,62 +131,67 @@ export function InvitationView({
           data-opened={String(heroRevealed)}
         >
           <HeroSection invitacion={invitacion} isOpened={heroRevealed} />
-          {tieneCountdown && (
-            <Reveal>
-              <CountdownSection
-                fechaObjetivo={invitacion.fechaEvento}
-                horaObjetivo={invitacion.horaEvento}
-              />
-            </Reveal>
+
+          {invitacionCompleta && (
+            <>
+              {tieneCountdown && (
+                <Reveal>
+                  <CountdownSection
+                    fechaObjetivo={invitacion.fechaEvento}
+                    horaObjetivo={invitacion.horaEvento}
+                  />
+                </Reveal>
+              )}
+
+              <Divisor />
+
+              <Reveal>
+                <CeremoniaSection invitacion={invitacion} />
+              </Reveal>
+
+              <Divisor />
+
+              <Reveal>
+                <CenaSection invitacion={invitacion} />
+              </Reveal>
+
+              <Divisor />
+
+              <Reveal>
+                <DetallesSection invitacion={invitacion} />
+              </Reveal>
+
+              <Divisor />
+
+              <Reveal>
+                <FechaLimiteSection invitacion={invitacion} />
+              </Reveal>
+
+              <Divisor />
+
+              <Reveal>
+                <RsvpSection invitacion={invitacion} invitadoParam={invitadoParam} />
+              </Reveal>
+
+              <Divisor />
+
+              <footer
+                className="px-7 pb-10 pt-6 text-center"
+                style={{ ...TYPO.text3, color: COLOR.brown }}
+              >
+                {/* <span>Hecho con </span> */}
+                <a
+                  href="https://festeja.com.ar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                  style={{ color: COLOR.brown }}
+                >
+                  festeja.com.ar
+                </a>
+              </footer>
+            </>
           )}
-
-          <Divisor />
-
-          <Reveal>
-            <CeremoniaSection invitacion={invitacion} />
-          </Reveal>
-
-          <Divisor /> 
-
-          <Reveal>
-            <CenaSection invitacion={invitacion} />
-          </Reveal>
-
-          <Divisor />
-
-          <Reveal>
-            <DetallesSection invitacion={invitacion} />
-          </Reveal>
-
-          <Divisor />
-
-          <Reveal>
-            <FechaLimiteSection invitacion={invitacion} />
-          </Reveal>
-
-          <Divisor />
-
-          <Reveal>
-            <RsvpSection invitacion={invitacion} invitadoParam={invitadoParam} />
-          </Reveal>
-
-          <Divisor />
-
-          <footer
-            className="px-7 pb-10 pt-6 text-center"
-            style={{ ...TYPO.text3, color: COLOR.brown }}
-          >
-            {/* <span>Hecho con </span> */}
-            <a
-              href="https://festeja.com.ar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
-              style={{ color: COLOR.brown }}
-            >
-              festeja.com.ar
-            </a>
-          </footer>
         </div>
       </div>
     </div>
