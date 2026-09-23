@@ -8,6 +8,7 @@
  */
 export const SLUG_REDIRECTS: Record<string, string> = {
   angieyfran: '39eb3de2-4c79-44b0-8bd1-d51c8960422c',
+  franyangie: 'c156203a-7d76-4232-9ecb-a78bf657ac12',
 }
 
 const UUID_TO_SLUG: Record<string, string> = Object.fromEntries(
