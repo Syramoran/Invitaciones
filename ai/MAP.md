@@ -363,7 +363,7 @@ Estos archivos contienen la lógica central. Un agente debe leer estos antes de 
         ├── galeria/{uuid}.{ext}          ← Fotos invitados (público)
         ├── anfitrion/{orden}-foto.{ext}  ← Fotos admin (máx 5)
         ├── historias/{orden}-{uuid}.{ext} ← Imágenes historia
-        └── musica/musica.mp3             ← Único MP3 (overwrite)
+        └── musica/{uuid}.mp3             ← Único MP3 vigente (key nueva por subida — evita caché de edge stale en r2.dev)
 ```
 
 **Limpieza:** `R2StorageService.eliminarCarpetaInvitacion()` → ListObjects + DeleteObjects recursivo.

@@ -137,8 +137,14 @@ export class R2StorageService implements OnModuleInit {
     this.validarMime(archivo, [MIME_MUSICA_PERMITIDO]);
     this.validarTamano(archivo, MAX_MUSICA_SIZE, '20 MB');
 
-    // Nombre fijo: solo 1 MP3 por invitación (reemplaza el existente)
-    const key = `invitaciones/${invitacionId}/musica/musica.mp3`;
+    // Key versionada (no fija): el dominio público de R2 (r2.dev) cachea en
+    // el edge de Cloudflare por URL y esa caché no se purga automáticamente
+    // al sobreescribir la misma key — con un nombre fijo, reemplazar el MP3
+    // seguía sirviendo el audio viejo indefinidamente para los invitados.
+    // El servicio ya borra el archivo anterior de R2 antes de llamar acá
+    // (ver MusicaService.subir), así que sigue habiendo 1 solo MP3 real por
+    // invitación aunque la key cambie en cada subida.
+    const key = `invitaciones/${invitacionId}/musica/${uuidv4()}.mp3`;
     return this.subirArchivo(key, archivo);
   }
 
