@@ -12,7 +12,7 @@ interface FechaLimiteSectionProps {
 // (el navegador del invitado, o eventualmente un server de Vercel en UTC).
 export const ARGENTINA_UTC_OFFSET_HORAS = 3
 
-const FECHA_LIMITE_FALLBACK = "2027-02-13"
+const FECHA_LIMITE_FALLBACK = "2027-02-01"
 
 export function obtenerFechaLimiteStr(invitacion?: Pick<InvitacionPublica, 'camposEspecificos'> | null): string {
   const campos = (invitacion?.camposEspecificos ?? {}) as Record<string, unknown>
@@ -102,7 +102,7 @@ export function FechaLimiteSection({ invitacion }: FechaLimiteSectionProps) {
         </h4>
 
         <h1 style={{ ...TYPO.h1, color: COLOR.negro }}>
-          13 de febrero
+          1 de febrero
         </h1>
       </div>
 
