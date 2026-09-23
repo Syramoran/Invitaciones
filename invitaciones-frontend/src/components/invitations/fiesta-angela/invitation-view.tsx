@@ -6,8 +6,7 @@ import { Reveal } from './reveal'
 import { useRevealOnScroll } from './use-reveal-on-scroll'
 import { HeroSection } from './hero-section'
 import { CountdownSection } from './countdown-section'
-import { CeremoniaSection } from './ceremonia-section'
-import { CenaSection } from './cena-section'
+import { FiestaSection } from './fiesta-section'
 import { DetallesSection } from './detalles-section'
 import { FechaLimiteSection } from './fecha-limite-section'
 import { RsvpSection } from './rsvp-section'
@@ -146,13 +145,7 @@ export function InvitationView({
               <Divisor />
 
               <Reveal>
-                <CeremoniaSection invitacion={invitacion} />
-              </Reveal>
-
-              <Divisor />
-
-              <Reveal>
-                <CenaSection invitacion={invitacion} />
+                <FiestaSection invitacion={invitacion} />
               </Reveal>
 
               <Divisor />
