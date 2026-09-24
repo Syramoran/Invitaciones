@@ -2,7 +2,8 @@ name: Health check backend
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    # 12:00 UTC = 09:00 America/Argentina/Buenos_Aires (UTC-3 todo el año)
+    - cron: '0 12 * * *'
   workflow_dispatch: {}
 
 jobs:
