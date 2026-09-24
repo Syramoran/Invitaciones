@@ -33,6 +33,9 @@ import { MusicaModule } from './modules/musica/musica.module';
 // ── Cron jobs ──
 import { CronJobsModule } from './modules/cron-jobs/cron-jobs.module';
 
+// ── Health check ──
+import { HealthModule } from './modules/health/health.module';
+
 // ── Pagos ──
 import { PagosModule } from './modules/pagos/pagos.module';
 
@@ -133,6 +136,9 @@ import { CodigosDescuentoModule } from './modules/codigos-descuento/codigos-desc
 
     // ── Cron jobs ──
     CronJobsModule,
+
+    // ── Health check ──
+    HealthModule,
   ],
   providers: [
     {

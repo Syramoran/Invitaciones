@@ -1,0 +1,17 @@
+name: Health check backend
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /v1/health
+        env:
+          HEALTHCHECK_URL: ${{ secrets.HEALTHCHECK_URL }}
+        run: |
+          set -euo pipefail
+          curl -sf "$HEALTHCHECK_URL"
