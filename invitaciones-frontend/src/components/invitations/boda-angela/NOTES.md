@@ -150,12 +150,20 @@ en `detalles-section.tsx`, etc.) — **sigue sin existir un
 | `lugarCena`                      | `cena-section`             | fallback: `invitacion.ubicacion` | No |
 | `direccionCena`                  | `cena-section`             | fallback: `invitacion.direccion` | No |
 | `linkUbicacionCena`              | `cena-section`             | fallback: link de Maps armado | No |
-| `fechaLimiteConfirmacion`        | `fecha-limite-section`, `rsvp-section` | fecha de corte del RSVP (fallback fijo `"2027-02-01"` si no está seteado) | Sí (input `type="date"` gateado a `templateSlug === 'boda-angela'` en `Step2Evento.tsx`, sección "Fecha límite de confirmación") |
+| `fechaLimiteConfirmacion`        | `fecha-limite-section`, `rsvp-section` | fecha de corte del RSVP (fallback fijo `"2027-02-01"` si no está seteado) | Sí (input `type="date"` en `Step2Evento.tsx`, sección "Fecha límite de confirmación") |
 | `alias`                          | `detalles-section` (acordeón Regalos, cuenta en pesos) | alias bancario (ARS) | Sí |
 | `cbu` / `cvu`                    | `detalles-section`         | toma `cbu`, si no `cvu` — cuenta en pesos | Solo `cbu` tiene input; `cvu` no |
-| `aliasUsd`                       | `detalles-section`         | alias bancario en USD — **inputs gateados a `templateSlug === 'boda-angela'`** en `Step2Evento.tsx`, no aparecen para las otras bodas | Sí (solo esta template) |
-| `cbuUsd`                         | `detalles-section`         | CBU/CVU de la cuenta en USD — **input gateado a `templateSlug === 'boda-angela'`** en `Step2Evento.tsx` | Sí (solo esta template) |
+| `aliasUsd`                       | `detalles-section`         | alias bancario en USD | Sí |
+| `cbuUsd`                         | `detalles-section`         | CBU/CVU de la cuenta en USD | Sí |
 | `invitacionCompleta`             | `invitation-view`           | modo "Save the date" (2026-09-23): `!== 'false'` → invitación completa (default). `'false'` → solo se renderiza `HeroSection`; se ocultan sobre (`EnvelopeOverlayAngela`), música (`MusicPlayerAngela`, no se monta el `<audio>` así no puede sonar), countdown, ceremonia, cena, detalles, fecha límite, RSVP, divisores y footer. `heroRevealed`/`showOverlay` se ajustan para que el hero se vea directo sin animación de sobre | Sí (toggle en `Step2Evento.tsx`, sección "Visibilidad de la invitación") |
+
+**Actualizado 2026-09-23**: los 3 campos de arriba (`fechaLimiteConfirmacion`,
+`aliasUsd`/`cbuUsd`, `invitacionCompleta`) dejaron de estar gateados solo a
+`templateSlug === 'boda-angela'` — ahora usan `esTemplateAngela =
+templateSlug === 'boda-angela' || templateSlug === 'fiesta-angela'` en
+`Step2Evento.tsx`, así que también aparecen en el wizard para `fiesta-angela`
+(misma clienta, template hermana). Para las demás bodas del catálogo público
+siguen sin aparecer.
 
 Campos de `InvitacionPublica` (nivel raíz) usados hoy: `id`, `titulo`,
 `fechaEvento`, `horaEvento`, `ubicacion`, `direccion`, `servicios` (para
