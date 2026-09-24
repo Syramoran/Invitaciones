@@ -73,9 +73,9 @@ export function HeroSection({
 
       <div className="opacity-0 group-data-[opened=true]/invitation:animate-fade-in-up md:mt-2 w-[340px] max-w-[85%]" style={{ animationDelay: '0.3s' }}>
         <picture>
-          <source media="(min-width: 640px)" srcSet="/fiesta-angela/s-t-d/std_web.webp" />
+          <source media="(min-width: 640px)" srcSet="/fiesta-angela/hero-inv/novios-inv.webp" />
           <img
-            src="/fiesta-angela/s-t-d/std_mobile.webp"
+            src="/fiesta-angela/hero-inv/novios-inv.webp"
             alt={altFoto}
             className="h-auto w-full"
             loading="lazy"
