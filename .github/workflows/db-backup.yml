@@ -1,0 +1,33 @@
+name: Backup base de datos
+
+on:
+  schedule:
+    # 07:00 UTC = 04:00 America/Argentina/Buenos_Aires (UTC-3 todo el año)
+    - cron: '0 7 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar postgresql-client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Dump de la base de datos
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          FILENAME="backup-$(date -u +%Y-%m-%d_%H-%M-%S).sql.gz"
+          pg_dump "$DATABASE_URL" | gzip > "$FILENAME"
+          echo "FILENAME=$FILENAME" >> "$GITHUB_ENV"
+
+      - name: Subir a Cloudflare R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_BACKUPS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_BACKUPS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          set -euo pipefail
+          aws s3 cp "$FILENAME" "s3://${{ secrets.R2_BACKUPS_BUCKET_NAME }}/$FILENAME" \
+            --endpoint-url "${{ secrets.R2_BACKUPS_ENDPOINT }}"
