@@ -199,6 +199,10 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
   const esQuince   = tipoEventoId === 2
   const esCumple   = tipoEventoId === 3
 
+  // Templates privadas de la misma clienta (Angela) — comparten los campos
+  // extra de cuenta en dólares, fecha límite editable y modo "Save the date".
+  const esTemplateAngela = templateSlug === 'boda-angela' || templateSlug === 'fiesta-angela'
+
   // Quinceañera: always single location
   const efectivamenteMultiple = !esQuince && modoMultiple
 
@@ -613,7 +617,7 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
               </div>
             </div>
             <div>
-              <Label text={templateSlug === 'boda-angela' ? 'Alias (cuenta en pesos)' : 'Alias (cuenta bancaria)'} required={false} tooltip="Alias de tu cuenta bancaria o Mercado Pago para recibir transferencias" />
+              <Label text={esTemplateAngela ? 'Alias (cuenta en pesos)' : 'Alias (cuenta bancaria)'} required={false} tooltip="Alias de tu cuenta bancaria o Mercado Pago para recibir transferencias" />
               <input
                 type="text" maxLength={200} placeholder="Ej: nombreapellido.mp"
                 value={getCampo('alias')} onChange={e => setCampo('alias', e.target.value)}
@@ -621,14 +625,14 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
               />
             </div>
             <div>
-              <Label text={templateSlug === 'boda-angela' ? 'CBU/CVU (cuenta en pesos)' : 'CBU / CVU'} required={false} tooltip="Número CBU o CVU de tu cuenta bancaria. Se muestra para facilitar transferencias" />
+              <Label text={esTemplateAngela ? 'CBU/CVU (cuenta en pesos)' : 'CBU / CVU'} required={false} tooltip="Número CBU o CVU de tu cuenta bancaria. Se muestra para facilitar transferencias" />
               <input
                 type="text" maxLength={22} placeholder="0000003100010000000000"
                 value={getCampo('cbu')} onChange={e => setCampo('cbu', e.target.value)}
                 className={INPUT}
               />
             </div>
-            {templateSlug === 'boda-angela' && (
+            {esTemplateAngela && (
               <>
                 <div>
                   <Label text="Alias (cuenta en dólares)" required={false} tooltip="Alias de una cuenta en dólares, para quien prefiera regalar en USD" />
@@ -653,10 +657,10 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
       )}
 
       {/* ──────────────────────────────────────────────────────────────────────── */}
-      {/* SECTION 5.5 · Visibilidad / modo Save the Date (boda-angela only)       */}
+      {/* SECTION 5.5 · Visibilidad / modo Save the Date (templates Angela)      */}
       {/* ──────────────────────────────────────────────────────────────────────── */}
 
-      {templateSlug === 'boda-angela' && (
+      {esTemplateAngela && (
         <Section icon={Eye} title="Visibilidad de la invitación">
           <div className="flex items-center gap-3 p-3.5 rounded-xl border border-[#e5e7eb] bg-[#fafafa]">
             <button
@@ -686,10 +690,10 @@ export function Step2Evento({ state, onChange, tipoEventoId, templateSlug, onNex
       )}
 
       {/* ──────────────────────────────────────────────────────────────────────── */}
-      {/* SECTION 6 · Fecha límite de confirmación (boda-angela only)             */}
+      {/* SECTION 6 · Fecha límite de confirmación (templates Angela)            */}
       {/* ──────────────────────────────────────────────────────────────────────── */}
 
-      {templateSlug === 'boda-angela' && (
+      {esTemplateAngela && (
         <Section icon={CalendarClock} title="Fecha límite de confirmación">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
