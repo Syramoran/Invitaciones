@@ -5,10 +5,6 @@ import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  // TEST DELIBERADO: caída forzada para probar el monitoreo (health check
-  // + GitHub Actions). Revertir apenas se confirme la alerta.
-  throw new Error('Caída deliberada para probar el monitoreo');
-
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Railway mete un único salto de proxy delante del backend, y limpia el
